@@ -1,0 +1,89 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<groupId>es.sidelab.code</groupId>
+	<artifactId>parent</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<name>SidelabCode Admin Tools</name>
+	<description>SidelabCode Admin Tools are a set of tools aimed at managing a SidelabCode forge.</description>
+
+	<modules>
+		<module>../es.sidelab.tools.commandline</module>
+		<module>../es.sidelab.code.installer</module>
+		<module>../es.sidelab.code.api</module>
+		<module>../es.sidelab.code.restful</module>
+		<module>../es.sidelab.code.virtualbox</module>
+	</modules>
+
+	<issueManagement>
+		<system>Redmine</system>
+		<url>http://code.sidelab.es/projects/sidelabapi/issues</url>
+	</issueManagement>
+
+	<scm>
+		<connection>scm:svn:https://code.sidelab.es/svn/sidelabapi</connection>
+		<url>http://code.sidelab.es/svn/sidelabapi</url>
+	</scm>
+
+	<organization>
+		<name>Sidelab</name>
+		<url>www.sidelab.es</url>
+	</organization>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>2.3.2</version>
+					<configuration>
+						<source>1.6</source>
+						<target>1.6</target>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>snapshots</id>
+			<url>http://build.sidelab.es:8080/nexus/content/repositories/snapshots/</url>
+		</repository>
+		<repository>
+			<id>libraries</id>
+			<url>http://build.sidelab.es:8080/nexus/content/repositories/libraries/</url>
+		</repository>
+	</repositories>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.8.2</version>
+				<type>jar</type>
+				<scope>test</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<distributionManagement>
+		<!-- use the following if you're not using a snapshot version. -->
+		<repository>
+			<id>releases</id>
+			<name>Sidelab Releases</name>
+			<url>http://build.sidelab.es:8080/nexus/content/repositories/releases/</url>
+		</repository>
+		<!-- use the following if you ARE using a snapshot version. -->
+		<snapshotRepository>
+			<id>snapshots</id>
+			<name>Sidelab Snapshots</name>
+			<url>http://build.sidelab.es:8080/nexus/content/repositories/snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+</project>

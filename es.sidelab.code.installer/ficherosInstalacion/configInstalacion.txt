@@ -1,0 +1,45 @@
+# User config
+#----------------
+
+ip=193.147.63.99
+dominio=code.sidelab.es
+hostRedmine=https\://code.sidelab.es
+passBindDN=pass
+usernameMysql=user
+passMysql=pass
+
+# Internal config
+#----------------
+
+# LDAP
+dominioSinExt=sidelabcode
+hostLDAP=localhost
+puertoLDAP=636
+baseDN=dc\=sidelabcode,dc\=es
+bindDN=cn\=admin,dc\=sidelabcode,dc\=es
+ouProyectos=proyectos
+ouUsuarios=usuarios
+ouConfiguracion=configuracion
+groupSuperadmin=superadmins
+
+# Apache
+pathReposPublicosWeb=/public/repos
+pathGITWeb=/git
+ficheroProyectos=configProyectos
+marcadorJaulaSSH=\#\#\#\#\# No borrar esta linea\: jaula de usuarios \#\#\#\#\#
+ficheroConfigSSH=/etc/ssh/sshd_config
+pathGITApache=/var/git
+pathCarpetaPrivadaApache=/var/files/private
+pathSVNApache=/var/svn
+ficheroProyectosSSL=configProyectos-ssl
+pathsitesAvailableApache=/etc/apache2/sites-available
+pathSVNWeb=/svn
+pathCarpetaPublicaApache=/var/files/public
+pathCarpetaPublicaWeb=/public
+pathCarpetas=/var/files
+pathCarpetaPrivadaWeb=/private
+
+# Redmine
+hostMysql=127.0.0.1
+puertoMysql=3306
+schemaRedmine=redmine

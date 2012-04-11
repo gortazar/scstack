@@ -1,0 +1,111 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>es.sidelab.code</groupId>
+		<artifactId>parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../es.sidelab.code.parent</relativePath>
+	</parent>
+
+	<artifactId>installer</artifactId>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<installer-url>http://code.sidelab.es/projects/sidelabapi</installer-url>
+	</properties>
+
+	<url>${installer-url}</url>
+	<issueManagement>
+		<system>Redmine</system>
+		<url>http://code.sidelab.es/projects/sidelabapi/issues</url>
+	</issueManagement>
+	<scm>
+		<connection>scm:svn:https://code.sidelab.es/svn/sidelabapi</connection>
+		<url>http://code.sidelab.es/svn/sidelabapi</url>
+	</scm>
+	<organization>
+		<name>Sidelab</name>
+		<url>www.sidelab.es</url>
+	</organization>
+
+	<repositories>
+		<repository>
+			<id>snapshots</id>
+			<url>http://build.sidelab.es:8080/nexus/content/repositories/snapshots/</url>
+		</repository>
+	</repositories>
+
+	<distributionManagement>
+		<!-- use the following if you're not using a snapshot version. -->
+		<repository>
+			<id>releases</id>
+			<name>Sidelab Releases</name>
+			<url>http://build.sidelab.es:8080/nexus/content/repositories/releases/</url>
+		</repository>
+		<!-- use the following if you ARE using a snapshot version. -->
+		<snapshotRepository>
+			<id>snapshots</id>
+			<name>Sidelab Snapshots</name>
+			<url>http://build.sidelab.es:8080/nexus/content/repositories/snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.1</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.3.1</version>
+				<configuration>
+					<archive>
+						<manifestEntries>
+							<Implementation-Title>Sidelab ${project.artifactId}</Implementation-Title>
+							<Implementation-Version>${project.version}</Implementation-Version>
+							<Implementation-Vendor>Sidelab.es - Sidelab Code Installer</Implementation-Vendor>
+							<Implementation-Vendor-Id>es.sidelab.code.installer</Implementation-Vendor-Id>
+							<Implementation-Vendor-URL>${installer-url}</Implementation-Vendor-URL>
+							<Main-Class>instalacionforja.Instalacion</Main-Class>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.2.1</version>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+					<archive>
+						<manifest>
+							<mainClass>instalacionforja.Instalacion</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id> <!-- this is used for inheritance merges -->
+						<phase>package</phase> <!-- bind to the packaging phase -->
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>es.sidelab.code</groupId>
+			<artifactId>commandline</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+</project>

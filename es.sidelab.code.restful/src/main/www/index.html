@@ -1,0 +1,68 @@
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ * Fichero: index.html - Panel de Login
+ * Autor: Arek Klauza
+ * Fecha: Abril 2011
+ * Revisión: -
+ * Versión: 1.0
+ *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>SidelabCode Login</title>
+
+        <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico" />
+        <link href="styles/login.css" rel="stylesheet" type="text/css" />
+        <link href="styles/ui-darkness/jquery-ui-1.8.11.custom.css" rel="stylesheet" type="text/css" />
+
+        <script type="text/javascript"  src="http://code.jquery.com/jquery-1.5.1.js"></script>
+        <script type='text/javascript' src='scripts/jquery-ui.min.js'></script>
+        <script type='text/javascript' src='../scripts/jquery.cookies.js'></script>
+        <script type='application/javascript' src='../scripts/presentacion.js'></script>
+        <script type="text/javascript" src="../scripts/logica.js"></script>
+        <script type="text/javascript" src="../scripts/comunicacionREST.js"></script>
+        <script type="text/javascript">
+            /* Si hay cookies es que ya estoy logueado -> Redirigo al home */
+            $(document).ready(function(){
+                if ($.cookie("uid") != "" && $.cookie("uid") != null &&
+                    $.cookie("pass") != "" && $.cookie("pass") != null &&
+                    $.cookie("rol") != "" && $.cookie("rol") != null) {
+
+                    window.location = "/usuarios/" + $.cookie("uid");
+                }
+            });
+
+            $(function() {
+                $('#olvidoPass').click(function() {
+                    $.printDialog("Información", "<h3>SidelabCode no permite la recuperación automática de contraseñas.</h3>\n\
+                                    <p>Deberás ponerte en contacto con el administrador de alguno de tus proyectos o con los superadministradores de SidelabCode.</p>");
+                });
+            });
+        </script>
+    </head>
+    <body>
+        <div id="logincontainer">
+            <h1><a href="/" title="Ir al Home de SidelabCode" ><img border="0" src="../images/logo.png" alt="SidelabCode" class="logo" /></a></h1>
+            <div id="loginbox">
+                <form action="index.html" method="get">
+                    <div class="inputcontainer">
+                        <img src="images/icons/icon_username.png" alt="Username" />
+                        <label for="username">Usuario:</label>
+                        <input type="text" id="username" />
+                    </div>
+                    <div class="inputcontainer">
+                        <img src="images/icons/icon_locked.png" alt="Password" />
+                        <label for="password">Contrase&ntilde;a:</label>
+                        <input type="password" id="password" />
+                    </div>
+                    <input type="submit" value="Login" class="loginsubmit" id="login_button" />
+                    <p><a href="#" id="olvidoPass">¿Olvidaste tu contraseña?</a></p>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>
