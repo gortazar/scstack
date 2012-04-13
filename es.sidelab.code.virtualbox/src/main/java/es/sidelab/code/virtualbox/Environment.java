@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.virtualbox_4_1.Holder;
+import org.virtualbox_4_1.HostNetworkInterfaceType;
+import org.virtualbox_4_1.IDHCPServer;
+import org.virtualbox_4_1.IHostNetworkInterface;
 import org.virtualbox_4_1.IMachine;
 import org.virtualbox_4_1.IMedium;
 import org.virtualbox_4_1.IProgress;
@@ -26,12 +30,20 @@ public class Environment {
 
 	final static Logger LOG = Logger.getLogger(Environment.class.getName());
 
+	//constants used to initiate the DHCP server that will provide an IP to the guest OS 
+	private final static String DHCP_HOST_IP = "10.0.10.1";
+	private final static String DHCP_NETMASK = "255.255.255.0";
+	private final static String DHCP_GUEST_IP = "10.0.10.99";
+
 	private String port = "18083";
 	private String host = "http://localhost";
 	private final static String separator = ":";
 	private String user = null;
 	private String passwd = null;
 	private String vmname = "SCStackImage[final]";
+
+	private String guestUser = "laforge";
+	private String guestIP = DHCP_GUEST_IP;
 
 	private VirtualBoxManager mgr = null;
 	private IVirtualBox vbox = null;
@@ -45,14 +57,25 @@ public class Environment {
 	 * @param user (default: null)
 	 * @param passwd (default: null)
 	 * @param vmname (default: SCStackImage[final])
+	 * @param guestUser (default: laforge)
+	 * @param guestIP (default: 10.0.10.99)
 	 */
-	public Environment(String host, String port, String user, String passwd, String vmname) {
-		this.host = host;
-		this.port = port;
-		this.user = user;
-		this.passwd = passwd;
+	public Environment(String host, String port, String user, String passwd, String vmname, String guestUser,
+			String guestIP) {
+		if (host != null && !host.trim().isEmpty())
+			this.host = host;
+		if (port != null && !port.trim().isEmpty())
+			this.port = port;
+		if (user != null && !user.trim().isEmpty())
+			this.user = user;
+		if (passwd != null && !passwd.trim().isEmpty())
+			this.passwd = passwd;
 		if (vmname != null && !vmname.trim().isEmpty())
 			this.vmname = vmname;
+		if (guestUser != null && !guestUser.trim().isEmpty())
+			this.guestUser = guestUser;
+		if (guestIP != null && !guestIP.trim().isEmpty())
+			this.guestIP = guestIP;
 	}
 
 	/**
@@ -217,6 +240,84 @@ public class Environment {
 		return false;
 	}
 
+	/**
+	 * Assures that there is at least one Host-Only network
+	 * adapter on the host with DHCP enabled.
+	 * If no adapter of this type is found, will try to create one.
+	 * @return the name of the host-only interface, null if it couldn't be created
+	 */
+	public String getHostOnlyInterface() {
+		//get all the host-only interfaces on the host
+		List<IHostNetworkInterface> hostOnlyIfs = this.vbox.getHost().
+				findHostNetworkInterfacesOfType(HostNetworkInterfaceType.HostOnly);
+		Holder<IHostNetworkInterface> hostIfHolder = new Holder<IHostNetworkInterface>();
+		IHostNetworkInterface hostIf = null;
+		String ifname = null;
+		if (null == hostOnlyIfs || hostOnlyIfs.isEmpty()) {
+			System.out.println("No Host-Only interface found on host. Trying to create one...");
+			IProgress progress = null;
+			try {
+				progress = this.vbox.getHost().createHostOnlyNetworkInterface(hostIfHolder);
+			} catch (VBoxException e) {
+				LOG.log(Level.SEVERE,
+						"Error creating host-only interface", e);
+				return null;
+			}
+			if (null != progress) {
+				progress.waitForCompletion(10000);
+				if (progress.getCompleted() && progress.getResultCode() == 0) {
+					System.out.println("Host-Only interface created: " + hostIfHolder.value.getNetworkName());
+					hostIf = hostIfHolder.value;
+					ifname = hostIf.getNetworkName();
+				}
+			}
+		} else {
+			System.out.println("Found Host-Only interface: " + hostOnlyIfs.get(0).getNetworkName());
+			hostIf = hostOnlyIfs.get(0);
+			ifname = hostIf.getNetworkName();
+		}
+		if (null == hostIf) {
+			System.out.println("No Host-Only interface will be available so communication to guest OS will not be possible");
+		} else {
+			//enable DCHP server for the host-only if
+			IDHCPServer dhcp = null;
+			try {
+				dhcp = vbox.findDHCPServerByNetworkName(ifname);
+			} catch (VBoxException e) {
+				LOG.log(Level.INFO,
+						"Error searching DHCP server with netowrk name '" + ifname + "'", e);
+			}
+			if (dhcp == null) {
+				System.out.println("No DHCP server for '" + ifname + "'");
+				try {
+					dhcp = vbox.createDHCPServer(ifname);
+				} catch (VBoxException e) {
+					LOG.log(Level.INFO,
+							"Could not create DHCP server for ifname '" + ifname + "'", e);
+					return null;
+				}
+			}
+			//we want to assign identical upper- and lower- IPs, that we'll be using to access the guest OS
+			try {
+				dhcp.setConfiguration(Environment.DHCP_HOST_IP, Environment.DHCP_NETMASK, 
+						Environment.DHCP_GUEST_IP, Environment.DHCP_GUEST_IP);
+				dhcp.setEnabled(true);
+			} catch (VBoxException e) {
+				LOG.log(Level.SEVERE,
+						"Error setting DHCP server for '" + ifname + "'", e);
+				return null;
+			}
+			for (IDHCPServer d : vbox.getDHCPServers()) {
+				System.out.println("DHCP Name: " + d.getNetworkName() + " - IP: " + d.getIPAddress());
+			}
+		}
+		return ifname;
+	}
+
+	/**
+	 * Powers off the IMachine.
+	 * @param instance
+	 */
 	public void shutdownInstance(IMachine instance) {
 		IProgress progress = null;
 		try {
@@ -275,7 +376,7 @@ public class Environment {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Run a command for <b>nTries</b> iterations, sleeping <b>nSeconds</b> before each try.
 	 * The first iteration, it will wait the double amount of seconds.
@@ -306,14 +407,15 @@ public class Environment {
 		}
 		return false;
 	}
-	
+
 	public static void main(String[] args) {
 		Environment env = new Environment();
 		if (env.connectToVBoxServer()) {
-			IMachine instance = env.getMachine();
-			if (env.startInstance(instance)) {
+			System.out.println("IF: " + env.getHostOnlyInterface());
+			/*			IMachine instance = env.getMachine();
+			if (null != instance && env.startInstance(instance)) {
 				CommandLine console = new CommandLine();
-				String sshCmd = "ssh -o BatchMode=yes -o StrictHostKeyChecking=no laforge@sidelabvm";
+				String sshCmd = "ssh -o BatchMode=yes -o StrictHostKeyChecking=no " + env.guestUser + "@" + env.guestIP;
 				//String sshCmd = "ssh laforge@sidelabvm";
 				String cmds = sshCmd + " pwd;ls;mkdir test;cd test;touch b;echo 'testing'>b;ls;echo 'a:';cat a;echo 'b:';cat b";
 				String pwdCmd = sshCmd + " pwd";
@@ -322,8 +424,9 @@ public class Environment {
 				else {
 					LOG.log(Level.INFO, "Could not connect to the guest machine!");
 				}
+				env.shutdownInstance(instance);
 			}
-			env.shutdownInstance(instance);
+			 */
 		}
 		env.disconnectVBoxManager();
 	}
