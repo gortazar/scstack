@@ -20,12 +20,16 @@
 
 	<issueManagement>
 		<system>Redmine</system>
-		<url>http://code.sidelab.es/projects/sidelabapi/issues</url>
+		<url>http://code.sidelab.es/projects/sidelabcodestack/issues</url>
 	</issueManagement>
 
 	<scm>
-		<connection>scm:svn:https://code.sidelab.es/svn/sidelabapi</connection>
-		<url>http://code.sidelab.es/svn/sidelabapi</url>
+		<!-- requires (at least) read access -->
+		<connection>scm:svn:https://code.sidelab.es/svn/sidelabcodestack/scstack</connection>
+		<!-- this type requires write access -->
+		<developerConnection>scm:svn:https://code.sidelab.es/svn/sidelabcodestack/scstack</developerConnection>
+		<!-- publicly browsable repository -->
+		<url>http://code.sidelab.es/projects/sidelabcodestack/repository/show/scstack</url>
 	</scm>
 
 	<organization>

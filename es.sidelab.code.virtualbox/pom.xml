@@ -11,7 +11,7 @@
 	<packaging>jar</packaging>
 
 	<name>es.sidelab.code.virtualbox</name>
-	<url>http://maven.apache.org</url>
+	<url>http://code.sidelab.es/projects/sidelabcodestack</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

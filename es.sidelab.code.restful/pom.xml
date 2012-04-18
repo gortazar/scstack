@@ -13,7 +13,7 @@
 	<packaging>jar</packaging>
 
 	<name>es.sidelab.code.restful</name>
-	<url>http://code.sidelab.es/projects/sidelabapi/</url>
+	<url>http://code.sidelab.es/projects/sidelabcodestack</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

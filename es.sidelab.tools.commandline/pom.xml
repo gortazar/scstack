@@ -15,17 +15,17 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<tools-url>http://code.sidelab.es/projects/sidelabtools</tools-url>
+		<tools-url>http://code.sidelab.es/projects/sidelabcodestack</tools-url>
 	</properties>
 
 	<url>${tools-url}</url>
 	<issueManagement>
 		<system>Redmine</system>
-		<url>http://code.sidelab.es/projects/sidelabtools/issues</url>
+		<url>http://code.sidelab.es/projects/sidelabcodestack/issues</url>
 	</issueManagement>
 	<scm>
-		<connection>scm:svn:https://code.sidelab.es/svn/sidelabtools</connection>
-		<url>http://code.sidelab.es/svn/sidelabtools</url>
+		<connection>scm:svn:https://code.sidelab.es/svn/sidelabcodestack/scstack</connection>
+		<url>http://code.sidelab.es/projects/sidelabcodestack/repository/show/scstack</url>
 	</scm>
 	<organization>
 		<name>Sidelab</name>
@@ -74,7 +74,6 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.0</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
