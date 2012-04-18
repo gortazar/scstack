@@ -42,14 +42,14 @@ public class Environment {
 	public final static String DHCP_GUEST_IP = "192.168.56.99";
 	/** {@value} */
 	public final static String DHCP_SERVER_IP = "192.168.56.1";
-	
-//	/** {@value} */
-//	public final static String DHCP_HOST_IP = "10.0.10.2";
-//	/** {@value} */
-//	public final static String DHCP_GUEST_IP = "10.0.10.99";
-//	/** {@value} */
-//	public final static String DHCP_SERVER_IP = "10.0.10.1";
-	
+
+	//	/** {@value} */
+	//	public final static String DHCP_HOST_IP = "10.0.10.2";
+	//	/** {@value} */
+	//	public final static String DHCP_GUEST_IP = "10.0.10.99";
+	//	/** {@value} */
+	//	public final static String DHCP_SERVER_IP = "10.0.10.1";
+
 	/** {@value} */
 	public final static String DHCP_NETMASK = "255.255.255.0";
 
@@ -96,6 +96,20 @@ public class Environment {
 			this.guestUser = guestUser;
 		if (guestIP != null && !guestIP.trim().isEmpty())
 			this.guestIP = guestIP;
+	}
+
+	/**
+	 * @return the user name that has login access on the guest OS 
+	 */
+	public String getRemoteUser() {
+		return this.guestUser;
+	}
+
+	/**
+	 * @return the IP of the guest machine
+	 */
+	public String getRemoteIP() {
+		return this.guestIP;
 	}
 
 	/**
@@ -340,12 +354,12 @@ public class Environment {
 			try {
 				dhcp.setConfiguration(Environment.DHCP_SERVER_IP, Environment.DHCP_NETMASK, 
 						Environment.DHCP_GUEST_IP, Environment.DHCP_GUEST_IP);
-//				dhcp.stop();
+				//				dhcp.stop();
 				//honestly, no idea what the 2nd and the 3rd parameters mean :-/
 				//starting the DHCP might not even be needed
-//				dhcp.start(netname, ifname, "1");
+				//				dhcp.start(netname, ifname, "1");
 				dhcp.setEnabled(true);
-				
+
 				hostIf.enableStaticIpConfig(DHCP_HOST_IP, DHCP_NETMASK);
 				if (! hostIf.getIPAddress().contentEquals(DHCP_HOST_IP)) {
 					//should wait a bit for the change to take effect
@@ -378,19 +392,26 @@ public class Environment {
 						"Error setting DHCP server for '" + ifname + "'", e);
 				return null;
 			}
-//			for (IDHCPServer d : vbox.getDHCPServers()) {
-//				System.out.println("DHCP Name: " + d.getNetworkName() + " - IP: " + d.getIPAddress());
-//			}
+			//			for (IDHCPServer d : vbox.getDHCPServers()) {
+			//				System.out.println("DHCP Name: " + d.getNetworkName() + " - IP: " + d.getIPAddress());
+			//			}
 		}
 		return ifname;
 	}
 
 
 	/**
-	 * 
+	 * It will set the second network interface card (with ID 1), or nic2, 
+	 * to be of Host-Only type and have the specified interface name (on startup
+	 * it will receive the IP from the corresponding DHCP server).
+	 * <p>Internals:<br/>
+	 * For that, it will acquire a new instance lock from the current session
+	 * and apply the changes on a copy of the original instance (because the original is not
+	 * mutable). Finally, it will release the lock.
+	 * </p>
 	 * @param instance
 	 * @param hostIfName
-	 * @return
+	 * @return the name of the new guest interface, null in case of error
 	 */
 	public String setInstanceIfByName(IMachine instance, String hostIfName) {
 		try {
@@ -409,7 +430,7 @@ public class Environment {
 			System.out.println("Guest adapter type: " + 
 					instance.getNetworkAdapter((long)1).getAttachmentType() + " - name: " + 
 					instance.getNetworkAdapter((long)1).getHostOnlyInterface() + 
-				" - Enabled: " + instance.getNetworkAdapter((long)1).getEnabled());
+					" - Enabled: " + instance.getNetworkAdapter((long)1).getEnabled());
 			return guestIf;
 		} catch(VBoxException e) {
 			LOG.log(Level.SEVERE,
@@ -417,12 +438,13 @@ public class Environment {
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Powers off the IMachine.
 	 * @param instance
+	 * @return true if the guest OS could be shut down correctly, false otherwise
 	 */
-	public void shutdownInstance(IMachine instance) {
+	public boolean shutdownInstance(IMachine instance) {
 		IProgress progress = null;
 		try {
 			progress = this.mgr.getSessionObject().getConsole().powerDown();
@@ -430,32 +452,34 @@ public class Environment {
 			LOG.log(Level.SEVERE,
 					"Error powering off the VM '" + this.vmname + "'", e);
 		}
-		if (null != progress) {
-			int count = 0;
-			int top = 10;
-			while (count < top) {
-				progress.waitForCompletion(10000);
-				if (progress.getCompleted()) {
-					if (progress.getResultCode() == 0) {
-						System.out.println(instance.getName() + " has shut down.");
-					}
-					else {
-						IVirtualBoxErrorInfo errorInfo = progress.getErrorInfo();
-						while (null != errorInfo) {
-							System.out.println("Progress error: " +
-									progress.getErrorInfo().getText());
-							errorInfo = errorInfo.getNext();
-						}
-						System.out.println(instance.getName() + " could not be shut down.");
-					}
-					count = top;
+		if (null == progress)
+			return false;
+		int count = 0;
+		int top = 10;
+		while (count < top) {
+			progress.waitForCompletion(10000);
+			if (progress.getCompleted()) {
+				if (progress.getResultCode() == 0) {
+					System.out.println(instance.getName() + " has shut down.");
 				}
 				else {
-					System.out.println("Progress: " + progress.getPercent() + "%");
-					count ++;
+					IVirtualBoxErrorInfo errorInfo = progress.getErrorInfo();
+					while (null != errorInfo) {
+						System.out.println("Progress error: " +
+								progress.getErrorInfo().getText());
+						errorInfo = errorInfo.getNext();
+					}
+					System.out.println(instance.getName() + " could not be shut down.");
+					return false;
 				}
+				count = top;
+			}
+			else {
+				System.out.println("Progress: " + progress.getPercent() + "%");
+				count ++;
 			}
 		}
+		return true;
 	}
 
 	/**
