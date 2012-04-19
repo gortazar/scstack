@@ -9,7 +9,7 @@ import org.virtualbox_4_1.IMachine;
 
 import es.sidelab.tools.commandline.CommandLine;
 
-public class ControlVM {
+public class ControlVMTest {
 	static Environment env = null;
 	
 	@BeforeClass
