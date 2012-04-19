@@ -27,13 +27,13 @@ import es.sidelab.tools.commandline.CommandLine;
 import es.sidelab.tools.commandline.ExecutionCommandException;
 
 /**
- * Class that sets up the environment required for deployment and testing.
+ * Controls the environment required for deployment and testing.
  * Can start and stop a headless VirtualBox instance. 
  * @author <a href="mailto:radutom.vlad@gmail.com">Radu Tom Vlad</a>
  */
-public class Environment {
+public class VBoxUtils {
 
-	final static Logger LOG = Logger.getLogger(Environment.class.getName());
+	final static Logger LOG = Logger.getLogger(VBoxUtils.class.getName());
 
 	//constants used to initiate the DHCP server that will provide an IP to the guest OS
 	/** {@value} */
@@ -68,7 +68,7 @@ public class Environment {
 	private IVirtualBox vbox = null;
 	private ISession session = null;
 
-	public Environment() {}
+	public VBoxUtils() {}
 
 	/**
 	 * Constructor where each param can be null or empty (which case, default values will be used).
@@ -80,7 +80,7 @@ public class Environment {
 	 * @param guestUser (default: laforge)
 	 * @param guestIP (default: {@link #DHCP_GUEST_IP} 
 	 */
-	public Environment(String host, String port, String user, String passwd, String vmname, String guestUser,
+	public VBoxUtils(String host, String port, String user, String passwd, String vmname, String guestUser,
 			String guestIP) {
 		if (host != null && !host.trim().isEmpty())
 			this.host = host;
@@ -119,7 +119,7 @@ public class Environment {
 	public boolean connectToVBoxServer() {
 		this.mgr = VirtualBoxManager.createInstance(null);
 		try {
-			this.mgr.connect(this.host + Environment.separator + this.port, this.user, this.passwd);
+			this.mgr.connect(this.host + VBoxUtils.separator + this.port, this.user, this.passwd);
 		} catch (VBoxException e) {
 			LOG.log(Level.SEVERE,
 					"Cannot connect, start webserver first or check auth details!", e);
@@ -352,8 +352,8 @@ public class Environment {
 			}
 			//we want to assign identical upper- and lower- IPs, that we'll be using to access the guest OS
 			try {
-				dhcp.setConfiguration(Environment.DHCP_SERVER_IP, Environment.DHCP_NETMASK, 
-						Environment.DHCP_GUEST_IP, Environment.DHCP_GUEST_IP);
+				dhcp.setConfiguration(VBoxUtils.DHCP_SERVER_IP, VBoxUtils.DHCP_NETMASK, 
+						VBoxUtils.DHCP_GUEST_IP, VBoxUtils.DHCP_GUEST_IP);
 				//				dhcp.stop();
 				//honestly, no idea what the 2nd and the 3rd parameters mean :-/
 				//starting the DHCP might not even be needed
@@ -530,14 +530,14 @@ public class Environment {
 			}
 			if (time == nSeconds * 2)
 				time = nSeconds;
-			if (Environment.runCmd(console, cmd))
+			if (VBoxUtils.runCmd(console, cmd))
 				return true;
 		}
 		return false;
 	}
 
 	public static void main(String[] args) {
-		Environment env = new Environment();
+		VBoxUtils env = new VBoxUtils();
 		if (env.connectToVBoxServer()) {
 			String hostIfName = env.getHostOnlyInterface();
 			if (null != hostIfName) {
@@ -551,8 +551,8 @@ public class Environment {
 						//String sshCmd = "ssh laforge@sidelabvm";
 						String cmds = sshCmd + " pwd;ls;mkdir test;cd test;touch b;echo 'testing'>b;ls;echo 'a:';cat a;echo 'b:';cat b";
 						String pwdCmd = sshCmd + " pwd";
-						if (Environment.tryCmds(console, pwdCmd, 15, 5)) //ok
-							Environment.runCmd(console, cmds);
+						if (VBoxUtils.tryCmds(console, pwdCmd, 15, 5)) //ok
+							VBoxUtils.runCmd(console, cmds);
 						else {
 							LOG.log(Level.INFO, "Could not connect to the guest machine!");
 						}

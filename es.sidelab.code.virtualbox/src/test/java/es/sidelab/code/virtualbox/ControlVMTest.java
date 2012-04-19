@@ -10,11 +10,11 @@ import org.virtualbox_4_1.IMachine;
 import es.sidelab.tools.commandline.CommandLine;
 
 public class ControlVMTest {
-	static Environment env = null;
+	static VBoxUtils env = null;
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		env = new Environment();
+		env = new VBoxUtils();
 		if (!env.connectToVBoxServer())
 			fail("Unable to connect to VBox webserver");
 		
@@ -45,11 +45,11 @@ public class ControlVMTest {
 		//String sshCmd = "ssh laforge@sidelabvm";
 		String cmds = sshCmd + " pwd;ls;mkdir test;cd test;touch b;echo 'testing'>b;ls;echo 'a:';cat a;echo 'b:';cat b";
 		String pwdCmd = sshCmd + " pwd";
-		if (Environment.tryCmds(console, pwdCmd, 15, 5)) //ok
-			Environment.runCmd(console, cmds);
-		else {
-			fail("Could not connect to the guest machine!");
+		if (VBoxUtils.tryCmds(console, pwdCmd, 15, 5)) {//ok
+			VBoxUtils.runCmd(console, cmds);
 		}
+		else
+			fail("Could not connect to the guest machine!");
 	}
 	
 	@Test
