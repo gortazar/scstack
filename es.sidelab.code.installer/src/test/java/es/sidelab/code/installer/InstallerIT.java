@@ -11,12 +11,13 @@ import es.sidelab.code.virtualbox.VBoxUtils;
 import es.sidelab.tools.commandline.CommandLine;
 
 /**
- * Tests the installer of the SidelabCode Stack.
+ * Integration test for the installer of the SidelabCode Stack.
+ * It is run during the "integration-test"
  * At the beginning of the test suite, it starts the VM.
  * When the tests end, it shuts it down. 
  * @author <a href="mailto:radutom.vlad@gmail.com">Radu Tom Vlad</a>
  */
-public class InstallerTest {
+public class InstallerIT {
 	static VBoxUtils env = null;
 	
 	@BeforeClass
