@@ -1,12 +1,13 @@
 package es.sidelab.code.virtualbox;
 
-import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.virtualbox_4_1.Holder;
 import org.virtualbox_4_1.HostNetworkInterfaceType;
+import org.virtualbox_4_1.IConsole;
 import org.virtualbox_4_1.IDHCPServer;
 import org.virtualbox_4_1.IHostNetworkInterface;
 import org.virtualbox_4_1.IMachine;
@@ -14,21 +15,18 @@ import org.virtualbox_4_1.IMedium;
 import org.virtualbox_4_1.INetworkAdapter;
 import org.virtualbox_4_1.IProgress;
 import org.virtualbox_4_1.ISession;
+import org.virtualbox_4_1.ISnapshot;
 import org.virtualbox_4_1.IVirtualBox;
 import org.virtualbox_4_1.IVirtualBoxErrorInfo;
 import org.virtualbox_4_1.LockType;
 import org.virtualbox_4_1.MachineState;
 import org.virtualbox_4_1.NetworkAttachmentType;
-import org.virtualbox_4_1.SessionState;
 import org.virtualbox_4_1.VBoxException;
 import org.virtualbox_4_1.VirtualBoxManager;
 
-import es.sidelab.tools.commandline.CommandLine;
-import es.sidelab.tools.commandline.ExecutionCommandException;
-
 /**
  * Controls the environment required for deployment and testing.
- * Can start and stop a headless VirtualBox instance. 
+ * Can start and stop a VirtualBox instance. 
  * @author <a href="mailto:radutom.vlad@gmail.com">Radu Tom Vlad</a>
  */
 public class VBoxUtils {
@@ -53,22 +51,25 @@ public class VBoxUtils {
 	/** {@value} */
 	public final static String DHCP_NETMASK = "255.255.255.0";
 
+	public final static int PROGRESS_TIMEOUT = 10000;
+	public final static int PROGRESS_TIMES = 10;
 
 	private String port = "18083";
 	private String host = "http://localhost";
 	private final static String separator = ":";
 	private String user = null;
 	private String passwd = null;
-	private String vmname = "SCStackImage[final]";
+	private String vmNameOrId = "SCStackImage[final]";
 
-	private String guestUser = "laforge";
+	private String vmname = null;
+
+	private String guestUser = "root";//"laforge";
 	private String guestIP = DHCP_GUEST_IP;
 
 	private VirtualBoxManager mgr = null;
 	private IVirtualBox vbox = null;
 	private ISession session = null;
-
-	public VBoxUtils() {}
+	private IMachine machine = null;
 
 	/**
 	 * Constructor where each param can be null or empty (which case, default values will be used).
@@ -76,11 +77,11 @@ public class VBoxUtils {
 	 * @param port the port (default: 18083)
 	 * @param user (default: null)
 	 * @param passwd (default: null)
-	 * @param vmname (default: SCStackImage[final])
+	 * @param vmNameOrId (default: SCStackImage[final])
 	 * @param guestUser (default: laforge)
 	 * @param guestIP (default: {@link #DHCP_GUEST_IP} 
 	 */
-	public VBoxUtils(String host, String port, String user, String passwd, String vmname, String guestUser,
+	public VBoxUtils(String host, String port, String user, String passwd, String vmNameOrId, String guestUser,
 			String guestIP) {
 		if (host != null && !host.trim().isEmpty())
 			this.host = host;
@@ -90,13 +91,15 @@ public class VBoxUtils {
 			this.user = user;
 		if (passwd != null && !passwd.trim().isEmpty())
 			this.passwd = passwd;
-		if (vmname != null && !vmname.trim().isEmpty())
-			this.vmname = vmname;
+		if (vmNameOrId != null && !vmNameOrId.trim().isEmpty())
+			this.vmNameOrId = vmNameOrId;
 		if (guestUser != null && !guestUser.trim().isEmpty())
 			this.guestUser = guestUser;
 		if (guestIP != null && !guestIP.trim().isEmpty())
 			this.guestIP = guestIP;
 	}
+
+	public VBoxUtils() {}
 
 	/**
 	 * @return the user name that has login access on the guest OS 
@@ -104,12 +107,17 @@ public class VBoxUtils {
 	public String getRemoteUser() {
 		return this.guestUser;
 	}
-
 	/**
 	 * @return the IP of the guest machine
 	 */
 	public String getRemoteIP() {
 		return this.guestIP;
+	}
+	/**
+	 * @return the virtual machine's name
+	 */
+	public String getVMName() {
+		return this.vmname;
 	}
 
 	/**
@@ -141,7 +149,14 @@ public class VBoxUtils {
 							" This might lead to unexpected behaviour.");
 				this.session = this.mgr.getSessionObject();
 				System.out.println("Obtained session object: " + this.session.getState().name());
-				return true;
+				this.machine = getMachine();
+				if (null != this.machine) {
+					this.vmname = this.machine.getName();
+					System.out.println("Machine with name '" + this.vmname + "' has been found");
+					return true;
+				} else {
+					System.out.println("There is no machine for id/name '" + vmname + "'");
+				}
 			} else {
 				System.out.println("Error geting VirtualBox instance!");
 			}
@@ -153,8 +168,9 @@ public class VBoxUtils {
 		return false;
 	}
 
+
 	/**
-	 * Enumerates all harddisks and machines.
+	 * Enumerates all the hard disks and machines.
 	 */
 	public void enumerateMachines() {
 		try {
@@ -166,14 +182,14 @@ public class VBoxUtils {
 					System.out.println("\tchild: " + child.getName() + " - " + child.getId());
 				}
 			}
+			List<IMachine> machines = this.vbox.getMachines();
+			System.out.println("\nIMachines:");
+			for(IMachine m : machines) {
+				System.out.println(m.getName() + " - " + m.getState() + " - " + m.getId());
+			}
 		} catch (VBoxException e)
 		{
 			LOG.log(Level.SEVERE, "VBox error:", e);
-		}
-		System.out.println("\nIMachines:");
-		List<IMachine> machines = this.vbox.getMachines();
-		for(IMachine m : machines) {
-			System.out.println(m.getName() + " - " + m.getState() + " - " + m.getId());
 		}
 	}
 	/**
@@ -181,13 +197,13 @@ public class VBoxUtils {
 	 */
 	public void disconnectVBoxManager() {
 		try {
-			if (null != this.session.getState() && 
-					this.session.getState().value() == SessionState.Locked.value())
-				this.session.unlockMachine();
+			//			if (null != this.session.getState() && 
+			//					this.session.getState().value() == SessionState.Locked.value())
+			//				this.session.unlockMachine();
+			this.mgr.closeMachineSession(this.session);
 		} catch (VBoxException e) {
 			LOG.log(Level.INFO,
-					"Error unlocking session (its state being: " + 
-							this.session.getState() + ")", e);
+					"Error unlocking session", e);
 		}
 		try {
 			this.mgr.disconnect();
@@ -203,85 +219,135 @@ public class VBoxUtils {
 	 */
 	public IMachine getMachine() {
 		try {
-			return this.vbox.findMachine(vmname);
+			return this.vbox.findMachine(this.vmNameOrId);
 		} catch (VBoxException e) {
 			LOG.log(Level.SEVERE,
-					"Error finding machine '" + vmname + "'", e);
+					"Error finding machine with id/name '" + this.vmNameOrId + "'", e);
 		}
 		return null;
 	}
-
 	/**
-	 * Starts the given machine with a 'headless' session type.
-	 * @param instance
-	 * @return true if the action was successful, false otherwise
+	 * Tries to apply a {@link LockType#Write} lock on
+	 * the machine for the current VirtualBox session ({@link ISession}).
+	 * @return the {@link IConsole} to control the locked machine, null if the lock 
+	 * operation could not be performed
 	 */
-	public boolean startInstance(IMachine instance) {
-		IProgress progress = null;
+	public IConsole lockMachineForWrite() {
 		try {
-			progress = instance.launchVMProcess(this.session, "headless", "");
+			this.machine.lockMachine(this.session, LockType.Write);
+			return this.session.getConsole();
+		} catch (VBoxException e) {
+			LOG.log(Level.SEVERE,
+					"Error locking machine '" + this.vmname + "'", e);
+		}
+		return null;
+	}
+	/**
+	 * Using the VirtualBoxManager, it tries to apply a {@link LockType#Shared} lock on
+	 * the machine for the current VirtualBox session ({@link ISession}).
+	 * @return the {@link IConsole} to control the locked machine, null if the lock operation
+	 * could not be completed
+	 */
+	public IConsole lockMachineForRead() {
+		try {
+			return this.mgr.openMachineSession(this.machine).getConsole();
+		} catch (Exception e) {
+			LOG.log(Level.SEVERE,
+					"Error opening Shared session for machine '" + this.vmname + "'", e);
+		}
+		return null;
+	}
+	/**
+	 * Unlocks the machine.
+	 */
+	public void unlockMachine() {
+		try {
+			this.session.unlockMachine();
+		} catch (VBoxException e) {
+			LOG.log(Level.SEVERE,
+					"Error unlocking machine '" + this.vmname + "'", e);
+		}
+	}
+	
+	/**
+	 * Undoes any changes made to the machine since the current snapshot was taken 
+	 * (or since the machine's state was reverted to that of the current snapshot). 
+	 * It actually restores the 
+	 * machine to the state it was in when the snapshot was taken.
+	 * @return true if successful, false otherwise.
+	 */
+	public boolean restoreCurrentSnapshot() {
+		try {
+			ISnapshot snapshot = this.machine.getCurrentSnapshot();
+			if (null == snapshot) {
+				System.out.println("The machine " + this.vmname + " has no snapshots.");
+				return false;
+			}
+			IConsole console = this.lockMachineForWrite();
+			IProgress progress = console.restoreSnapshot(snapshot);
+			if (!checkProgress(progress, PROGRESS_TIMEOUT, PROGRESS_TIMES))
+				System.out.println("The snapshot might not have been restored successfully.");
+			this.unlockMachine();
+			System.out.println("Machine '" + this.vmname + "' has been restored successfully!");
 		} catch(VBoxException e) {
 			LOG.log(Level.SEVERE,
-					"Error launching VM '" + this.vmname + "'", e);
-		}
-		if (null != progress) {
-			int count = 0;
-			int top = 10;
-			while (count < top) {
-				progress.waitForCompletion(10000);
-				if (progress.getCompleted()) {
-					if (progress.getResultCode() == 0) {
-						System.out.println(instance.getName() + " started.");
-						return true;
-					}
-					else {
-						IVirtualBoxErrorInfo errorInfo = progress.getErrorInfo();
-						while (null != errorInfo) {
-							System.out.println("Progress error: " +
-									progress.getErrorInfo().getText());
-							errorInfo = errorInfo.getNext();
-						}
-						System.out.println(instance.getName() + " could not be started.");
-					}
-					count = top;
-				}
-				else {
-					System.out.println("Progress: " + progress.getPercent() + "%");
-					count ++;
-				}
-			}
+					"Error restoring current snapshot for '" + this.vmname + "'", e);
 		}
 		return false;
 	}
 
 	/**
-	 * Check if the machine has started successfully.
-	 * @param instance 
-	 * @return true if the machine is in a RUNNING state after a (reasonable) time, false otherwise
+	 * Prints information on the current snapshot of the given machine:<br/>
+	 * name, description, if current state is different from the snapshot's and
+	 * the snapshot's timestamp.
 	 */
-	public boolean instanceHasStarted(IMachine instance) {
-		if (instance.getState().compareTo(MachineState.Starting) == 0)
-			System.out.print("Starting ");
-		int i = 0;
-		while(i < 50 && instance.getState().compareTo(MachineState.Starting) == 0) {
-			System.out.print(".");
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				LOG.log(Level.SEVERE,
-						"Interrupted while waiting", e);
+	public void currentSnapshotInfo() {
+		try {
+			ISnapshot snap = this.machine.getCurrentSnapshot();
+			if (null == snap) {
+				System.out.println("The machine " + this.vmname + " has no snapshots.");
+				return;
 			}
-			i++;
+			System.out.println("Current snapshot for " + 
+					this.vmname + ": " + snap.getName() + 
+					" - [desc]: " + snap.getDescription());
+			if (this.machine.getCurrentStateModified())
+				System.out.println("Machine's current state is different from the one stored in the current snapshot.");
+			else
+				System.out.println("Machine's current state is exactly the same as the one stored in the current snapshot.");
+			Date time=new Date((long)snap.getTimeStamp());
+			System.out.println("Snapshot was taken on " + time);
+		} catch (VBoxException e) {
+			LOG.log(Level.SEVERE,
+					"Error getting snapshot info for '" + this.vmname + "'", e);
 		}
-		System.out.println();
-		if (i == 50)
-			System.out.println("VM still in STARTING state after " + ((50 * 500)/1000) + " seconds!");
-		else 
-			if (instance.getState().compareTo(MachineState.Running) == 0) {
-				System.out.println("VM in running state.");
-				return true;
-			} else 
-				System.out.println("VM is in " + instance.getState().toString() + " state!");
+	}
+
+	/**
+	 * Starts the given machine with a 'headless' session type.
+	 * @return true if the action was successful, false otherwise
+	 */
+	public boolean startHeadlessInstance() {
+		try {
+			return this.mgr.startVm(this.vmname, "headless", PROGRESS_TIMEOUT);
+		} catch (VBoxException e) {
+			LOG.log(Level.SEVERE,
+					"Error starting '" + this.vmname + "'", e);
+		}
+		return false;
+	}
+
+	/**
+	 * Starts the given machine with a 'gui' session type.
+	 * @return true if the action was successful, false otherwise
+	 */
+	public boolean startInstance() {
+		try {
+			return this.mgr.startVm(this.vmname, null, PROGRESS_TIMEOUT);
+		} catch (VBoxException e) {
+			LOG.log(Level.SEVERE,
+					"Error starting '" + this.vmname + "'", e);
+		}
 		return false;
 	}
 
@@ -316,7 +382,7 @@ public class VBoxUtils {
 					System.out.println("Network name: " + hostIfHolder.value.getNetworkName());
 					System.out.println("Interface name: " + hostIfHolder.value.getName());
 					hostIf = hostIfHolder.value;
-					ifname = hostIf.getName();//.getNetworkName();
+					ifname = hostIf.getName();
 				}
 			}
 		} else {
@@ -324,7 +390,7 @@ public class VBoxUtils {
 			hostIf = hostOnlyIfs.get(0);
 			System.out.println("Host-Only #0 network name: " + hostIf.getNetworkName());
 			System.out.println("Host-Only #0 interface name: " + hostIf.getName());
-			ifname = hostIf.getName();//.getNetworkName();
+			ifname = hostIf.getName();
 		}
 		if (null == hostIf) {
 			System.out.println("No Host-Only interface will be available so communication to guest OS will not be possible");
@@ -354,10 +420,6 @@ public class VBoxUtils {
 			try {
 				dhcp.setConfiguration(VBoxUtils.DHCP_SERVER_IP, VBoxUtils.DHCP_NETMASK, 
 						VBoxUtils.DHCP_GUEST_IP, VBoxUtils.DHCP_GUEST_IP);
-				//				dhcp.stop();
-				//honestly, no idea what the 2nd and the 3rd parameters mean :-/
-				//starting the DHCP might not even be needed
-				//				dhcp.start(netname, ifname, "1");
 				dhcp.setEnabled(true);
 
 				hostIf.enableStaticIpConfig(DHCP_HOST_IP, DHCP_NETMASK);
@@ -392,9 +454,6 @@ public class VBoxUtils {
 						"Error setting DHCP server for '" + ifname + "'", e);
 				return null;
 			}
-			//			for (IDHCPServer d : vbox.getDHCPServers()) {
-			//				System.out.println("DHCP Name: " + d.getNetworkName() + " - IP: " + d.getIPAddress());
-			//			}
 		}
 		return ifname;
 	}
@@ -405,163 +464,132 @@ public class VBoxUtils {
 	 * to be of Host-Only type and have the specified interface name (on startup
 	 * it will receive the IP from the corresponding DHCP server).
 	 * <p>Internals:<br/>
-	 * For that, it will acquire a new instance lock from the current session
-	 * and apply the changes on a copy of the original instance (because the original is not
+	 * For that, it will acquire a new machine lock from the current session
+	 * and apply the changes on a copy of the original machine (because the original is not
 	 * mutable). Finally, it will release the lock.
 	 * </p>
-	 * @param instance
-	 * @param hostIfName
-	 * @return the name of the new guest interface, null in case of error
+	 * If the machine it is in a {@link MachineState#Saved} then it will not be
+	 * modified.
+	 * @param ifName
+	 * @return true if the interface was set correctly or if the machine is in a 
+	 * Saved state, false otherwise
 	 */
-	public String setInstanceIfByName(IMachine instance, String hostIfName) {
+	public boolean setMachineHostInterfaceByName(String ifName) {
 		try {
-			instance.lockMachine(this.session, LockType.Write);
+			IConsole console = this.lockMachineForWrite();
+			if (null == console)
+				return false;
+			if (0 == console.getState().compareTo(MachineState.Saved)) {
+				System.out.println("Machine '" + this.vmname + "' is in a Saved state. " +
+						"No change will be done to its network interface(s).");
+				unlockMachine();
+				return true;
+			}
 			IMachine mutableVM = this.session.getMachine();
 			INetworkAdapter net = mutableVM.getNetworkAdapter((long)1);
 			net.setAttachmentType(NetworkAttachmentType.Null);
 			System.out.println("Guest's adapter set to " + net.getAttachmentType());
 			net.setAttachmentType(NetworkAttachmentType.HostOnly);
 			System.out.println("Guest's adapter set to " + net.getAttachmentType());
-			net.setHostOnlyInterface(hostIfName);
+			net.setHostOnlyInterface(ifName);
 			net.setEnabled(true);
-			String guestIf = net.getHostOnlyInterface();
 			mutableVM.saveSettings();
-			this.session.unlockMachine();
+			unlockMachine();
 			System.out.println("Guest adapter type: " + 
-					instance.getNetworkAdapter((long)1).getAttachmentType() + " - name: " + 
-					instance.getNetworkAdapter((long)1).getHostOnlyInterface() + 
-					" - Enabled: " + instance.getNetworkAdapter((long)1).getEnabled());
-			return guestIf;
+					machine.getNetworkAdapter((long)1).getAttachmentType() + " - name: " + 
+					machine.getNetworkAdapter((long)1).getHostOnlyInterface() + 
+					" - Enabled: " + machine.getNetworkAdapter((long)1).getEnabled());
+			return true;
 		} catch(VBoxException e) {
 			LOG.log(Level.SEVERE,
 					"Error setting host-only adapter for guest", e);
 		}
-		return null;
+		return false;
 	}
 
 	/**
-	 * Powers off the IMachine.
-	 * @param instance
-	 * @return true if the guest OS could be shut down correctly, false otherwise
+	 * Checks the {@link IProgress}.
+	 * @param progress
+	 * @param timeout the period (in milliseconds) to wait for completion
+	 * @param times how many times to wait for completion
+	 * @return true if the progress is found completed, false otherwise
 	 */
-	public boolean shutdownInstance(IMachine instance) {
-		IProgress progress = null;
-		try {
-			progress = this.mgr.getSessionObject().getConsole().powerDown();
-		} catch(VBoxException e) {
-			LOG.log(Level.SEVERE,
-					"Error powering off the VM '" + this.vmname + "'", e);
-		}
-		if (null == progress)
-			return false;
+	public boolean checkProgress(IProgress progress, int timeout, int times) {
 		int count = 0;
-		int top = 10;
-		while (count < top) {
-			progress.waitForCompletion(10000);
+		while (count < times) {
+			progress.waitForCompletion(timeout);
 			if (progress.getCompleted()) {
 				if (progress.getResultCode() == 0) {
-					System.out.println(instance.getName() + " has shut down.");
-				}
-				else {
+					return true;
+				} else {
 					IVirtualBoxErrorInfo errorInfo = progress.getErrorInfo();
 					while (null != errorInfo) {
-						System.out.println("Progress error: " +
-								progress.getErrorInfo().getText());
+						System.out.println("Progress error: " + progress.getErrorInfo().getText());
 						errorInfo = errorInfo.getNext();
 					}
-					System.out.println(instance.getName() + " could not be shut down.");
-					return false;
+					count = times;
 				}
-				count = top;
-			}
-			else {
+			} else {
 				System.out.println("Progress: " + progress.getPercent() + "%");
 				count ++;
 			}
 		}
-		return true;
+		return false;
 	}
 
 	/**
-	 * Runs a specified command.
-	 * @param console
-	 * @param cmd
-	 * @return true if no error were found, false otherwise
+	 * Powers off the virtual machine.
+	 * @return true if the guest OS could be shut down correctly, false otherwise
 	 */
-	public static boolean runCmd(CommandLine console, String cmd) {
-		System.out.println("Executing: " + cmd);
+	public boolean shutdownInstance() {
+		IProgress progress = null;
 		try {
-			console.syncExec(cmd);
-			return true;
-		} catch (IOException e) {
-			LOG.log(Level.INFO,
-					"IOException:", e.getMessage());
-		} catch (ExecutionCommandException e) {
-			LOG.log(Level.INFO,
-					"ExecutionCommandException:\nExit code: " + e.getExitCode() +
-					"\nStandard output: " + e.getStandardOutput() + 
-					"\nError output: " + e.getErrorOutput());
+			progress = this.lockMachineForRead().powerDown();
+		} catch(VBoxException e) {
+			LOG.log(Level.SEVERE,
+					"Error powering off the VM '" + this.vmname + "'", e);
 		}
-		return false;
+		if (null == progress || !checkProgress(progress, PROGRESS_TIMEOUT, PROGRESS_TIMES)) {
+			System.out.println("Machine '" + this.vmname + "' could not be stopped.");
+			return false;
+		} else {
+			System.out.println("Machine '" + this.vmname + "' has been powered down.");
+			return true;
+		}
+	}
+	/**
+	 * Stops the machine by saving its state and freezing it.
+	 * @return true if the guest OS could be shut down correctly, false otherwise
+	 */
+	public boolean saveMachineState() {
+		IProgress progress = null;
+		try {
+			progress = this.lockMachineForRead().saveState();
+		} catch (VBoxException e) {
+			LOG.log(Level.SEVERE,
+					"Error saving state for '" + vmname + "'", e);
+		}
+		if (null == progress || !checkProgress(progress, PROGRESS_TIMEOUT, PROGRESS_TIMES)) {
+			System.out.println("Machine '" + this.vmname + "' could not be stopped.");
+			return false;
+		} else {
+			System.out.println("Machine '" + this.vmname + "' has been stopped.");
+			return true;
+		}
 	}
 
 	/**
-	 * Run a command for <b>nTries</b> iterations, sleeping <b>nSeconds</b> before each try.
-	 * The first iteration, it will wait the double amount of seconds.
-	 * If the command executes without error before the specified number of iterations has been
-	 * reached, returns successfully. Otherwise, it returns with a <b>false</b> value.
-	 * @param console a CommandLine object
-	 * @param cmd the command; as it's used for testing the state of a virtual machine, 
-	 * it should be a simple command. Example:
-	 * <br/>&nbsp;&nbsp;&nbsp;&nbsp;{@code ssh user@quest-machine pwd}  
-	 * @param nSeconds how many seconds between each try (double amount for the first time)
-	 * @param nTries number of iterations
-	 * @return true if the command could be executed, false otherwise
+	 * Closes the machine by saving the current state.
+	 * If unable to perform this action, it tries to shut it down completely (powers it down).
 	 */
-	public static boolean tryCmds(CommandLine console, String cmd, int nSeconds, int nTries) {
-		int time = nSeconds * 2;
-		for (int i = 0; i < nTries; i++) {
-			System.out.println("Waiting " + time + " secs before trying to execute ssh...");
-			try {
-				Thread.sleep(time * 1000);
-			} catch (InterruptedException e) {
-				LOG.log(Level.SEVERE,
-						"Interrupted while waiting", e);
-			}
-			if (time == nSeconds * 2)
-				time = nSeconds;
-			if (VBoxUtils.runCmd(console, cmd))
-				return true;
+	public void closeMachine() {
+		System.out.println("Saving state...");
+		if (! this.saveMachineState()) {
+			System.out.println("Unable to save the state! Powering down..");
+			if (this.shutdownInstance())
+				System.out.println("Machine has been stopped.");
+		} else {
+			System.out.println("Done. The machine has been stopped and it will continue from the saved state the next time it's started.");
 		}
-		return false;
-	}
-
-	public static void main(String[] args) {
-		VBoxUtils env = new VBoxUtils();
-		if (env.connectToVBoxServer()) {
-			String hostIfName = env.getHostOnlyInterface();
-			if (null != hostIfName) {
-				System.out.println("Interface name to use " + hostIfName);
-				IMachine instance = env.getMachine();
-				if (null != instance) {
-					String guestIfName = env.setInstanceIfByName(instance, hostIfName);
-					if (null != guestIfName && env.startInstance(instance)) {
-						CommandLine console = new CommandLine();
-						String sshCmd = "ssh -o BatchMode=yes -o StrictHostKeyChecking=no " + env.guestUser + "@" + env.guestIP;
-						//String sshCmd = "ssh laforge@sidelabvm";
-						String cmds = sshCmd + " pwd;ls;mkdir test;cd test;touch b;echo 'testing'>b;ls;echo 'a:';cat a;echo 'b:';cat b";
-						String pwdCmd = sshCmd + " pwd";
-						if (VBoxUtils.tryCmds(console, pwdCmd, 15, 5)) //ok
-							VBoxUtils.runCmd(console, cmds);
-						else {
-							LOG.log(Level.INFO, "Could not connect to the guest machine!");
-						}
-						env.shutdownInstance(instance);
-					}
-				}
-			}
-			env.disconnectVBoxManager();
-		}
-
 	}
 }

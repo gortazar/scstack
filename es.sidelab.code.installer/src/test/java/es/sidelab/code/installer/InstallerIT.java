@@ -5,10 +5,9 @@ import static org.junit.Assert.*;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.virtualbox_4_1.IMachine;
 
-import es.sidelab.code.virtualbox.VBoxUtils;
-import es.sidelab.tools.commandline.CommandLine;
+import es.sidelab.code.virtualbox.ControlVBox;
+import es.sidelab.code.virtualbox.CommandsUtils;
 
 /**
  * Integration test for the installer of the SidelabCode Stack.
@@ -18,52 +17,48 @@ import es.sidelab.tools.commandline.CommandLine;
  * @author <a href="mailto:radutom.vlad@gmail.com">Radu Tom Vlad</a>
  */
 public class InstallerIT {
-	static VBoxUtils env = null;
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		env = new VBoxUtils();
-		if (!env.connectToVBoxServer())
-			fail("Unable to connect to VBox webserver");
-		String hostIfName = env.getHostOnlyInterface();
-		if (null == hostIfName)
-			fail("Unable to obtain host-only if for the Host");
-		//System.out.println("Interface name to use " + hostIfName);
-		IMachine instance = env.getMachine();
-		if (null == instance)
-			fail("Unable to obtain instance of the guest OS");
-		String guestIfName = env.setInstanceIfByName(instance, hostIfName);
-		if (null == guestIfName)
-			fail("Unable to set host-only if for the Guest");
-		if (! env.startInstance(instance))
-			fail("Unable to start guest instance");
-		CommandLine console = new CommandLine();
-		String sshCmd = "ssh -o BatchMode=yes -o StrictHostKeyChecking=no " + 
-				env.getRemoteUser() + "@" + env.getRemoteIP();
-		//String sshCmd = "ssh laforge@sidelabvm";
-		String cmds = sshCmd + " pwd;ls;mkdir test;cd test;touch b;echo 'testing'>b;ls;echo 'a:';cat a;echo 'b:';cat b";
-		String pwdCmd = sshCmd + " pwd";
-		if (VBoxUtils.tryCmds(console, pwdCmd, 15, 5)) {//ok
-			VBoxUtils.runCmd(console, cmds);
-		}
-		else
-			fail("Could not connect to the guest machine!");
+//		if (ControlVBox.startVMAndTestConn(null))
+//			fail("Unable to start testing machine.");
+//		
+		if (! ControlVBox.restoreCurrentSnapshotThenStartVMAndTestConn())
+			fail("Unable to restore or start the testing machine.");
 	}
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		IMachine instance = env.getMachine();
-		if (null == instance)
-			fail("Unable to obtain instance of the running OS");
-		if (!env.shutdownInstance(instance))
-			fail("Shutting down the guest OS has failed");
-		env.disconnectVBoxManager();
+		ControlVBox.saveVMStateAndDisconnect();
 	}
 
 	@Test
 	public void testInstallation() {
-		System.out.println("The environment has been set up, ready to perform some installation, baby!");
-		//fail("Not yet implemented");
+		System.out.println("The environment has been set up, ready to perform installation.");
+		if (! CommandsUtils.runCmd("pwd"))
+			fail("Error running local command: pwd");
+		if (! CommandsUtils.runCmd("ls -als"))
+			fail("Error running local command: ls -als");
+		
+		String lsCmd = ControlVBox.getSSHCmd() + " ls -als";
+		if (! CommandsUtils.runCmd(lsCmd))
+			fail("Lost connection to guest!");
+		
+		System.out.println("Starting to copy 'ficherosInstalacion' towards the guest machine");
+		if (! CommandsUtils.runCmd(
+				ControlVBox.getRsyncCmd("ficherosInstalacion/", "ficherosInstalacion", "auh --exclude=.svn")))
+			fail("Unable to copy installation files to guest!");
+		
+		System.out.println("Copying the jar file.");
+		if (! CommandsUtils.runCmd(
+				ControlVBox.getSCPCmd("target/installer-0.0.1-SNAPSHOT-jar-with-dependencies.jar", ".", "")))
+			fail("Unable to copy installer jar file to guest!");
+		
+		if (! CommandsUtils.runCmd(lsCmd))
+			fail("Lost connection to guest!");
+		
+		if (! CommandsUtils.runCmd(lsCmd + " ficherosInstalacion"))
+			fail("Lost connection to guest!");
 	}
 
 }
