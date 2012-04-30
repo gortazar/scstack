@@ -1,12 +1,13 @@
 # User config
 #----------------
 
-ip=193.147.63.99
+#ip=193.147.63.99
+ip=127.0.0.1
 dominio=code.sidelab.es
 hostRedmine=https\://code.sidelab.es
 passBindDN=pass
-usernameMysql=user
-passMysql=pass
+usernameMysql=root
+passMysql=S1d3l4b
 
 # Internal config
 #----------------

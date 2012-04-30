@@ -16,6 +16,7 @@
 		<module>../es.sidelab.code.api</module>
 		<module>../es.sidelab.code.restful</module>
 		<module>../es.sidelab.code.virtualbox</module>
+		<module>../es.sidelab.code.jenkins-slave-test</module>
 	</modules>
 
 	<issueManagement>

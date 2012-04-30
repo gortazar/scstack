@@ -2,6 +2,8 @@ package es.sidelab.code.installer;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -20,11 +22,11 @@ public class InstallerIT {
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-//		if (ControlVBox.startVMAndTestConn(null))
-//			fail("Unable to start testing machine.");
-//		
-		if (! ControlVBox.restoreCurrentSnapshotThenStartVMAndTestConn())
-			fail("Unable to restore or start the testing machine.");
+		if (! ControlVBox.startVMAndTestConn())
+			fail("Unable to start testing machine.");
+		
+//		if (! ControlVBox.restoreCurrentSnapshotThenStartVMAndTestConn())
+//			fail("Unable to restore or start the testing machine.");
 	}
 
 	@AfterClass
@@ -33,7 +35,7 @@ public class InstallerIT {
 	}
 
 	@Test
-	public void testInstallation() {
+	public void testInstallation() throws IOException {
 		System.out.println("The environment has been set up, ready to perform installation.");
 		if (! CommandsUtils.runCmd("pwd"))
 			fail("Error running local command: pwd");
@@ -59,6 +61,25 @@ public class InstallerIT {
 		
 		if (! CommandsUtils.runCmd(lsCmd + " ficherosInstalacion"))
 			fail("Lost connection to guest!");
+		
+		String catCmd = ControlVBox.getSSHCmd() + " cat ficherosInstalacion/configInstalacion.txt";
+		if (! CommandsUtils.runCmd(catCmd))
+			fail("Lost connection to guest!");
+		
+		String installCmd = ControlVBox.getSSHCmd() + " java -jar installer-0.0.1-SNAPSHOT-jar-with-dependencies.jar";
+		if (! CommandsUtils.runCmd(installCmd))
+			fail("Error installing the forge!");
+		
+		String chmodRedmineScriptCmd = ControlVBox.getSSHCmd() + " chmod 555 /var/redmine/public/dispatch.fcgi";
+		if (! CommandsUtils.runCmd(chmodRedmineScriptCmd))
+			fail("Error changing permission to redmine's script!");
+		
+		String restartApacheCmd = ControlVBox.getSSHCmd() + " apache2ctl restart";
+		if (! CommandsUtils.runCmd(restartApacheCmd))
+			fail("Error restarting Apache!");
+		
+		System.out.println("Done installing the SidelabCode. Press Enter to save VM's state...");
+		System.in.read();
 	}
 
 }
