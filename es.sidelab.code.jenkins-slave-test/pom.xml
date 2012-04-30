@@ -8,4 +8,53 @@
 		<relativePath>../es.sidelab.code.parent</relativePath>
 	</parent>
 	<artifactId>jenkins-slave-test</artifactId>
+	<url>http://code.sidelab.es/projects/sidelabcodestack</url>
+	<name>SidelabCode Stack - Testing The Jenkins Master/Slave Architecture</name>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+	
+	<issueManagement>
+		<system>Redmine</system>
+		<url>http://code.sidelab.es/projects/sidelabcodestack/issues</url>
+	</issueManagement>
+	<scm>
+		<connection>scm:svn:https://code.sidelab.es/svn/sidelabcodestack/scstack</connection>
+		<!-- publicly browsable repository -->
+		<url>http://code.sidelab.es/projects/sidelabcodestack/repository/show/scstack</url>
+	</scm>
+	<organization>
+		<name>Sidelab</name>
+		<url>www.sidelab.es</url>
+	</organization>
+
+	<repositories>
+		<repository>
+			<id>snapshots</id>
+			<url>http://build.sidelab.es:8080/nexus/content/repositories/snapshots/</url>
+		</repository>
+	</repositories>
+
+	<distributionManagement>
+		<!-- use the following if you're not using a snapshot version. -->
+		<repository>
+			<id>releases</id>
+			<name>Sidelab Releases</name>
+			<url>http://build.sidelab.es:8080/nexus/content/repositories/releases/</url>
+		</repository>
+		<!-- use the following if you ARE using a snapshot version. -->
+		<snapshotRepository>
+			<id>snapshots</id>
+			<name>Sidelab Snapshots</name>
+			<url>http://build.sidelab.es:8080/nexus/content/repositories/snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>
