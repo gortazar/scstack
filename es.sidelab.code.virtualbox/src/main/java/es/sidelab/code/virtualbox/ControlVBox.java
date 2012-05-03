@@ -104,6 +104,16 @@ public enum ControlVBox {
 	}
 	
 	/**
+	 * Connects to the VirtualBox web server and stops the current running virtual machine.
+	 */
+	public static void stopRunningVM() {
+		if (currentEnv.connectToVBoxServer()) {
+			currentEnv.shutdownInstance();
+			currentEnv.disconnectVBoxManager();
+		}
+	}
+	
+	/**
 	 * 
 	 * @param altEnv
 	 */
