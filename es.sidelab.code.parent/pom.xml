@@ -54,17 +54,38 @@
 		</pluginManagement>
 	</build>
 
-	<repositories>
+	<!-- This places are used to solve the dependencies (if not found in the local repo) -->
+	<repositories> 
 		<repository>
-			<id>snapshots</id>
+			<id>nexus.snapshots</id>
 			<url>http://build.sidelab.es:8080/nexus/content/repositories/snapshots/</url>
 		</repository>
 		<repository>
-			<id>libraries</id>
-			<url>http://build.sidelab.es:8080/nexus/content/repositories/libraries/</url>
+			<id>archiva.snapshots</id>
+			<url>http://build.sidelab.es:8080/archiva/repository/snapshots/</url>
+		</repository>
+		<repository>
+			<id>archiva.releases</id>
+			<url>http://build.sidelab.es:8080/archiva/repository/releases/</url>
 		</repository>
 	</repositories>
-
+	
+	<!-- This is where the generated artifacts (snapshots and/or releases) will be deployed -->
+	<distributionManagement>
+		<!-- use the following if you're not using a snapshot version. -->
+		<repository>
+			<id>archiva.releases</id>
+			<name>Sidelab Archiva Releases</name>
+			<url>http://build.sidelab.es:8080/archiva/repository/releases/</url>
+		</repository>
+		<!-- use the following if you ARE using a snapshot version. -->
+		<snapshotRepository>
+			<id>archiva.snapshots</id>
+			<name>Sidelab Archiva Snapshots</name>
+			<url>http://build.sidelab.es:8080/archiva/repository/snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
+	
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -76,19 +97,5 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-	<distributionManagement>
-		<!-- use the following if you're not using a snapshot version. -->
-		<repository>
-			<id>releases</id>
-			<name>Sidelab Releases</name>
-			<url>http://build.sidelab.es:8080/nexus/content/repositories/releases/</url>
-		</repository>
-		<!-- use the following if you ARE using a snapshot version. -->
-		<snapshotRepository>
-			<id>snapshots</id>
-			<name>Sidelab Snapshots</name>
-			<url>http://build.sidelab.es:8080/nexus/content/repositories/snapshots/</url>
-		</snapshotRepository>
-	</distributionManagement>
 
 </project>

@@ -35,26 +35,5 @@
 		<name>Sidelab</name>
 		<url>www.sidelab.es</url>
 	</organization>
-
-	<repositories>
-		<repository>
-			<id>snapshots</id>
-			<url>http://build.sidelab.es:8080/nexus/content/repositories/snapshots/</url>
-		</repository>
-	</repositories>
-
-	<distributionManagement>
-		<!-- use the following if you're not using a snapshot version. -->
-		<repository>
-			<id>releases</id>
-			<name>Sidelab Releases</name>
-			<url>http://build.sidelab.es:8080/nexus/content/repositories/releases/</url>
-		</repository>
-		<!-- use the following if you ARE using a snapshot version. -->
-		<snapshotRepository>
-			<id>snapshots</id>
-			<name>Sidelab Snapshots</name>
-			<url>http://build.sidelab.es:8080/nexus/content/repositories/snapshots/</url>
-		</snapshotRepository>
-	</distributionManagement>
+	
 </project>
