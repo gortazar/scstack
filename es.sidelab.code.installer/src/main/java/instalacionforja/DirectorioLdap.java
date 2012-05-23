@@ -40,20 +40,24 @@ public class DirectorioLdap {
         Instalacion.ejecutar("ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/ldap/base.ldif");
         Instalacion.ejecutar("ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/ldap/config.ldif");
         Instalacion.ejecutar("ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/ldap/construir.ldif");
+        Instalacion.ejecutar("/etc/init.d/slapd restart");
         Instalacion.ejecutar("ldapmodify -x -D cn=admin,cn=config -w " + Instalacion.config.getProperty("passBindDN") + " -f /etc/ldap/acl.ldif");
-        Instalacion.ejecutar("sh ficherosInstalacion/directorioLdap/restartLdap.sh");
-        Instalacion.ejecutar("/etc/init.d/slapd start");
+//        Instalacion.ejecutar("sh ficherosInstalacion/directorioLdap/restartLdap.sh");
+//        Instalacion.ejecutar("/etc/init.d/slapd start");
+        Instalacion.ejecutar("/etc/init.d/slapd restart");
         crearFicheroCONFIG_SSL("/etc/ldap/keys.ssl");
         Instalacion.ejecutar("openssl req -new -x509 -nodes -config /etc/ldap/keys.ssl -out /etc/ldap/slapdcert.pem -keyout /etc/ldap/slapdkey.pem -days 3650");
         Instalacion.ejecutar("chown openldap:openldap /etc/ldap/slapdcert.pem");
         Instalacion.ejecutar("chown openldap:openldap /etc/ldap/slapdkey.pem");
         crearFicheroTLSCONFIG_LDIF("/etc/ldap/tls-config.ldif");
-        Instalacion.ejecutar("sh ficherosInstalacion/directorioLdap/restartLdap.sh");
-        Instalacion.ejecutar("/etc/init.d/slapd start");
+//        Instalacion.ejecutar("sh ficherosInstalacion/directorioLdap/restartLdap.sh");
+//        Instalacion.ejecutar("/etc/init.d/slapd start");
+        Instalacion.ejecutar("/etc/init.d/slapd restart");
         Instalacion.ejecutar("ldapmodify -x -D cn=admin,cn=config -w " + Instalacion.config.getProperty("passBindDN") + " -f /etc/ldap/tls-config.ldif");
         crearFicheroSLDAP("/etc/default/slapd");
-        Instalacion.ejecutar("sh ficherosInstalacion/directorioLdap/restartLdap.sh");
-        Instalacion.ejecutar("/etc/init.d/slapd start");
+//        Instalacion.ejecutar("sh ficherosInstalacion/directorioLdap/restartLdap.sh");
+//        Instalacion.ejecutar("/etc/init.d/slapd start");
+        Instalacion.ejecutar("/etc/init.d/slapd restart");
         System.out.println("**************************************************\n");
     }
     
