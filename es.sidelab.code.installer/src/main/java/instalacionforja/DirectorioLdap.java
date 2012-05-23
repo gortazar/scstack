@@ -41,6 +41,11 @@ public class DirectorioLdap {
         Instalacion.ejecutar("ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/ldap/config.ldif");
         Instalacion.ejecutar("ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/ldap/construir.ldif");
         Instalacion.ejecutar("/etc/init.d/slapd restart");
+        try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
         Instalacion.ejecutar("ldapmodify -x -D cn=admin,cn=config -w " + Instalacion.config.getProperty("passBindDN") + " -f /etc/ldap/acl.ldif");
 //        Instalacion.ejecutar("sh ficherosInstalacion/directorioLdap/restartLdap.sh");
 //        Instalacion.ejecutar("/etc/init.d/slapd start");

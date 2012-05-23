@@ -26,7 +26,6 @@ public class ServidorApache {
 
     public void instalar() throws ExecutionCommandException, IOException, NoSuchAlgorithmException {
         System.out.println("\n*** INSTALACIÓN SERVIDOR WEB APACHE ***\n");
-        Instalacion.ejecutar("apt-get -y update");
         Instalacion.ejecutar("apt-get -y install apache2-mpm-prefork apache2-utils apache2.2-bin apache2.2-common libapache2-mod-php5 libapr1 libaprutil1 libaprutil1-dbd-sqlite3 libaprutil1-ldap php5-common php5");
         Instalacion.ejecutar("a2enmod ssl");
         Instalacion.ejecutar("a2enmod ldap");
