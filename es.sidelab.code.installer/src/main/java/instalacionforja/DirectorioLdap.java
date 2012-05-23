@@ -58,6 +58,11 @@ public class DirectorioLdap {
 //        Instalacion.ejecutar("sh ficherosInstalacion/directorioLdap/restartLdap.sh");
 //        Instalacion.ejecutar("/etc/init.d/slapd start");
         Instalacion.ejecutar("/etc/init.d/slapd restart");
+        try {
+			Thread.sleep(100);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
         Instalacion.ejecutar("ldapmodify -x -D cn=admin,cn=config -w " + Instalacion.config.getProperty("passBindDN") + " -f /etc/ldap/tls-config.ldif");
         crearFicheroSLDAP("/etc/default/slapd");
 //        Instalacion.ejecutar("sh ficherosInstalacion/directorioLdap/restartLdap.sh");
