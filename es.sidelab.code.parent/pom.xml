@@ -56,9 +56,14 @@
 
 	<!-- This places are used to solve the dependencies (if not found in the local repo) -->
 	<repositories> 
-		<repository>
+<!-- 		<repository>
 			<id>nexus.snapshots</id>
 			<url>http://build.sidelab.es:8080/nexus/content/repositories/snapshots/</url>
+		</repository> -->
+		<!-- Sidelab's repos -->
+		<repository>
+			<id>archiva.internal</id>
+			<url>http://build.sidelab.es:8080/archiva/repository/internal/</url>
 		</repository>
 		<repository>
 			<id>archiva.snapshots</id>

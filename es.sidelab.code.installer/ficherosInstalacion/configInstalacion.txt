@@ -7,7 +7,7 @@ dominio=code.sidelab.es
 hostRedmine=https\://code.sidelab.es
 passBindDN=pass
 usernameMysql=root
-passMysql=S1d3l4b
+passMysql=s1d3l4b
 
 # Internal config
 #----------------
