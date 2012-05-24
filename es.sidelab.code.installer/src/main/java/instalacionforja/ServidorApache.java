@@ -66,7 +66,11 @@ public class ServidorApache {
         pw.println("#NameVirtualHost *:80");
         pw.println("Listen 127.0.0.1:80");
         pw.println("Listen 127.0.1.1:80");
-        pw.println("Listen " + Instalacion.config.getProperty("ip") + ":80");
+        String stackIP = Instalacion.config.getProperty("ip");
+        if (!stackIP.contentEquals("127.0.0.1") && !stackIP.contentEquals("127.0.1.1"))
+        	pw.println("Listen " + stackIP + ":80");
+    	else
+    		System.out.println("Warning: The StackIP (" + stackIP + ") is the same as loopback's IP.");
         pw.println("");
         pw.println("<IfModule mod_ssl.c>");
         pw.println("    # If you add NameVirtualHost *:443 here, you will also have to change");
@@ -76,7 +80,10 @@ public class ServidorApache {
         pw.println("    # supported by MSIE on Windows XP.");
         pw.println("    Listen 127.0.0.1:443");
         pw.println("    Listen 127.0.1.1:443");
-        pw.println("    Listen " + Instalacion.config.getProperty("ip") + ":443");
+        if (!stackIP.contentEquals("127.0.0.1") && !stackIP.contentEquals("127.0.1.1"))
+            pw.println("    Listen " + Instalacion.config.getProperty("ip") + ":443");
+    	else
+    		System.out.println("Warning: The StackIP (" + stackIP + ") is the same as loopback's IP.");
         pw.println("</IfModule>");
         pw.println("");
         pw.println("<IfModule mod_gnutls.c>");
@@ -92,13 +99,19 @@ public class ServidorApache {
 
 
 	private void crearFicheroHOSTS(String ruta) throws IOException {
-        FileWriter file = null;
+		String stackIP = Instalacion.config.getProperty("ip");
+		
+		FileWriter file = null;
         file = new FileWriter(ruta);
         PrintWriter pw = new PrintWriter(file);
-
         pw.println("127.0.0.1 localhost");
-        pw.println("127.0.1.1 " + Instalacion.config.getProperty("dominio"));
-        pw.println(Instalacion.config.getProperty("ip") + " " + Instalacion.config.getProperty("dominio"));
+        pw.println("127.0.1.1 " + Instalacion.config.getProperty("dominio") 
+        		+ " " + java.net.InetAddress.getLocalHost().getHostName());
+        if (!stackIP.contentEquals("127.0.0.1") && !stackIP.contentEquals("127.0.1.1"))
+        	pw.println(stackIP + " " + Instalacion.config.getProperty("dominio")
+            		+ " " + java.net.InetAddress.getLocalHost().getHostName());
+    	else
+    		System.out.println("Warning: The StackIP (" + stackIP + ") is the same as loopback's IP.");
         pw.println("");
         pw.println("::1     localhost ip6-localhost ip6-loopback");
         pw.println("fe00::0 ip6-localnet");
