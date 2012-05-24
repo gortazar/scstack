@@ -31,6 +31,8 @@ public class Repositorios {
         Instalacion.ejecutar("mkdir " + Instalacion.config.getProperty("pathSVNApache"));
         Instalacion.ejecutar("apt-get -y install git-core");
         Instalacion.ejecutar("mkdir " + Instalacion.config.getProperty("pathGITApache"));
+        //display the list of opened ports and the listening services
+        Instalacion.ejecutar("lsof -Pnl +M -i4");
         Instalacion.ejecutar("apache2ctl restart");
         System.out.println("**************************************************\n");
     }

@@ -36,7 +36,7 @@ public class SSH {
         crearFicheroNSS_SWITCH_CONF("/etc/nsswitch.conf");
         
         Instalacion.ejecutar("/etc/init.d/ssh restart");
-
+        System.out.println("**************************************************\n");
 	}
 
     private void crearFicheroNSS_SWITCH_CONF(String ruta) throws IOException {

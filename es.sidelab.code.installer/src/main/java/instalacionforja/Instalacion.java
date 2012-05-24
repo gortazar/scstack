@@ -39,6 +39,7 @@ public class Instalacion {
 			cargarConfiguracion();
 	        System.out.println("\n*** Updating the repositories list ***\n");
 			ejecutar("apt-get -y update");
+	        System.out.println("**************************************************\n");
 			new DirectorioLdap().instalar();
 			new SSH().instalar();
 			new ServidorApache().instalar();

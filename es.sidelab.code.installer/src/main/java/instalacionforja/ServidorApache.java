@@ -41,6 +41,8 @@ public class ServidorApache {
         Instalacion.ejecutar("mkdir " + Instalacion.config.getProperty("pathCarpetas"));
         Instalacion.ejecutar("mkdir " + Instalacion.config.getProperty("pathCarpetaPublicaApache"));
         Instalacion.ejecutar("mkdir " + Instalacion.config.getProperty("pathCarpetaPrivadaWeb"));
+        //display the list of opened ports and the listening services
+        Instalacion.ejecutar("lsof -Pnl +M -i4");
         Instalacion.ejecutar("apache2ctl restart");
         System.out.println("**************************************************\n");
     }
