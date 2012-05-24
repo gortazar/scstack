@@ -13,6 +13,7 @@ import es.sidelab.tools.commandline.ExecutionCommandException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 
 
@@ -100,16 +101,22 @@ public class ServidorApache {
 
 	private void crearFicheroHOSTS(String ruta) throws IOException {
 		String stackIP = Instalacion.config.getProperty("ip");
-		
+		String machineName = "";
+		try {
+			machineName = java.net.InetAddress.getLocalHost().getHostName();
+		} catch (UnknownHostException e) {
+			System.out.println("Warning: machine name not set in /etc/hosts.\n" + 
+					"You should check the file and add the requiered hostname for your machine.");
+		}
 		FileWriter file = null;
         file = new FileWriter(ruta);
         PrintWriter pw = new PrintWriter(file);
         pw.println("127.0.0.1 localhost");
         pw.println("127.0.1.1 " + Instalacion.config.getProperty("dominio") 
-        		+ " " + java.net.InetAddress.getLocalHost().getHostName());
+        		+ " " + machineName);
         if (!stackIP.contentEquals("127.0.0.1") && !stackIP.contentEquals("127.0.1.1"))
         	pw.println(stackIP + " " + Instalacion.config.getProperty("dominio")
-            		+ " " + java.net.InetAddress.getLocalHost().getHostName());
+            		+ " " + machineName);
     	else
     		System.out.println("Warning: The StackIP (" + stackIP + ") is the same as loopback's IP.");
         pw.println("");
