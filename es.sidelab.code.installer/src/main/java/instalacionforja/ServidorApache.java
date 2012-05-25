@@ -9,7 +9,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 package instalacionforja;
 
-import es.sidelab.tools.commandline.ExecutionCommandException;
+import es.sidelab.commons.commandline.ExecutionCommandException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;

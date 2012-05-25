@@ -9,9 +9,9 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 package instalacionforja;
 
-import es.sidelab.tools.commandline.CommandLine;
-import es.sidelab.tools.commandline.CommandOutput;
-import es.sidelab.tools.commandline.ExecutionCommandException;
+import es.sidelab.commons.commandline.CommandLine;
+import es.sidelab.commons.commandline.CommandOutput;
+import es.sidelab.commons.commandline.ExecutionCommandException;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -30,7 +30,7 @@ import java.util.logging.Logger;
 public class Instalacion {
 	public static Properties config;
 	public static int tot = 58;
-	private static CommandLine consola = new CommandLine();
+	private static es.sidelab.commons.commandline.CommandLine consola = new CommandLine();
 
 	public static void main(String[] args) {
 

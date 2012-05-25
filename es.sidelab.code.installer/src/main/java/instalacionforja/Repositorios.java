@@ -9,7 +9,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 package instalacionforja;
 
-import es.sidelab.tools.commandline.ExecutionCommandException;
+import es.sidelab.commons.commandline.ExecutionCommandException;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
@@ -23,7 +23,7 @@ import java.security.NoSuchAlgorithmException;
 public class Repositorios {
 
 
-    public void instalar() throws ExecutionCommandException, IOException, NoSuchAlgorithmException {
+    public void instalar() throws es.sidelab.commons.commandline.ExecutionCommandException, IOException, NoSuchAlgorithmException {
         System.out.println("\n*** INSTALACIÓN REPOSITORIOS GIT Y SVN ***\n");
         Instalacion.ejecutar("apt-get -y install libapache2-svn");
         Instalacion.ejecutar("apt-get -y install subversion");
