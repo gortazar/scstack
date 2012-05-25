@@ -121,10 +121,10 @@
 			<artifactId>commandline</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-		<dependency>
-			<groupId>es.sidelab.code</groupId>
+		<dependency> <!-- IMPORTANT: better use a stable release! -->
+			<groupId>es.sidelab.vbman</groupId>
 			<artifactId>virtualbox</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.2-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

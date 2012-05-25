@@ -8,8 +8,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import es.sidelab.code.virtualbox.ControlVBox;
-import es.sidelab.code.virtualbox.CommandsUtils;
+import es.sidelab.vbman.virtualbox.CommandsUtils;
+import es.sidelab.vbman.virtualbox.ControlVBox;
 
 /**
  * Integration test for the installer of the SidelabCode Stack.
@@ -29,9 +29,13 @@ public class InstallerIT {
 //			fail("Unable to restore or start the testing machine.");
 	}
 
+	/**
+	 * Stops the current running VM.
+	 * @throws Exception
+	 */
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		ControlVBox.saveVMStateAndDisconnect();
+		ControlVBox.getCurrentVBoxEnv().shutdownInstance();
 	}
 
 	@Test
