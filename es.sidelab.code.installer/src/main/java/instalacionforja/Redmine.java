@@ -59,8 +59,7 @@ public class Redmine {
         crearFicheroSettingsRedmine("/tmp/settingsRedmine.sh");
         Instalacion.ejecutar("sh /tmp/settingsRedmine.sh");
         
-        // TODO: Añadir sudo apt-get install postfix y el fichero email.yml en redmine/config. 
-        Instalacion.ejecutar("apt-get -y install postfix");
+        Instalacion.ejecutar("sh ficherosInstalacion/postfix_install.sh");
         crearFicheroEmailYml("/var/redmine/config/email.yml");
 
         Instalacion.ejecutar("apache2ctl restart");

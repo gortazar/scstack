@@ -3,8 +3,8 @@
 
 #ip=193.147.63.99
 ip=127.0.0.1
-dominio=code.sidelab.es
-hostRedmine=https\://code.sidelab.es
+dominio=stack.sidelab.es
+hostRedmine=https\://stack.sidelab.es
 passBindDN=pass
 usernameMysql=root
 passMysql=s1d3l4b
