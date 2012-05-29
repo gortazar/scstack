@@ -7,62 +7,36 @@
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../es.sidelab.code.parent</relativePath>
 	</parent>
-
 	<artifactId>installer</artifactId>
-	<name>SidelabCode Stack Installer</name>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<installer-url>http://code.sidelab.es/projects/sidelabcodestack</installer-url>
-	</properties>
+	<packaging>jar</packaging>
+	
+	<name>SidelabCode Stack - Installer</name>
+	<description>SidelabCode Stack is the Sidelab's forge and 
+		this is the installer of all the software programs needed by the forge
+		(e.g. Apache, LDAP, etc.).</description>
 
-	<url>${installer-url}</url>
+	<url>${scstack-url}</url>
 	<issueManagement>
 		<system>Redmine</system>
 		<url>http://code.sidelab.es/projects/sidelabcodestack/issues</url>
 	</issueManagement>
+	
 	<scm>
-		<connection>scm:svn:https://code.sidelab.es/svn/sidelabcodestack/scstack</connection>
+		<!-- requires (at least) read access -->
+		<connection>scm:svn:http://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.code.installer</connection>
+		<!-- this type requires write access -->
+		<developerConnection>scm:svn:https://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.code.installer</developerConnection>
 		<!-- publicly browsable repository -->
 		<url>http://code.sidelab.es/projects/sidelabcodestack/repository/show/scstack</url>
 	</scm>
-	<organization>
-		<name>Sidelab</name>
-		<url>www.sidelab.es</url>
-	</organization>
-
-	<repositories>
-		<repository>
-			<id>snapshots</id>
-			<url>http://build.sidelab.es:8080/nexus/content/repositories/snapshots/</url>
-		</repository>
-	</repositories>
-
-	<distributionManagement>
-		<!-- use the following if you're not using a snapshot version. -->
-		<repository>
-			<id>releases</id>
-			<name>Sidelab Releases</name>
-			<url>http://build.sidelab.es:8080/nexus/content/repositories/releases/</url>
-		</repository>
-		<!-- use the following if you ARE using a snapshot version. -->
-		<snapshotRepository>
-			<id>snapshots</id>
-			<name>Sidelab Snapshots</name>
-			<url>http://build.sidelab.es:8080/nexus/content/repositories/snapshots/</url>
-		</snapshotRepository>
-	</distributionManagement>
 
 	<build>
 		<plugins>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
-				<version>2.1</version>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.3.1</version>
 				<configuration>
 					<archive>
 						<manifestEntries>
@@ -79,7 +53,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.2.1</version>
 				<configuration>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
@@ -100,26 +73,12 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin> <!-- Executes test classes ending in *IT -->
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-failsafe-plugin</artifactId>
-				<version>2.12</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>integration-test</goal>
-							<goal>verify</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
 		</plugins>
 	</build>
 	<dependencies>
 		<dependency>
 			<groupId>es.sidelab.commons</groupId>
 			<artifactId>commandline</artifactId>
-			<version>0.2.1</version>
 		</dependency>
 		<dependency> <!-- IMPORTANT: better use a stable release! -->
 			<groupId>es.sidelab.vbman</groupId>

@@ -23,12 +23,12 @@ public class Utilidades {
 
     /**
      * <p>Comprueba que la cadena enviada como parámetro está unicamente formada
-     * por carácteres válidos que cuadren con la Regexp: "[a-zA-Z0-9]+".</p>
+     * por carácteres válidos que cuadren con la Regexp: "[a-zA-Z0-9\-]+".</p>
      * @param s String a comprobar
      * @return false si la cadena es correcta, true si no
      */
     public static boolean containsIlegalCharsProyecto(String s) {
-        if (s.matches("[a-zA-Z0-9]+"))
+        if (s.matches("[a-zA-Z0-9\\-]+"))
             return false;
         else
             return true;

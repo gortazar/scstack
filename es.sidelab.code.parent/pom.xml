@@ -1,22 +1,26 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<groupId>es.sidelab.code</groupId>
 	<artifactId>parent</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
-	<name>SidelabCode Admin Tools</name>
-	<description>SidelabCode Admin Tools are a set of tools aimed at managing a SidelabCode forge.</description>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<scstack-url>http://code.sidelab.es/projects/sidelabcodestack</scstack-url>
+	</properties>
 
-	<modules>
-		<module>../es.sidelab.tools.commandline</module>
-		<module>../es.sidelab.code.installer</module>
+
+	<name>SidelabCode Stack - Parent POM</name>
+	<description>SidelabCode Stack is the Sidelab's forge, this is the parent module containing the Organizational POM.</description>
+	<url>${scstack-url}</url>
+	
+	<modules> <!-- Modules' order is important as it indicates the build order -->
 		<module>../es.sidelab.code.api</module>
 		<module>../es.sidelab.code.restful</module>
-		<module>../es.sidelab.code.virtualbox</module>
-		<module>../es.sidelab.code.jenkins-slave-test</module>
+		<module>../es.sidelab.code.installer</module>
 	</modules>
 
 	<issueManagement>
@@ -26,23 +30,33 @@
 
 	<scm>
 		<!-- requires (at least) read access -->
-		<connection>scm:svn:https://code.sidelab.es/svn/sidelabcodestack/scstack</connection>
+		<connection>scm:svn:http://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.code.parent</connection>
 		<!-- this type requires write access -->
-		<developerConnection>scm:svn:https://code.sidelab.es/svn/sidelabcodestack/scstack</developerConnection>
+		<developerConnection>scm:svn:https://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.code.parent</developerConnection>
 		<!-- publicly browsable repository -->
 		<url>http://code.sidelab.es/projects/sidelabcodestack/repository/show/scstack</url>
 	</scm>
 
 	<organization>
 		<name>Sidelab</name>
-		<url>www.sidelab.es</url>
+		<url>http://code.sidelab.es</url>
 	</organization>
 
 	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<configuration>
+					<tagNameFormat>scstack-@{project.version}</tagNameFormat>
+					<releaseProfiles>release</releaseProfiles>
+					<goals>deploy</goals>
+				</configuration>
+			</plugin>
+		</plugins>
 		<pluginManagement>
 			<plugins>
 				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>2.3.2</version>
 					<configuration>
@@ -50,16 +64,51 @@
 						<target>1.6</target>
 					</configuration>
 				</plugin>
+				<plugin>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>2.4</version>
+				</plugin>
+				<plugin>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>2.3</version>
+				</plugin>
+				<plugin>
+					<artifactId>maven-release-plugin</artifactId>
+					<version>2.2.2</version>
+				</plugin>
+				<plugin>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>2.1.2</version>
+				</plugin>
 			</plugins>
 		</pluginManagement>
 	</build>
+	<profiles>
+		<profile> <!-- to release the sources together with the binaries -->
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-source-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<goals>
+									<goal>jar-no-fork</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
-	<!-- This places are used to solve the dependencies (if not found in the local repo) -->
-	<repositories> 
-<!-- 		<repository>
-			<id>nexus.snapshots</id>
-			<url>http://build.sidelab.es:8080/nexus/content/repositories/snapshots/</url>
-		</repository> -->
+	<!-- This places are used to solve the dependencies (if not found in the 
+		local repo) -->
+	<repositories>
+		<!-- <repository> <id>nexus.snapshots</id> <url>http://build.sidelab.es:8080/nexus/content/repositories/snapshots/</url> 
+			</repository> -->
 		<!-- Sidelab's repos -->
 		<repository>
 			<id>archiva.internal</id>
@@ -74,8 +123,9 @@
 			<url>http://build.sidelab.es:8080/archiva/repository/releases/</url>
 		</repository>
 	</repositories>
-	
-	<!-- This is where the generated artifacts (snapshots and/or releases) will be deployed -->
+
+	<!-- This is where the generated artifacts (snapshots and/or releases) will 
+		be deployed -->
 	<distributionManagement>
 		<!-- use the following if you're not using a snapshot version. -->
 		<repository>
@@ -90,7 +140,7 @@
 			<url>http://build.sidelab.es:8080/archiva/repository/snapshots/</url>
 		</snapshotRepository>
 	</distributionManagement>
-	
+
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -99,6 +149,11 @@
 				<version>4.8.2</version>
 				<type>jar</type>
 				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>es.sidelab.commons</groupId>
+				<artifactId>commandline</artifactId>
+				<version>0.2.1</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

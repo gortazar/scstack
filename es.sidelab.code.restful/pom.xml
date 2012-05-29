@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	
+
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>parent</artifactId>
@@ -8,16 +8,22 @@
 		<version>0.0.1-SNAPSHOT</version>
 		<relativePath>../es.sidelab.code.parent</relativePath>
 	</parent>
-
 	<artifactId>restful</artifactId>
 	<packaging>jar</packaging>
 
-	<name>es.sidelab.code.restful</name>
-	<url>http://code.sidelab.es/projects/sidelabcodestack</url>
+	<name>SidelabCode Stack - RESTful</name>
+	<description>SidelabCode Stack is the Sidelab's forge, this is the service module. It provides
+	a REST web service and a web administration console.</description>
+	<url>${scstack-url}</url>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
+	<scm>
+		<!-- requires (at least) read access -->
+		<connection>scm:svn:http://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.code.restful</connection>
+		<!-- this type requires write access -->
+		<developerConnection>scm:svn:https://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.code.restful</developerConnection>
+		<!-- publicly browsable repository -->
+		<url>http://code.sidelab.es/projects/sidelabcodestack/repository/show/scstack</url>
+	</scm>
 
 	<repositories>
 		<repository>
@@ -125,4 +131,70 @@
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
+
+	<build>
+		<finalName>scstack-service</finalName>
+		<plugins>
+			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+				<!-- The configuration of the plugin -->
+				<configuration>
+					<!-- Configuration of the archiver -->
+					<archive>
+						<!-- Manifest specific configuration -->
+						<manifest>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+							<!-- Classpath is added to the manifest of the created jar file. -->
+							<addClasspath>true</addClasspath>
+							<!-- Configures the classpath prefix. This configuration option is 
+								used to specify that all needed libraries are found under lib/ directory. -->
+							<classpathPrefix>lib/</classpathPrefix>
+							<!-- Specifies the main class of the application -->
+							<mainClass></mainClass>
+						</manifest>
+						<manifestEntries>
+							<Implementation-URL>${vbman-url}</Implementation-URL>
+						</manifestEntries>
+					</archive>
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<!-- The configuration of the plugin -->
+				<configuration>
+					<descriptors>
+						<descriptor>src/main/assembly/assembly.xml</descriptor>
+					</descriptors>
+					<!-- Configuration of the archiver -->
+					<archive>
+						<!-- Manifest specific configuration -->
+						<manifest>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+							<!-- Classpath is added to the manifest of the created jar file. -->
+							<addClasspath>true</addClasspath>
+							<!-- Specifies the main class of the application -->
+							<mainClass>RESTful.ServicioREST</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-zipped-binaries</id>
+						<phase>package</phase>
+						<goals> <!-- only goal that's not deprecated -->
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-release-plugin</artifactId>
+				<configuration>
+					<tagNameFormat>scstack-restful-@{project.version}</tagNameFormat>
+					<releaseProfiles>release</releaseProfiles>
+					<goals>deploy</goals>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
