@@ -34,7 +34,7 @@ protocoloRest=HTTPS
 rootServicio=
 # Donde están los ficheros HTML para la consola (jQuery, etc.) 
 #########################
-carpetaHtml=SidelabCode_WebInterface
+carpetaHtml=www
 
 # Configuración Apache
 ########################
