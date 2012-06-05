@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>es.sidelab.code</groupId>
+	<groupId>es.sidelab.scstack</groupId>
 	<artifactId>parent</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
@@ -16,11 +16,11 @@
 	<name>SidelabCode Stack - Parent POM</name>
 	<description>SidelabCode Stack is the Sidelab's forge, this is the parent module containing the Organizational POM.</description>
 	<url>${scstack-url}</url>
-	
+
 	<modules> <!-- Modules' order is important as it indicates the build order -->
-		<module>../es.sidelab.code.api</module>
-		<module>../es.sidelab.code.restful</module>
-		<module>../es.sidelab.code.installer</module>
+		<module>../es.sidelab.scstack.lib</module>
+		<module>../es.sidelab.scstack.service</module>
+		<module>../es.sidelab.scstack.installer</module>
 	</modules>
 
 	<issueManagement>
@@ -30,9 +30,9 @@
 
 	<scm>
 		<!-- requires (at least) read access -->
-		<connection>scm:svn:http://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.code.parent</connection>
+		<connection>scm:svn:http://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.scstack.parent</connection>
 		<!-- this type requires write access -->
-		<developerConnection>scm:svn:https://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.code.parent</developerConnection>
+		<developerConnection>scm:svn:https://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.scstack.parent</developerConnection>
 		<!-- publicly browsable repository -->
 		<url>http://code.sidelab.es/projects/sidelabcodestack/repository/show/scstack</url>
 	</scm>
@@ -154,6 +154,11 @@
 				<groupId>es.sidelab.commons</groupId>
 				<artifactId>commandline</artifactId>
 				<version>0.2.1</version>
+			</dependency>
+			<dependency> <!-- IMPORTANT: better use a stable release! -->
+				<groupId>es.sidelab.vbman</groupId>
+				<artifactId>virtualbox</artifactId>
+				<version>0.2-SNAPSHOT</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

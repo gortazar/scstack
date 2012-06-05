@@ -1,20 +1,43 @@
+# Configuración conexión LDAP
+#################################
+hostLDAP=localhost
 passBindDN=pass
-keyRedmineAPI=98ksdhfkjh289234298234987324
-hostRedmine=https\://code.sidelab.es
-usernameMysql=root
-passMysql=pass
-hostRest=193.147.63.99
-puertoRest=5555
-
-carpetaHtml=SidelabCode_WebInterface
-groupSuperadmin=superadmins
-baseDN=dc\=sidelabcode,dc\=es
 puertoLDAP=636
+
+bindDN=cn\=admin,dc\=sidelabcode,dc\=es
+baseDN=dc\=sidelabcode,dc\=es
+
+groupSuperadmin=superadmins
 ouProyectos=proyectos
 ouUsuarios=usuarios
 ouConfiguracion=configuracion
-hostLDAP=localhost
-bindDN=cn\=admin,dc\=sidelabcode,dc\=es
+
+
+# Configuración Redmine
+#########################
+keyRedmineAPI=
+hostRedmine=https\://stack.sidelab.es
+
+# Acceso MySQL
+#########################
+usernameMysql=root
+passMysql=s1d3l4b
+hostMysql=127.0.0.1
+puertoMysql=3306
+schemaRedmine=redmine
+
+# Configuración consola web
+#########################
+hostRest=localhost
+puertoRest=5555
+protocoloRest=HTTPS
+rootServicio=
+# Donde están los ficheros HTML para la consola (jQuery, etc.) 
+#########################
+carpetaHtml=SidelabCode_WebInterface
+
+# Configuración Apache
+########################
 pathReposPublicosWeb=/public/repos
 pathGITWeb=/git
 ficheroProyectos=configProyectos
@@ -30,8 +53,3 @@ pathCarpetaPublicaApache=/var/files/public
 pathCarpetaPublicaWeb=/public
 pathCarpetas=/var/files
 pathCarpetaPrivadaWeb=/private
-hostMysql=127.0.0.1
-puertoMysql=3306
-schemaRedmine=redmine
-protocoloRest=HTTPS
-rootServicio=

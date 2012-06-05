@@ -1,29 +1,22 @@
-# User config
-#----------------
-
-#ip=193.147.63.99
-ip=127.0.0.1
-dominio=stack.sidelab.es
-hostRedmine=https\://stack.sidelab.es
-passBindDN=pass
-usernameMysql=root
-passMysql=s1d3l4b
-
-# Internal config
-#----------------
-
-# LDAP
+# Configuración directorio LDAP
+#################################
 dominioSinExt=sidelabcode
+dominio=sidelabcode.es
+
 hostLDAP=localhost
 puertoLDAP=636
+
 baseDN=dc\=sidelabcode,dc\=es
 bindDN=cn\=admin,dc\=sidelabcode,dc\=es
+passBindDN=pass
+
 ouProyectos=proyectos
 ouUsuarios=usuarios
 ouConfiguracion=configuracion
 groupSuperadmin=superadmins
 
-# Apache
+# Configuración Apache
+########################
 pathReposPublicosWeb=/public/repos
 pathGITWeb=/git
 ficheroProyectos=configProyectos
@@ -40,7 +33,15 @@ pathCarpetaPublicaWeb=/public
 pathCarpetas=/var/files
 pathCarpetaPrivadaWeb=/private
 
-# Redmine
+# Configuración Redmine
+#########################
+ip=127.0.0.1
+hostRedmine=https\://stack.sidelab.es
+
+# Acceso MySQL
+#########################
 hostMysql=127.0.0.1
 puertoMysql=3306
+usernameMysql=root
+passMysql=s1d3l4b
 schemaRedmine=redmine

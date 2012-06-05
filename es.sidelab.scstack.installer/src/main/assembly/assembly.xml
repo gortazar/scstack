@@ -4,7 +4,6 @@
 	<formats>
 		<format>zip</format>
 	</formats>
-	
 	<!-- Adds dependencies to zip package under lib directory -->
 	<dependencySets>
 		<dependencySet>
@@ -15,21 +14,18 @@
 			<unpack>false</unpack>
 		</dependencySet>
 	</dependencySets>
-
 	<fileSets>
-		<!-- Adds SidelabCode_Interface dir to the root directory of zip package -->
+		<!-- Adds ficherosInstalacion dir to the root directory of zip package -->
 		<fileSet>
-			<directory>src/main/www/SidelabCode_WebInterface</directory>
-			<outputDirectory>SidelabCode_WebInterface</outputDirectory>
+			<directory>ficherosInstalacion</directory>
+			<outputDirectory>ficherosInstalacion</outputDirectory>
 		</fileSet>
-		<!-- Adds config files to the root directory of zip package -->
+		<!-- Adds README file the root directory of zip package -->
 		<fileSet>
 			<directory></directory>
-			<outputDirectory></outputDirectory>
+			<outputDirectory>/</outputDirectory>
 			<includes>
 				<include>README</include>
-				<include>configuracion.txt</include>
-				<include>SidelabCode.jks</include>
 			</includes>
 		</fileSet>
 		<!-- adds jar package to the root directory of zip package -->

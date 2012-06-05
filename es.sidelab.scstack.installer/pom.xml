@@ -2,14 +2,14 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>es.sidelab.code</groupId>
+		<groupId>es.sidelab.scstack</groupId>
 		<artifactId>parent</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>../es.sidelab.code.parent</relativePath>
+		<relativePath>../es.sidelab.scstack.parent</relativePath>
 	</parent>
 	<artifactId>installer</artifactId>
 	<packaging>jar</packaging>
-	
+
 	<name>SidelabCode Stack - Installer</name>
 	<description>SidelabCode Stack is the Sidelab's forge and 
 		this is the installer of all the software programs needed by the forge
@@ -20,46 +20,72 @@
 		<system>Redmine</system>
 		<url>http://code.sidelab.es/projects/sidelabcodestack/issues</url>
 	</issueManagement>
-	
+
 	<scm>
 		<!-- requires (at least) read access -->
-		<connection>scm:svn:http://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.code.installer</connection>
+		<connection>scm:svn:http://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.scstack.installer</connection>
 		<!-- this type requires write access -->
-		<developerConnection>scm:svn:https://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.code.installer</developerConnection>
+		<developerConnection>scm:svn:https://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.scstack.installer</developerConnection>
 		<!-- publicly browsable repository -->
 		<url>http://code.sidelab.es/projects/sidelabcodestack/repository/show/scstack</url>
 	</scm>
 
 	<build>
+		<finalName>scstack-installer</finalName>
 		<plugins>
 			<plugin>
 				<artifactId>maven-release-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<artifactId>maven-jar-plugin</artifactId>
+								<!-- The configuration of the plugin -->
 				<configuration>
+					<!-- Configuration of the archiver -->
+					<archive>
+						<!-- Manifest specific configuration -->
+						<manifest>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+							<!-- Classpath is added to the manifest of the created jar file. -->
+							<addClasspath>true</addClasspath>
+							<!-- Configures the classpath prefix. This configuration option is 
+								used to specify that all needed libraries are found under lib/ directory. -->
+							<classpathPrefix>lib/</classpathPrefix>
+							<!-- Specifies the main class of the application -->
+							<mainClass>es.sidelab.scstack.installer.Instalacion</mainClass>
+						</manifest>
+						<manifestEntries>
+							<Implementation-URL>${scstack-url}</Implementation-URL>
+						</manifestEntries>
+					</archive>
+				</configuration>
+<!-- 				<configuration>
 					<archive>
 						<manifestEntries>
 							<Implementation-Title>Sidelab ${project.artifactId}</Implementation-Title>
 							<Implementation-Version>${project.version}</Implementation-Version>
 							<Implementation-Vendor>Sidelab.es - Sidelab Code Installer</Implementation-Vendor>
 							<Implementation-Vendor-Id>es.sidelab.code.installer</Implementation-Vendor-Id>
-							<Implementation-Vendor-URL>${installer-url}</Implementation-Vendor-URL>
-							<Main-Class>instalacionforja.Instalacion</Main-Class>
+							<Implementation-Vendor-URL>${scstack-url}</Implementation-Vendor-URL>
+							<Main-Class>es.sidelab.scstack.installer.Instalacion</Main-Class>
 						</manifestEntries>
 					</archive>
-				</configuration>
+				</configuration> -->
 			</plugin>
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
-					<descriptorRefs>
+<!-- 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
+					</descriptorRefs> -->
+					<descriptors>
+						<descriptor>src/main/assembly/assembly.xml</descriptor>
+					</descriptors>
 					<archive>
 						<manifest>
-							<mainClass>instalacionforja.Instalacion</mainClass>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+							<!-- Classpath is added to the manifest of the created jar file. -->
+							<addClasspath>true</addClasspath>
+							<mainClass>es.sidelab.scstack.installer.Instalacion</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -77,13 +103,19 @@
 	</build>
 	<dependencies>
 		<dependency>
+			<groupId>es.sidelab.scstack</groupId>
+			<artifactId>lib</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
 			<groupId>es.sidelab.commons</groupId>
 			<artifactId>commandline</artifactId>
 		</dependency>
-		<dependency> <!-- IMPORTANT: better use a stable release! -->
+		<dependency>
 			<groupId>es.sidelab.vbman</groupId>
 			<artifactId>virtualbox</artifactId>
-			<version>0.2-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>

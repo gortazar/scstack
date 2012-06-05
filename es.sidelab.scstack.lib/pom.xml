@@ -3,23 +3,23 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>es.sidelab.code</groupId>
+		<groupId>es.sidelab.scstack</groupId>
 		<artifactId>parent</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
-		<relativePath>../es.sidelab.code.parent</relativePath>
+		<relativePath>../es.sidelab.scstack.parent</relativePath>
 	</parent>
-	<artifactId>api</artifactId>
+	<artifactId>lib</artifactId>
 	<packaging>jar</packaging>
 
-	<name>SidelabCode Stack - API</name>
-	<description>SidelabCode Stack is the Sidelab's forge and this is the administration module, offered as an API.</description>
+	<name>SidelabCode Stack - Lib</name>
+	<description>SidelabCode Stack is the Sidelab's forge and this is the administration module, which exports an API.</description>
 	<url>${scstack-url}</url>
 	
 	<scm>
 		<!-- requires (at least) read access -->
-		<connection>scm:svn:http://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.code.api</connection>
+		<connection>scm:svn:http://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.scstack.lib</connection>
 		<!-- this type requires write access -->
-		<developerConnection>scm:svn:https://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.code.api</developerConnection>
+		<developerConnection>scm:svn:https://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.scstack.lib</developerConnection>
 		<!-- publicly browsable repository -->
 		<url>http://code.sidelab.es/projects/sidelabcodestack/repository/show/scstack</url>
 	</scm>
@@ -107,8 +107,8 @@
 						<manifestEntries>
 							<Implementation-Title>Sidelab ${project.artifactId}</Implementation-Title>
 							<Implementation-Version>${project.version}</Implementation-Version>
-							<Implementation-Vendor>Sidelab.es - SidelabCode Admin API</Implementation-Vendor>
-							<Implementation-Vendor-Id>es.sidelab.code.api</Implementation-Vendor-Id>
+							<Implementation-Vendor>Sidelab.es - SidelabCode Admin Lib</Implementation-Vendor>
+							<Implementation-Vendor-Id>es.sidelab.scstack.lib</Implementation-Vendor-Id>
 							<Main-Class>main.Main</Main-Class>
 						</manifestEntries>
 					</archive>

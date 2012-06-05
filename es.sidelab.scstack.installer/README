@@ -1,0 +1,49 @@
+Installation procedure of the forge's system dependencies in Ubuntu Desktop (10.04 LTS):
+
+1. Install the prerequisites (if not already installed):
+    sudo apt-get install openjdk-6-jdk
+    sudo apt-get -y install mysql-server-5.1
+    
+2. Unzip the scstack-installer-bin.zip file and cd into the scstack-installer folder.
+
+3. Open the config file and change it accordingly:
+    gedit ficherosInstalacion/configInstalacion.txt &
+    
+4. Execute the installer:
+    sudo java -jar scstack-installer.jar
+
+5. Login as admin (pass: admin) into Redmine and accept the Load Default Configuration message.
+ 5.1. Go to 'Roles and permissions' and UNCHECK the following for the Manager role:
+   - Create project
+   - Edit project
+   - Create subproject
+   - Manage members
+   then Save.
+ 5.2. Go to Settings > Authentication
+ 5.3. Authentication required: Checked
+ 5.4. Self-registration: Disabled
+ 5.5. Enable REST web service: Checked
+ 5.6. SAVE
+
+6. Integration of the OpenLDAP protocol into Redmine:
+ 6.1. Login as admin (pass: admin) into Redmine.
+ 6.2. Goto Administration > LDAP Authentication
+ 6.3. Select 'New authentication mode' and input the following parameters:
+        Name: pick up a name for the connection
+        Host: hostname (default: localhost)
+        Port: 636
+        Check LDAPS
+        Account: cn=admin,dc=sidelab,dc=es (or whatever you specified in the configuration file)
+        Pass: LDAP's password from the config file
+        BaseDN: dc=sidelab,dc=es (or from the config file)
+        Check 'On the fly user creation'
+        Login: uid
+        First name: cn
+        Last name: sn
+        Email: mail
+ 6.4. Create
+ 6.5. Press 'Test' in the connections' list
+ 
+Note: 
+  The Ruby gems take a lot of time to install (during the Redmine installation). 
+  Don't despair, they will end eventually.
