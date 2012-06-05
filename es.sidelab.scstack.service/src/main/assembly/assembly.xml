@@ -19,8 +19,8 @@
 	<fileSets>
 		<!-- Adds SidelabCode_Interface dir to the root directory of zip package -->
 		<fileSet>
-			<directory>src/main/www/SidelabCode_WebInterface</directory>
-			<outputDirectory>SidelabCode_WebInterface</outputDirectory>
+			<directory>src/main/www</directory>
+			<outputDirectory>www</outputDirectory>
 		</fileSet>
 		<!-- Adds config files to the root directory of zip package -->
 		<fileSet>
