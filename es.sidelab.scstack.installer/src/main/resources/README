@@ -6,11 +6,16 @@ Installation procedure of the forge's system dependencies in Ubuntu Desktop (10.
     
 2. Unzip the scstack-installer-bin.zip file and cd into the scstack-installer folder.
 
-3. Open the config file and change it accordingly:
-    gedit ficherosInstalacion/configInstalacion.txt &
+3. Open the configuration file and change it accordingly:
+    gedit scstack.conf &
     
-4. Execute the installer:
-    sudo java -jar scstack-installer.jar
+4. Execute the installer by specifying  options:
+ 4.1. Additionally you can specify what type of installation you want:
+	* 'all'     -> install everything and set scstack-service as daemon (default if 'type' is not mentioned).
+	* 'tools'   -> install only the required software.
+	* 'service' -> do not install any software, only set the service as a daemon.
+	
+    sudo java -Dtype=VALUE -jar scstack-installer.jar
 
 5. Login as admin (pass: admin) into Redmine and accept the Load Default Configuration message.
  5.1. Go to 'Roles and permissions' and UNCHECK the following for the Manager role:

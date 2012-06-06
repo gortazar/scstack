@@ -17,15 +17,16 @@
 	<fileSets>
 		<!-- Adds ficherosInstalacion dir to the root directory of zip package -->
 		<fileSet>
-			<directory>ficherosInstalacion</directory>
+			<directory>src/main/resources/ficherosInstalacion</directory>
 			<outputDirectory>ficherosInstalacion</outputDirectory>
 		</fileSet>
-		<!-- Adds README file to the root directory of zip package -->
+		<!-- Adds README and scstack.conf files to the root directory of zip package -->
 		<fileSet>
-			<directory></directory>
-			<outputDirectory>/</outputDirectory>
+			<directory>src/main/resources</directory>
+			<outputDirectory></outputDirectory>
 			<includes>
 				<include>README</include>
+				<include>scstack.conf</include>
 			</includes>
 		</fileSet>
 		

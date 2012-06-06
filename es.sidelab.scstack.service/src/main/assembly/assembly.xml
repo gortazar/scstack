@@ -27,9 +27,25 @@
 			<directory></directory>
 			<outputDirectory></outputDirectory>
 			<includes>
-				<include>README</include>
-				<include>configuracion.txt</include>
+				<include>scstack.conf</include>
 				<include>SidelabCode.jks</include>
+			</includes>
+		</fileSet>
+		<!-- Adds README to the root directory of zip package -->
+		<fileSet>
+			<directory>src/main/resources</directory>
+			<outputDirectory></outputDirectory>
+			<includes>
+				<include>README</include>
+			</includes>
+		</fileSet>
+		<!-- Adds service files to the daemon directory of zip package -->
+		<fileSet>
+			<directory>src/main/resources</directory>
+			<outputDirectory>/daemon</outputDirectory>
+			<includes>
+				<include>scstack-service.conf</include>
+				<include>scstack-service</include>
 			</includes>
 		</fileSet>
 		<!-- adds jar package to the root directory of zip package -->

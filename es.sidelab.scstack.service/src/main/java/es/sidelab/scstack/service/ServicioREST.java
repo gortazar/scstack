@@ -171,7 +171,8 @@ public final class ServicioREST extends Application {
      */
     public void cargarConfiguracion() {
         Properties props = new Properties();
-        String ficheroConfiguracion = "configuracion.txt";
+        //String ficheroConfiguracion = "configuracion.txt";
+        String ficheroConfiguracion = "scstack.conf";
         try {
             props.load(new FileInputStream(ficheroConfiguracion));
             host = props.getProperty("hostRest", "localhost");
