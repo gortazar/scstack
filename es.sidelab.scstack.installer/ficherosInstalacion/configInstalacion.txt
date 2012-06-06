@@ -1,13 +1,13 @@
 # Configuración directorio LDAP
 #################################
-dominioSinExt=sidelabcode
-dominio=sidelabcode.es
+dominioSinExt=sidelab
+dominio=sidelab.es
 
 hostLDAP=localhost
 puertoLDAP=636
 
-baseDN=dc\=sidelabcode,dc\=es
-bindDN=cn\=admin,dc\=sidelabcode,dc\=es
+baseDN=dc\=sidelab,dc\=es
+bindDN=cn\=admin,dc\=sidelab,dc\=es
 passBindDN=pass
 
 ouProyectos=proyectos

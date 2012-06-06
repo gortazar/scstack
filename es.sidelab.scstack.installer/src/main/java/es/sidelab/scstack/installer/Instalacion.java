@@ -60,7 +60,8 @@ public class Instalacion {
 	 */
 	public static void cargarConfiguracion() {
 		config = new Properties();
-		String ficheroConfiguracion = "ficherosInstalacion/configInstalacion.txt";
+		//String ficheroConfiguracion = "ficherosInstalacion/configInstalacion.txt";
+		String ficheroConfiguracion = "scstack.conf";
 		try {
 			config.load(new FileInputStream(ficheroConfiguracion));
 

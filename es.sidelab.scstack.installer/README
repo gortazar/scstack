@@ -34,7 +34,7 @@ Installation procedure of the forge's system dependencies in Ubuntu Desktop (10.
         Port: 636
         Check LDAPS
         Account: cn=admin,dc=sidelab,dc=es (or whatever you specified in the configuration file)
-        Pass: LDAP's password from the config file
+        Pass: LDAP's password from the config file (e.g. ld4p)
         BaseDN: dc=sidelab,dc=es (or from the config file)
         Check 'On the fly user creation'
         Login: uid

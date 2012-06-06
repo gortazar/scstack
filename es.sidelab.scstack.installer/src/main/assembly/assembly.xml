@@ -20,12 +20,21 @@
 			<directory>ficherosInstalacion</directory>
 			<outputDirectory>ficherosInstalacion</outputDirectory>
 		</fileSet>
-		<!-- Adds README file the root directory of zip package -->
+		<!-- Adds README file to the root directory of zip package -->
 		<fileSet>
 			<directory></directory>
 			<outputDirectory>/</outputDirectory>
 			<includes>
 				<include>README</include>
+			</includes>
+		</fileSet>
+		
+		<!-- Adds the scstack-service ZIP to the root directory of zip package -->
+		<fileSet>
+			<directory>${basedir}/../es.sidelab.scstack.service/target/</directory>
+			<outputDirectory></outputDirectory>
+			<includes>
+				<include>scstack-service-bin.zip</include>
 			</includes>
 		</fileSet>
 		<!-- adds jar package to the root directory of zip package -->

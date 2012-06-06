@@ -99,6 +99,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>scstack-lib-${project.version}</finalName>
 		<plugins>
 			<plugin>
 				<artifactId>maven-jar-plugin</artifactId>

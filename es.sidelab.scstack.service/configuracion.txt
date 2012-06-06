@@ -4,8 +4,8 @@ hostLDAP=localhost
 passBindDN=pass
 puertoLDAP=636
 
-bindDN=cn\=admin,dc\=sidelabcode,dc\=es
-baseDN=dc\=sidelabcode,dc\=es
+bindDN=cn\=admin,dc\=sidelab,dc\=es
+baseDN=dc\=sidelab,dc\=es
 
 groupSuperadmin=superadmins
 ouProyectos=proyectos
@@ -20,10 +20,10 @@ hostRedmine=https\://stack.sidelab.es
 
 # Acceso MySQL
 #########################
-usernameMysql=root
-passMysql=s1d3l4b
 hostMysql=127.0.0.1
 puertoMysql=3306
+usernameMysql=root
+passMysql=s1d3l4b
 schemaRedmine=redmine
 
 # Configuración consola web
@@ -38,18 +38,23 @@ carpetaHtml=www
 
 # Configuración Apache
 ########################
-pathReposPublicosWeb=/public/repos
-pathGITWeb=/git
-ficheroProyectos=configProyectos
+
 marcadorJaulaSSH=\#\#\#\#\# No borrar esta linea\: jaula de usuarios \#\#\#\#\#
-ficheroConfigSSH=/etc/ssh/sshd_config
-pathGITApache=/var/git
-pathCarpetaPrivadaApache=/var/files/private
-pathSVNApache=/var/svn
-ficheroProyectosSSL=configProyectos-ssl
+
 pathsitesAvailableApache=/etc/apache2/sites-available
-pathSVNWeb=/svn
-pathCarpetaPublicaApache=/var/files/public
-pathCarpetaPublicaWeb=/public
+ficheroConfigSSH=/etc/ssh/sshd_config
+ficheroProyectosSSL=configProyectos-ssl
+ficheroProyectos=configProyectos
+
 pathCarpetas=/var/files
+pathCarpetaPrivadaApache=/var/files/private
+pathCarpetaPublicaApache=/var/files/public
+pathGITApache=/var/git
+pathSVNApache=/var/svn
+pathSVNWeb=/svn
+pathGITWeb=/git
+
+pathCarpetaPublicaWeb=/public
+pathReposPublicosWeb=/public/repos
 pathCarpetaPrivadaWeb=/private
+
