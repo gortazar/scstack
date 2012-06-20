@@ -38,7 +38,7 @@
 			</plugin>
 			<plugin>
 				<artifactId>maven-jar-plugin</artifactId>
-								<!-- The configuration of the plugin -->
+				<!-- The configuration of the plugin -->
 				<configuration>
 					<!-- Configuration of the archiver -->
 					<archive>
@@ -58,25 +58,18 @@
 						</manifestEntries>
 					</archive>
 				</configuration>
-<!-- 				<configuration>
-					<archive>
-						<manifestEntries>
-							<Implementation-Title>Sidelab ${project.artifactId}</Implementation-Title>
-							<Implementation-Version>${project.version}</Implementation-Version>
-							<Implementation-Vendor>Sidelab.es - Sidelab Code Installer</Implementation-Vendor>
-							<Implementation-Vendor-Id>es.sidelab.code.installer</Implementation-Vendor-Id>
-							<Implementation-Vendor-URL>${scstack-url}</Implementation-Vendor-URL>
-							<Main-Class>es.sidelab.scstack.installer.Instalacion</Main-Class>
-						</manifestEntries>
-					</archive>
-				</configuration> -->
+				<!-- <configuration> <archive> <manifestEntries> <Implementation-Title>Sidelab 
+					${project.artifactId}</Implementation-Title> <Implementation-Version>${project.version}</Implementation-Version> 
+					<Implementation-Vendor>Sidelab.es - Sidelab Code Installer</Implementation-Vendor> 
+					<Implementation-Vendor-Id>es.sidelab.code.installer</Implementation-Vendor-Id> 
+					<Implementation-Vendor-URL>${scstack-url}</Implementation-Vendor-URL> <Main-Class>es.sidelab.scstack.installer.Instalacion</Main-Class> 
+					</manifestEntries> </archive> </configuration> -->
 			</plugin>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
-<!-- 					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs> -->
+					<!-- <descriptorRefs> <descriptorRef>jar-with-dependencies</descriptorRef> 
+						</descriptorRefs> -->
 					<descriptors>
 						<descriptor>src/main/assembly/assembly.xml</descriptor>
 					</descriptors>
@@ -121,6 +114,10 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-htmlunit-driver</artifactId>
 		</dependency>
 	</dependencies>
 </project>

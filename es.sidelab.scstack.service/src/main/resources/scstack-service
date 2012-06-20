@@ -4,6 +4,6 @@
 servicePath=/home/laforge/scstack-installer/scstack-service
 
 # Don't change the lines below this point
-cmd="java -jar $servicePath/scstack-service.jar"  
+cmd="java -Dfile.encoding='UTF-8' -jar $servicePath/scstack-service.jar"  
 # echo -e "Executing command:\n# $cmd"
 exec $cmd

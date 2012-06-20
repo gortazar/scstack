@@ -60,5 +60,6 @@ For the 'all' option to work unattended, Selenium must be incorporated into the 
  6.4. Create
  6.5. Press 'Test' in the connections' list
 
-7. Copy the Redmine API key to the configuration file 'stack.conf'. 
+7. -- ONLY REQUIRED WHEN INSTALLING THE REST SERVICE AS DAEMON OR STARTING IT DIRECTLY -- 
+  Copy the Redmine API key to the configuration file 'stack.conf'. 
    You'll find it in the admin's MyAccount tab, on the right part of the screen.

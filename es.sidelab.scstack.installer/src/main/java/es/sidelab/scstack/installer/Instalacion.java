@@ -75,7 +75,7 @@ public class Instalacion {
 				//Instalacion.ejecutar("/etc/init.d/apache2 restart");
 				if (!tools) {//also the service
 					BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-					System.out.println("Setup Redmine and then copy its API REST key here: ");
+					System.out.print("Setup Redmine and then copy its API REST key here: ");
 					String apiKey = br.readLine();
 					overwriteConfigValue("keyRedmineAPI", apiKey);
 					new SCStackService().install();
