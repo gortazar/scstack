@@ -10,9 +10,6 @@ import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 
 /**
  * Crawler superclass that should be subtyped whenever we want to create a new Crawler.
- * It declares two methods that each crawler will have to implement: 
- * <br>{@link #search(Map, int, int)}
- * <br>{@link #parseArticle(String)} 
  * @author <a href="mailto:radutom.vlad@gmail.com">Radu Tom Vlad</a>
  */
 public abstract class Crawler {
@@ -65,7 +62,7 @@ public abstract class Crawler {
 			setImplicitlyWaitTimeout();
 			setScriptTimeout();
 			setTimeouts();
-			LOG.log(Level.INFO, "New <{}> crawler instance with HtmlUnitDriver (JS - {}).",
+			LOG.log(Level.INFO, "New <{0}> crawler instance with HtmlUnitDriver (JS - {1}).",
 					new Object[]{
 					this.crawlerInfo.getName(), enableJavaScript});
 		} catch (Exception e) {
