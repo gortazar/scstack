@@ -71,6 +71,7 @@ public abstract class Crawler {
 		}
 	}
 
+	public abstract String getAPIKey(String user, String pass) throws CrawlerException;
 	/**
 	 * Change the default {@link Crawler#scriptTimeout} if required.
 	 */
@@ -79,12 +80,6 @@ public abstract class Crawler {
 	 * Change the {@link Crawler#implicitlyWaitTimeout} if required.
 	 */
 	protected abstract void setImplicitlyWaitTimeout();
-	/**
-	 * Returns the REST API key from the Redmine site.
-	 * @return
-	 * @throws CrawlerException
-	 */
-	public abstract String getAPIKey() throws CrawlerException;
 	
 	/**
 	 * Closes the web driver if not null.
