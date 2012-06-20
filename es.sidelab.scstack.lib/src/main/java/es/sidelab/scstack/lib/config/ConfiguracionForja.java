@@ -58,8 +58,17 @@ public final class ConfiguracionForja {
      * (por defecto: "superadmins") */
     public static String groupSuperadmin;
 
-
-
+    /**
+     * Superadmin's username, for the forge.
+     * Default value: {@code superforja}.
+     */
+    public static String sadminUID;
+    /**
+     * Superadmin's password, for the forge.
+     * Default value: {@code super}.
+     */
+    public static String sadminPass;
+    
     /***************** PARÁMETROS DE CONFIGURACIÓN DE APACHE *******************/
 
     /** Ruta absoluta donde alojamos los repositorios SVN dentro del servidor Apache.
@@ -126,10 +135,12 @@ public final class ConfiguracionForja {
 
     /******************** PARÁMETROS DEL GESTOR REDMINE ***********************/
 
-    /** Host completo donde se sirve Redmine para poder conectar con su API.
-     * (por defecto: "http://dev.misidelab.es") */
+    /** Host completo donde se sirve Redmine para poder conectar con su API. */
     public static String hostRedmine;
 
+    /** Protocol of the Redmine host ({@code http://} or {@code https://}) */
+    public static String protocolRedmine;
+    
     /** Key - Clave para acceder a la API de Redmine con privilegios de
      * administrador (por defecto: "58ed87a309faa61f30746e28a275baa7f77b0e49") */
     public static String keyRedmineAPI;
@@ -199,6 +210,8 @@ public final class ConfiguracionForja {
         ConfiguracionForja.ouProyectos = props.getProperty("ouProyectos", "group");
         ConfiguracionForja.ouConfiguracion = props.getProperty("ouConfiguracion", "configuracion");
         ConfiguracionForja.groupSuperadmin = props.getProperty("groupSuperadmin", "superadmins");
+        ConfiguracionForja.sadminUID = props.getProperty("sadminUID", "superforja");
+        ConfiguracionForja.sadminPass = props.getProperty("sadminPass", "super");
         ConfiguracionForja.pathSVNApache = props.getProperty("pathSVNApache", "/var/svn");
         ConfiguracionForja.pathSVNWeb = props.getProperty("pathSVNWeb", "/svn");
         ConfiguracionForja.pathGITApache = props.getProperty("pathGITApache", "/var/git");
@@ -214,7 +227,8 @@ public final class ConfiguracionForja {
         ConfiguracionForja.ficheroProyectos = props.getProperty("ficheroProyectos", "dev.misidelab.es-projects");
         ConfiguracionForja.ficheroConfigSSH = props.getProperty("ficheroConfigSSH", "/etc/ssh/sshd_config");
         ConfiguracionForja.marcadorJaulaSSH = props.getProperty("marcadorJaulaSSH", "##### No borrar esta linea: jaula de usuarios #####");
-        ConfiguracionForja.hostRedmine = props.getProperty("hostRedmine", "https://dev.misidelab.es");
+        ConfiguracionForja.hostRedmine = props.getProperty("hostRedmine");
+        ConfiguracionForja.protocolRedmine = props.getProperty("protocolRedmine");
         ConfiguracionForja.keyRedmineAPI = props.getProperty("keyRedmineAPI", "8214d778a97312de0879f213ca1ae805c6e502d2");
         ConfiguracionForja.hostMysql = props.getProperty("hostMysql", "127.0.0.1");
         ConfiguracionForja.puertoMysql = props.getProperty("puertoMysql", "3306");
@@ -258,6 +272,7 @@ public final class ConfiguracionForja {
         props.setProperty("ficheroConfigSSH", ConfiguracionForja.ficheroConfigSSH);
         props.setProperty("marcadorJaulaSSH", ConfiguracionForja.marcadorJaulaSSH);
         props.setProperty("hostRedmine", ConfiguracionForja.hostRedmine);
+        props.setProperty("protocolRedmine", ConfiguracionForja.protocolRedmine);
         props.setProperty("keyRedmineAPI", ConfiguracionForja.keyRedmineAPI);
         props.setProperty("hostMysql", ConfiguracionForja.hostMysql);
         props.setProperty("puertoMysql", ConfiguracionForja.puertoMysql);

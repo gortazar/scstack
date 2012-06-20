@@ -112,10 +112,10 @@ public class ServidorApache {
         file = new FileWriter(ruta);
         PrintWriter pw = new PrintWriter(file);
         pw.println("127.0.0.1 localhost");
-        pw.println("127.0.1.1 " + Instalacion.config.getProperty("dominio") 
+        pw.println("127.0.1.1 " + Instalacion.config.getProperty("hostRedmine") 
         		+ " " + machineName);
         if (!stackIP.contentEquals("127.0.0.1") && !stackIP.contentEquals("127.0.1.1"))
-        	pw.println(stackIP + " " + Instalacion.config.getProperty("dominio")
+        	pw.println(stackIP + " " + Instalacion.config.getProperty("hostRedmine")
             		+ " " + machineName);
     	else
     		System.out.println("Warning: The StackIP (" + stackIP + ") is the same as loopback's IP.");

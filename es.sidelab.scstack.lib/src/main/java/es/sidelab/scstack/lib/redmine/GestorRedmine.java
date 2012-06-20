@@ -40,7 +40,7 @@ public class GestorRedmine {
      * estáticas de la Forja.</p>
      */
     public GestorRedmine() throws ExcepcionMysql {
-        this.redmineHost = ConfiguracionForja.hostRedmine;
+        this.redmineHost = ConfiguracionForja.protocolRedmine + ConfiguracionForja.hostRedmine;
         this.apiAccessKey = ConfiguracionForja.keyRedmineAPI;
         this.gestorAPI = new RedmineManager(redmineHost, apiAccessKey);
     }
@@ -200,7 +200,7 @@ public class GestorRedmine {
         } catch (NotFoundException ex) {
             throw new ExcepcionGestorRedmine("El usuario " + user.getUid() + " no existe en Redmine: " + ex.getMessage());
         } catch (AuthenticationException ex) {
-            throw new ExcepcionGestorRedmine("Se ha proudcido un error de autenticación con la API Redmine: " + ex.getMessage());
+            throw new ExcepcionGestorRedmine("Se ha producido un error de autenticación con la API Redmine: " + ex.getMessage());
         } catch (RedmineException ex) {
             throw new ExcepcionGestorRedmine("Se ha producido un error al ejecutar la API Redmine: " + ex.getMessage());
         }

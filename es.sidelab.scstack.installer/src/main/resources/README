@@ -9,14 +9,25 @@ Installation procedure of the forge's system dependencies in Ubuntu Desktop (10.
 3. Open the configuration file and change it accordingly:
     gedit scstack.conf &
     
-4. Execute the installer by specifying  options:
- 4.1. Additionally you can specify what type of installation you want:
-	* 'all'     -> install everything and set scstack-service as daemon (default if 'type' is not mentioned).
-	* 'tools'   -> install only the required software.
-	* 'service' -> do not install any software, only set the service as a daemon.
+4. Execute the installer:
+ 4.1. You can choose the type of installation to perform by giving a VALUE to the 'type' argument:
+	* all     -> install everything and set scstack-service as daemon (default if '-Dtype' is not set).
+	* tools   -> install only the required software.
+	* service -> do not install any software, only set the service as a daemon. Don't forget to edit 
+	first the configuration file by writing the API key from Redmine.
 	
     sudo java -Dtype=VALUE -jar scstack-installer.jar
 
+Note: 
+  The Ruby gems take a lot of time to install (during the Redmine installation). 
+  Don't despair, they will end eventually.
+
+** IMPORTANT **
+For the 'all' option to work unattended, Selenium must be incorporated into the installation process
+ Until then, you'll be prompted for the API Redmine key before setting the service as daemon.
+ When asked for it, follow the steps 5 and 6 to setup Redmine then copy the key.
+ You only have to do the 7th step when running with the -Dtype=service option. 
+ 
 5. Login as admin (pass: admin) into Redmine and accept the Load Default Configuration message.
  5.1. Go to 'Roles and permissions' and UNCHECK the following for the Manager role:
    - Create project
@@ -48,7 +59,6 @@ Installation procedure of the forge's system dependencies in Ubuntu Desktop (10.
         Email: mail
  6.4. Create
  6.5. Press 'Test' in the connections' list
- 
-Note: 
-  The Ruby gems take a lot of time to install (during the Redmine installation). 
-  Don't despair, they will end eventually.
+
+7. Copy the Redmine API key to the configuration file 'stack.conf'. 
+   You'll find it in the admin's MyAccount tab, on the right part of the screen.

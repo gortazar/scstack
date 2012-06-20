@@ -143,15 +143,18 @@ public final class ServicioREST extends Application {
 
     public static void main(String[] args) {
         try {
-            API_Abierta api = new API_Abierta("configuracion.txt");
+            //API_Abierta api = new API_Abierta("configuracion.txt");
+            API_Abierta api = new API_Abierta("scstack.conf"); 
 
             ArrayList listaProy = api.getListaCnProyectos();
             if (listaProy == null || !listaProy.contains(ConfiguracionForja.groupSuperadmin)) {
-                BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-                System.out.println("Indroduzca el UID de superadmin: ");
-                String uid = br.readLine();
-                System.out.println("Indroduzca la contraseña del superadmin: ");
-                String pass = br.readLine();
+//                BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+//                System.out.println("Indroduzca el UID de superadmin: ");
+//                String uid = br.readLine();
+//                System.out.println("Indroduzca la contraseña del superadmin: ");
+//                String pass = br.readLine();
+                String uid = ConfiguracionForja.sadminUID;
+                String pass = ConfiguracionForja.sadminPass;
                 api.inicializaForja(uid, pass);
             }
             

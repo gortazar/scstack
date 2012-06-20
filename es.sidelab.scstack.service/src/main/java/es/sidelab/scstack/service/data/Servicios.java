@@ -21,7 +21,7 @@ import org.restlet.ext.json.JsonRepresentation;
  */
 @XmlRootElement(name = "servicios")
 public class Servicios extends BaseEntity {
-    /** Host de Redmine */
+    /** Host de Redmine, includes the protocol ({@code http://} or {@code https://}) */
     private String hostRedmine;
     /** Path web de los repositorios SVN */
     private String pathSVN;
@@ -36,7 +36,7 @@ public class Servicios extends BaseEntity {
 
     public Servicios() {
         super();
-        hostRedmine = ConfiguracionForja.hostRedmine;
+        hostRedmine = ConfiguracionForja.protocolRedmine + ConfiguracionForja.hostRedmine;
         pathSVN = ConfiguracionForja.pathSVNWeb;
         pathGIT = ConfiguracionForja.pathGITWeb;
         pathReposPublicos = ConfiguracionForja.pathReposPublicosWeb;

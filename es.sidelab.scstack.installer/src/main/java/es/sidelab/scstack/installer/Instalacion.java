@@ -12,8 +12,12 @@ package es.sidelab.scstack.installer;
 import es.sidelab.commons.commandline.CommandLine;
 import es.sidelab.commons.commandline.CommandOutput;
 import es.sidelab.commons.commandline.ExecutionCommandException;
+
+import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -31,13 +35,15 @@ public class Instalacion {
 	public static Properties config;
 	public static int tot = 58;
 	private static es.sidelab.commons.commandline.CommandLine consola = new CommandLine();
+	
+	private static final String configFilename = "scstack.conf";
 
 	/**
 	 * Main method of the SCStack installation.
 	 * <p>Use {@code -Dtype=option} where option can be {@code all | tools | service}.
 	 * <ul><li>If 'all' selected -> installing everything and set scstack-service as daemon.</li> 
 	 * <li>If 'tools' selected -> install only the required software.</li>
-	 * <li>If 'service' selected -> don not install, only set the service as a daemon.</li></ul>
+	 * <li>If 'service' selected -> do not install, only set the service as a daemon.</li></ul>
 	 * </p>
 	 * @param args
 	 */
@@ -67,8 +73,13 @@ public class Instalacion {
 				new Repositorios().instalar();
 				new Redmine().instalar();
 				//Instalacion.ejecutar("/etc/init.d/apache2 restart");
-				if (!tools) //also the service
+				if (!tools) {//also the service
+					BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+					System.out.println("Setup Redmine and then copy its API REST key here: ");
+					String apiKey = br.readLine();
+					overwriteConfigValue("keyRedmineAPI", apiKey);
 					new SCStackService().install();
+				}
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
@@ -80,20 +91,20 @@ public class Instalacion {
 	/**
 	 * Método encargado de cargar desde el fichero de configuración todos los
 	 * parámetros necesarios para la instalación.
+	 * @throws Exception 
 	 */
-	public static void cargarConfiguracion() {
+	public static void cargarConfiguracion() throws Exception {
 		config = new Properties();
 		//String ficheroConfiguracion = "ficherosInstalacion/configInstalacion.txt";
-		String ficheroConfiguracion = "scstack.conf";
 		try {
-			config.load(new FileInputStream(ficheroConfiguracion));
+			config.load(new FileInputStream(configFilename));
 
 		} catch (IOException e) {
 			System.err
 			.println("Se ha producido un error durante la carga del fichero: "
-					+ ficheroConfiguracion
+					+ configFilename
 					+ " - Asegúrese que está en la ruta raíz del proyecto");
-
+			throw new Exception(e.getMessage());
 		}
 	}
 
@@ -103,4 +114,25 @@ public class Instalacion {
 		CommandOutput co = consola.syncExec(comando);
 	}
 
+	/**
+	 * Writes a new value for the specified key into the default configuration file.
+	 * @param key the name of the key
+	 * @param newValue the new value
+	 * @throws Exception
+	 */
+	private static void overwriteConfigValue(String key, String newValue) throws Exception {
+		try {
+			config.put(key, newValue);
+			config.store(new FileOutputStream(configFilename), null);
+		} catch (NullPointerException e) {
+			System.err.println("Key or value argument is null.");
+			throw new Exception(e.getMessage());
+		} catch (IOException e) {
+			System.err
+			.println("Error while writing new value to key '" + key + "' into file " 
+					+ configFilename
+					+ " inside the root folder.");
+			throw new Exception(e.getMessage());
+		}
+	}
 }
