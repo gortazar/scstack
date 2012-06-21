@@ -19,7 +19,7 @@ public class RedmineManagerPage {
 	private final static int PERMISSIONS_TO_UNCHECK = 4;
 	
 	@FindBy(css = "#role_permissions_")
-	private List<WebElement> permissions; 
+	private List<WebElement> permissionsCheckboxes; 
 	
 	@FindBy(linkText = "Settings")
 	private WebElement settings; 
@@ -35,7 +35,7 @@ public class RedmineManagerPage {
 	public boolean uncheckPermissions() {
 		int unchecked = 0;
 		try {
-			for(WebElement p : permissions) {
+			for(WebElement p : permissionsCheckboxes) {
 				if (p.getAttribute("value").equalsIgnoreCase("add_project")) {
 					if (p.isSelected()) {
 						p.click();
@@ -76,7 +76,7 @@ public class RedmineManagerPage {
 	 * Goes to the Settings page.
 	 * @return true if successfully clicked the required link, false otherwise.
 	 */
-	public boolean openSettingsPage() {
+	public boolean goToSettingsPage() {
 		try {
 			settings.click();
 		} catch (NoSuchElementException e) {
