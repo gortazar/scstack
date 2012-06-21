@@ -19,19 +19,21 @@ public class RedmineManagerPage {
 	private final static int PERMISSIONS_TO_UNCHECK = 4;
 	
 	@FindBy(css = "#role_permissions_")
-	private List<WebElement> permissionsCheckboxes; 
+	private List<WebElement> permissionsCheckboxes;
 	
 	@FindBy(linkText = "Settings")
-	private WebElement settings; 
+	private WebElement settings;
 	
-	//TODO @FindBy commit...
+	@FindBy(name = "commit")
+	private WebElement saveButton;
 	
 	/**
 	 * Unchecks the following permissions from the role Manager:
 	 * <ul><li>Create project</li>
 	 * <li>Edit project</li>
 	 * <li>Manage members</li>
-	 * <li>Create subprojects</li></ul> 
+	 * <li>Create subprojects</li></ul>
+	 * Then clicks the Save button. Thus, you should reload this page (re-apply the pattern)
 	 * @return true if successful, false otherwise
 	 */
 	public boolean uncheckPermissions() {
@@ -70,6 +72,12 @@ public class RedmineManagerPage {
 		if (unchecked != PERMISSIONS_TO_UNCHECK) {
 			LOG.log(Level.INFO, "Unable to find all {0} required checkboxes!", PERMISSIONS_TO_UNCHECK);
 			return false;
+		}
+		try {
+			saveButton.click();
+		} catch (NoSuchElementException e) {
+			LOG.log(Level.INFO, "Unable to find the save button for the Manager permissions " +
+					"(NoSuchElementException for name = 'commit').");
 		}
 		return true;
 	}

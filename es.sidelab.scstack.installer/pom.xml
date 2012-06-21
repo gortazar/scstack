@@ -99,7 +99,7 @@
 			<groupId>es.sidelab.scstack</groupId>
 			<artifactId>lib</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-			<exclusions>
+			<exclusions><!-- Excluded b/c conflicts with dependencies from Selenium -->
 				<exclusion>
 					<groupId>org.apache.httpcomponents</groupId>
 					<artifactId>httpclient</artifactId>

@@ -38,12 +38,17 @@ public class RedmineAuthenticationSettingsPage {
 	@FindBy(linkText = "LDAP authentication")
 	private WebElement linkLDAP;
 	
+	@FindBy(name = "commit")
+	private WebElement saveButton;
+	
 	/**
 	 * Configures the Authentication settings:
 	 * <ul><li>Check Authentication required</li>
 	 * <li>Disable self-registration</li>
 	 * <li>Enable REST web service</li>
-	 * </ul> 
+	 * </ul>
+	 * It changes the pages when clicking the Save button, 
+	 * so you should re-apply the pattern. 
 	 */
 	public void configureAuthentication() {
 		try {
@@ -67,6 +72,12 @@ public class RedmineAuthenticationSettingsPage {
 		} catch (NoSuchElementException e) {
 			LOG.log(Level.INFO, "Unable to find the Enable REST WS checkbox " +
 					"(NoSuchElementException for css = '#settings_rest_api_enabled').");
+		}
+		try {
+			saveButton.click();
+		} catch (NoSuchElementException e) {
+			LOG.log(Level.INFO, "Unable to find the save button to persist the Auth changes " +
+					"(NoSuchElementException for name = 'commit').");
 		}
 	}
 	

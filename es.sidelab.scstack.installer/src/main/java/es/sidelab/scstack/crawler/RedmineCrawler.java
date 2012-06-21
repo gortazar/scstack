@@ -85,6 +85,7 @@ public class RedmineCrawler extends Crawler {
 				System.out.println("Unable to remove certain permissions from the Manager role!");
 				return null;
 			}
+			rmp = this.toManagerPage();
 			if (! rmp.goToSettingsPage()) {
 				System.out.println("Unable to get to the Settings page!");
 				return null;
@@ -96,6 +97,7 @@ public class RedmineCrawler extends Crawler {
 			}
 			RedmineAuthenticationSettingsPage rasp = this.toAuthSettingsPage();
 			rasp.configureAuthentication();
+			rasp = this.toAuthSettingsPage();
 			if (! rasp.goToLDAPAuthPage()) {
 				System.out.println("Unable to get to the LDAP Authentication page!");
 				return null;
@@ -120,6 +122,8 @@ public class RedmineCrawler extends Crawler {
 			if (! rlap.isTestingSuccessful()) {
 				System.out.println("The new LDAP connection testing was not successful!");
 				return null;
+			} else {
+				System.out.println("LDAP Authentication configured successfully.");
 			}
 			if (! rlap.clickMyAccount()) {
 				System.out.println("Unable to get to the My Account page!");

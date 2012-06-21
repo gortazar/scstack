@@ -13,6 +13,9 @@ import org.openqa.selenium.support.FindBy;
 public class RedmineMyAccountPage {
 	static final Logger LOG = Logger.getLogger(RedmineMyAccountPage.class.getName());
 	
+	@FindBy(css = "")
+	private WebElement showAPIKey;
+	
 	@FindBy(id = "api-access-key")
 	private WebElement apiKey; 
 	
