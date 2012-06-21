@@ -26,7 +26,7 @@ public class RedmineCrawlerTest {
 	public void setUp() throws Exception {
 		config = Instalacion.cargarConfiguracion("src/main/resources");
 		rcJSEnabled = new RedmineCrawler(true, new CrawlerInfo("redmine", "http://localhost/login"));
-		conn = new LDAPConnection.Builder("textconn")
+		conn = new LDAPConnection.Builder("testconn")
 					.host(config.getProperty("hostLDAP"))
 					.port(config.getProperty("puertoLDAP"))
 					.account(config.getProperty("bindDN"))

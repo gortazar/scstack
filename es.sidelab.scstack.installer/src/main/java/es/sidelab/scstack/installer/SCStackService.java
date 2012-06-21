@@ -21,7 +21,7 @@ public class SCStackService {
 		System.out.println("\n*** CONFIGURING REDMINE PAGE ***\n");
 		RedmineCrawler rcJSEnabled;
 		rcJSEnabled = new RedmineCrawler(true, new CrawlerInfo("redmine", "http://localhost/login"));
-		LDAPConnection conn = new LDAPConnection.Builder("textconn")
+		LDAPConnection conn = new LDAPConnection.Builder("ldapconn")
 					.host(Instalacion.config.getProperty("hostLDAP"))
 					.port(Instalacion.config.getProperty("puertoLDAP"))
 					.account(Instalacion.config.getProperty("bindDN"))
