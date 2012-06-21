@@ -14,11 +14,11 @@ import es.sidelab.commons.commandline.CommandOutput;
 import es.sidelab.commons.commandline.ExecutionCommandException;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,9 +33,7 @@ import java.util.logging.Logger;
  */
 public class Instalacion {
 	public static Properties config;
-	public static int tot = 58;
 	private static es.sidelab.commons.commandline.CommandLine consola = new CommandLine();
-	
 	private static final String configFilename = "scstack.conf";
 
 	/**
@@ -63,7 +61,7 @@ public class Instalacion {
 			if (!service && !tools) //no type specified or type=all
 				System.out.println("\n*** Installing everything (tools & service) ***\n");
 			if (!service) {
-				cargarConfiguracion();
+				cargarConfiguracion(null);
 				System.out.println("\n*** Updating the repositories list ***\n");
 				ejecutar("apt-get -y update");
 				System.out.println("**************************************************\n");
@@ -91,14 +89,16 @@ public class Instalacion {
 	/**
 	 * Método encargado de cargar desde el fichero de configuración todos los
 	 * parámetros necesarios para la instalación.
+	 * @param resourcePath the folder where the config file resides. Accepts null value, in which
+	 * case the current dir is considered.
 	 * @throws Exception 
 	 */
-	public static void cargarConfiguracion() throws Exception {
+	public static Properties cargarConfiguracion(String resourcePath) throws Exception {
 		config = new Properties();
 		//String ficheroConfiguracion = "ficherosInstalacion/configInstalacion.txt";
 		try {
-			config.load(new FileInputStream(configFilename));
-
+			File configFile = new File(resourcePath, configFilename);
+			config.load(new FileInputStream(configFile));
 		} catch (IOException e) {
 			System.err
 			.println("Se ha producido un error durante la carga del fichero: "
@@ -106,6 +106,7 @@ public class Instalacion {
 					+ " - Asegúrese que está en la ruta raíz del proyecto");
 			throw new Exception(e.getMessage());
 		}
+		return config;
 	}
 
 	public static void ejecutar(String comando)

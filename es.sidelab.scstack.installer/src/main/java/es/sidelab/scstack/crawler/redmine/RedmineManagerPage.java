@@ -24,6 +24,8 @@ public class RedmineManagerPage {
 	@FindBy(linkText = "Settings")
 	private WebElement settings; 
 	
+	//TODO @FindBy commit...
+	
 	/**
 	 * Unchecks the following permissions from the role Manager:
 	 * <ul><li>Create project</li>
