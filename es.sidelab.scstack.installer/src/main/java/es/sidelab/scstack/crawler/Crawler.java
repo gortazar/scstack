@@ -8,8 +8,6 @@ import org.apache.commons.logging.LogFactory;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 
-import es.sidelab.scstack.installer.LDAPConnection;
-
 /**
  * Crawler superclass that should be subtyped whenever we want to create a new Crawler.
  * @author <a href="mailto:radutom.vlad@gmail.com">Radu Tom Vlad</a>
@@ -73,7 +71,6 @@ public abstract class Crawler {
 		}
 	}
 
-	public abstract String getAPIKey(String user, String pass, LDAPConnection conn) throws CrawlerException;
 	/**
 	 * Change the default {@link Crawler#scriptTimeout} if required.
 	 */

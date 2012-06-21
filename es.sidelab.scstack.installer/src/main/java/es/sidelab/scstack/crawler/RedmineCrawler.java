@@ -41,15 +41,15 @@ public class RedmineCrawler extends Crawler {
 	}
 
 	/**
-	 * Returns the REST API key from the Redmine site.
-	 * @param user
-	 * @param pass
-	 * @param conn
-	 * @return
+	 * Configures the Redmine via its web interface and 
+	 * returns with the REST API key.
+	 * @param user the user to login with
+	 * @param pass the user's password
+	 * @param conn the {@link LDAPConnection} object that will be used to creat the LDAP connection 
+	 * @return a String that will be the REST API key, null in case of error
 	 * @throws CrawlerException
 	 */
-	@Override
-	public String getAPIKey(String user, String pass, LDAPConnection conn) throws CrawlerException {
+	public String configureRedmine(String user, String pass, LDAPConnection conn) throws CrawlerException {
 		String api = null;
 		try {
 			RedmineLoginPage rlp = this.toLoginPage(this.crawlerInfo.getUrl());
@@ -130,6 +130,11 @@ public class RedmineCrawler extends Crawler {
 				return null;
 			}
 			RedmineMyAccountPage rmap = this.toMyAccountPage();
+			if (! rmap.clickShow()) {
+				System.out.println("Unable to click the Show link!");
+				return null;
+			}
+			rmap = this.toMyAccountPage();
 			api = rmap.getAPIKey();
 			if (api != null) {
 				System.out.println("Recovered API Key: " + api);

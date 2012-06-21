@@ -13,12 +13,25 @@ import org.openqa.selenium.support.FindBy;
 public class RedmineMyAccountPage {
 	static final Logger LOG = Logger.getLogger(RedmineMyAccountPage.class.getName());
 	
-	@FindBy(css = "")
+	@FindBy(linkText = "Show")
 	private WebElement showAPIKey;
 	
 	@FindBy(id = "api-access-key")
 	private WebElement apiKey; 
 	
+	/**
+	 * Clicks the Show link. The pattern should be re-applied after this call.
+	 * @return true if successfully clicked the link, false otherwise
+	 */
+	public boolean clickShow() {
+		try {	
+			showAPIKey.click();
+		} catch (NoSuchElementException e) {
+			LOG.info("Can't find the API Show link (NoSuchElementException for linkText = 'Show').");
+			return false;
+		}
+		return true;
+	}
 	/**
 	 * Gets the API key (it's display style is none).
 	 * @return the key if found, null in case of error

@@ -4,19 +4,21 @@ import static org.junit.Assert.*;
 
 import java.util.Properties;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import es.sidelab.scstack.crawler.Crawler;
 import es.sidelab.scstack.crawler.CrawlerException;
 import es.sidelab.scstack.crawler.CrawlerInfo;
 import es.sidelab.scstack.crawler.RedmineCrawler;
 import es.sidelab.scstack.installer.Instalacion;
 import es.sidelab.scstack.installer.LDAPConnection;
 
+/**
+ * Testing class for the Redmine Crawler.
+ * @author <a href="mailto:radutom.vlad@gmail.com">Radu Tom Vlad</a>
+ */
 public class RedmineCrawlerTest {
-	private Crawler rcJSEnabled;
+	private RedmineCrawler rcJSEnabled;
 	private LDAPConnection conn;
 	private Properties config;
 	
@@ -33,35 +35,14 @@ public class RedmineCrawlerTest {
 					.build();
 	}
 	
-	@After
-	public void tearDown(){
-		
-	}
-	
 	@Test
 	public void testGetAPIKey() {
 		try {
-			String api = rcJSEnabled.getAPIKey("admin", "admin", conn);
+			String api = rcJSEnabled.configureRedmine("admin", "admin", conn);
 			assertTrue(null != api && !api.isEmpty());
 		} catch (Exception e) {
 			assertEquals(CrawlerException.class, e.getClass());
 			e.printStackTrace();
 		}
 	}
-
-	@Test
-	public void testRedmineCrawler() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testCloseDriver() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetName() {
-		fail("Not yet implemented");
-	}
-
 }

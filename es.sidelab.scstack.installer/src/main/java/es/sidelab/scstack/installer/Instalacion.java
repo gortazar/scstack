@@ -72,10 +72,9 @@ public class Instalacion {
 				new Redmine().instalar();
 				//Instalacion.ejecutar("/etc/init.d/apache2 restart");
 				if (!tools) {//also the service
-					BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-					System.out.print("Setup Redmine and then copy its API REST key here: ");
-					String apiKey = br.readLine();
-					overwriteConfigValue("keyRedmineAPI", apiKey);
+//					BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+//					System.out.print("Setup Redmine and then copy its API REST key here: ");
+//					String apiKey = br.readLine();
 					new SCStackService().install();
 				}
 			}
@@ -112,7 +111,7 @@ public class Instalacion {
 	public static void ejecutar(String comando)
 			throws ExecutionCommandException, IOException {
 		System.out.println("# " + comando);
-		CommandOutput co = consola.syncExec(comando);
+		consola.syncExec(comando);
 	}
 
 	/**
@@ -121,7 +120,7 @@ public class Instalacion {
 	 * @param newValue the new value
 	 * @throws Exception
 	 */
-	private static void overwriteConfigValue(String key, String newValue) throws Exception {
+	public static void overwriteConfigValue(String key, String newValue) throws Exception {
 		try {
 			config.put(key, newValue);
 			config.store(new FileOutputStream(configFilename), null);

@@ -38,7 +38,7 @@ public class RedmineAuthenticationSettingsPage {
 	@FindBy(linkText = "LDAP authentication")
 	private WebElement linkLDAP;
 	
-	@FindBy(name = "commit")
+	@FindBy(css = "#tab-content-authentication>form>input")
 	private WebElement saveButton;
 	
 	/**
@@ -77,7 +77,7 @@ public class RedmineAuthenticationSettingsPage {
 			saveButton.click();
 		} catch (NoSuchElementException e) {
 			LOG.log(Level.INFO, "Unable to find the save button to persist the Auth changes " +
-					"(NoSuchElementException for name = 'commit').");
+					"(NoSuchElementException for css = '#tab-content-authentication>form>input').");
 		}
 	}
 	
