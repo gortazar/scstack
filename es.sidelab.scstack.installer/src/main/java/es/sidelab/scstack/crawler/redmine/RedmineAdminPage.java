@@ -16,11 +16,24 @@ public class RedmineAdminPage {
 	@FindBy(name = "commit")
 	private WebElement loadDefaultConfig;
 	
+	@FindBy(linkText = "Roles and permissions")
+	private WebElement roles; 
+	
 	public boolean loadDefaultConfiguration() {
 		try {
 			loadDefaultConfig.click();
 		} catch (NoSuchElementException e) {
 			LOG.info("Can't find the load default config button (NoSuchElementException for name = 'commit').");
+			return false;
+		}
+		return true;
+	}
+	
+	public boolean goToRoles() {
+		try {
+			roles.click();
+		} catch (NoSuchElementException e) {
+			LOG.info("Can't find the Roles and permissions link (NoSuchElementException).");
 			return false;
 		}
 		return true;
