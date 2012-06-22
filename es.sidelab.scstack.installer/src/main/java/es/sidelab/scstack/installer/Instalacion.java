@@ -50,6 +50,7 @@ public class Instalacion {
 			String installType = System.getProperty("type", "all");
 			boolean tools = false;
 			boolean service = false;
+			cargarConfiguracion(null);
 			if (installType.equalsIgnoreCase("service")) {
 				System.out.println("\n*** Installing only the service ***\n");
 				service = true;
@@ -61,7 +62,6 @@ public class Instalacion {
 			if (!service && !tools) //no type specified or type=all
 				System.out.println("\n*** Installing everything (tools & service) ***\n");
 			if (!service) {
-				cargarConfiguracion(null);
 				System.out.println("\n*** Updating the repositories list ***\n");
 				ejecutar("apt-get -y update");
 				System.out.println("**************************************************\n");
