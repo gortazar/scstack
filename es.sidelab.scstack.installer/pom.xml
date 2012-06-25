@@ -94,6 +94,26 @@
 			</plugin>
 		</plugins>
 	</build>
+	<profiles>
+		<profile> <!-- to release the sources together with the binaries -->
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-source-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<goals>
+									<goal>jar-no-fork</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 	<dependencies>
  		<dependency>
 			<groupId>es.sidelab.scstack</groupId>
