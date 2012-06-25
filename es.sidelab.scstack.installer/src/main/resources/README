@@ -39,7 +39,7 @@ Installation procedure of the forge's system dependencies in Ubuntu Desktop (10.
     
     For the moment, the log file for this daemon is '/tmp/scstack-service.log'.
     
-    Open the URL http://RESTurl:RESTport with your browser, login as the superuser
+    Open the URL https://RESTurl:RESTport with your browser, login as the superuser
    and test the forge (create users, projects, etc.), then open the Redmine page 
    and see if everything works as expected.
    
@@ -79,4 +79,4 @@ The installer uses the Selenium technology to access the Redmine web page and co
  2.3. Create
  2.4. Press 'Test' in the connections' list
  2.5. Checks the connection has been tested successfully. 
-3. Copies the Redmine's REST API key to the configuration file 'stack.conf'. 
+3. Copies the Redmine's REST API key to the configuration file 'stack.conf'.
