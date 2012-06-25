@@ -34,7 +34,7 @@
 		<!-- this type requires write access -->
 		<developerConnection>scm:svn:https://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.scstack.parent</developerConnection>
 		<!-- publicly browsable repository -->
-		<url>http://code.sidelab.es/projects/sidelabcodestack/repository/show/scstack</url>
+		<!-- <url>http://code.sidelab.es/projects/sidelabcodestack/repository/show/scstack</url> -->
 	</scm>
 
 	<organization>
