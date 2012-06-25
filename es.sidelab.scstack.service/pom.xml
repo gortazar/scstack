@@ -1,11 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<artifactId>parent</artifactId>
 		<groupId>es.sidelab.scstack</groupId>
-		<version>0.0.1-SNAPSHOT</version>
+		<version>0.1.1</version>
 		<relativePath>../es.sidelab.scstack.parent</relativePath>
 	</parent>
 	<artifactId>service</artifactId>
@@ -18,9 +17,9 @@
 
 	<scm>
 		<!-- requires (at least) read access -->
-		<connection>scm:svn:http://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.scstack.service</connection>
+		<connection>scm:svn:http://code.sidelab.es/svn/sidelabcodestack/scstack/tags/scstack-0.1.1/es.sidelab.scstack.service</connection>
 		<!-- this type requires write access -->
-		<developerConnection>scm:svn:https://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.scstack.service</developerConnection>
+		<developerConnection>scm:svn:https://code.sidelab.es/svn/sidelabcodestack/scstack/tags/scstack-0.1.1/es.sidelab.scstack.service</developerConnection>
 		<!-- publicly browsable repository -->
 		<!-- <url>http://code.sidelab.es/projects/sidelabcodestack/repository/show/scstack</url> -->
 	</scm>
@@ -36,7 +35,7 @@
 		<dependency>
 			<groupId>es.sidelab.scstack</groupId>
 			<artifactId>lib</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.1.1</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
