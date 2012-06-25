@@ -3,7 +3,7 @@
 	<parent>
 		<groupId>es.sidelab.scstack</groupId>
 		<artifactId>parent</artifactId>
-		<version>0.1.1</version>
+		<version>0.2-SNAPSHOT</version>
 		<relativePath>../es.sidelab.scstack.parent</relativePath>
 	</parent>
 	<artifactId>installer</artifactId>
@@ -22,9 +22,9 @@
 
 	<scm>
 		<!-- requires (at least) read access -->
-		<connection>scm:svn:http://code.sidelab.es/svn/sidelabcodestack/scstack/tags/scstack-0.1.1/es.sidelab.scstack.installer</connection>
+		<connection>scm:svn:http://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.scstack.installer</connection>
 		<!-- this type requires write access -->
-		<developerConnection>scm:svn:https://code.sidelab.es/svn/sidelabcodestack/scstack/tags/scstack-0.1.1/es.sidelab.scstack.installer</developerConnection>
+		<developerConnection>scm:svn:https://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.scstack.installer</developerConnection>
 		<!-- publicly browsable repository -->
 		<!-- <url>http://code.sidelab.es/projects/sidelabcodestack/repository/show/scstack</url> -->
 	</scm>
@@ -117,7 +117,7 @@
  		<dependency>
 			<groupId>es.sidelab.scstack</groupId>
 			<artifactId>lib</artifactId>
-			<version>0.1.1</version>
+			<version>0.2-SNAPSHOT</version>
 			<exclusions><!-- Excluded b/c conflicts with dependencies from Selenium -->
 				<exclusion>
 					<groupId>org.apache.httpcomponents</groupId>

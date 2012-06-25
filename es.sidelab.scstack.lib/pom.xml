@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>es.sidelab.scstack</groupId>
 		<artifactId>parent</artifactId>
-		<version>0.1.1</version>
+		<version>0.2-SNAPSHOT</version>
 		<relativePath>../es.sidelab.scstack.parent</relativePath>
 	</parent>
 	<artifactId>lib</artifactId>
@@ -16,9 +16,9 @@
 	
 	<scm>
 		<!-- requires (at least) read access -->
-		<connection>scm:svn:http://code.sidelab.es/svn/sidelabcodestack/scstack/tags/scstack-0.1.1/es.sidelab.scstack.lib</connection>
+		<connection>scm:svn:http://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.scstack.lib</connection>
 		<!-- this type requires write access -->
-		<developerConnection>scm:svn:https://code.sidelab.es/svn/sidelabcodestack/scstack/tags/scstack-0.1.1/es.sidelab.scstack.lib</developerConnection>
+		<developerConnection>scm:svn:https://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.scstack.lib</developerConnection>
 		<!-- publicly browsable repository -->
 		<!-- <url>http://code.sidelab.es/projects/sidelabcodestack/repository/show/scstack</url> -->
 	</scm>
