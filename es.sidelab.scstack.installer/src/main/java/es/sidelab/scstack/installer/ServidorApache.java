@@ -10,9 +10,13 @@
 package es.sidelab.scstack.installer;
 
 import es.sidelab.commons.commandline.ExecutionCommandException;
+import es.sidelab.scstack.lib.exceptions.ExcepcionForja;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URL;
+import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
 
@@ -25,7 +29,7 @@ import java.security.NoSuchAlgorithmException;
  */
 public class ServidorApache {
 
-    public void instalar() throws ExecutionCommandException, IOException, NoSuchAlgorithmException {
+    public void instalar() throws ExecutionCommandException, IOException, NoSuchAlgorithmException, ExcepcionForja {
         System.out.println("\n*** INSTALACIÓN SERVIDOR WEB APACHE ***\n");
         Instalacion.ejecutar("apt-get -y install apache2-mpm-prefork apache2-utils apache2.2-bin apache2.2-common libapache2-mod-php5 libapr1 libaprutil1 libaprutil1-dbd-sqlite3 libaprutil1-ldap php5-common php5");
         Instalacion.ejecutar("a2enmod ssl");
@@ -45,6 +49,12 @@ public class ServidorApache {
         //display the list of opened ports and the listening services
         //Instalacion.ejecutar("lsof -Pnl +M -i4");
         Instalacion.ejecutar("/etc/init.d/apache2 restart");
+        URL localURL = new URL("80", "127.0.0.1", "");
+        URLConnection conn = localURL.openConnection();
+        conn.connect();
+        String msg = (String) conn.getContent();
+        if (null == msg || ! msg.toLowerCase().contains("it works!"))
+        	throw new ExcepcionForja("Sanity check error for Apache: expected content not found.");
         System.out.println("**************************************************\n");
     }
 

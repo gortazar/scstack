@@ -14,7 +14,7 @@ import es.sidelab.scstack.installer.Instalacion;
 import es.sidelab.scstack.installer.LDAPConnection;
 
 /**
- * Testing class for the Redmine Crawler.
+ * Testing class for the Redmine Crawler. Only use it after performing the installation.
  * @author <a href="mailto:radutom.vlad@gmail.com">Radu Tom Vlad</a>
  */
 public class RedmineCrawlerTest {
