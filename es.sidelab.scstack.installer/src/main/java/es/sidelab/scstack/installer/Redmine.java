@@ -11,9 +11,14 @@ package es.sidelab.scstack.installer;
 
 import es.sidelab.commons.commandline.CommandLine;
 import es.sidelab.commons.commandline.ExecutionCommandException;
+import es.sidelab.scstack.lib.exceptions.ExcepcionForja;
+
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.security.NoSuchAlgorithmException;
 
 
@@ -24,16 +29,15 @@ import java.security.NoSuchAlgorithmException;
  * @author Arek Klauza
  */
 public class Redmine {
-    private static CommandLine consola;
-
-
-
-    public Redmine() {
-        consola = new CommandLine();
-    }
-
-
-    public void instalar() throws ExecutionCommandException, IOException, NoSuchAlgorithmException {
+	/**
+	 * Method that performs the Redmine's installation and configuration. 
+	 * Any encountered error will be thrown and the execution will be stopped.
+	 * @throws ExecutionCommandException
+	 * @throws IOException
+	 * @throws NoSuchAlgorithmException
+	 * @throws ExcepcionForja
+	 */
+    public void instalar() throws ExecutionCommandException, IOException, NoSuchAlgorithmException, ExcepcionForja {
         System.out.println("\n*** INSTALACIÓN REDMINE ***\n");
         Instalacion.ejecutar("apt-get -y install mysql-client-5.1 libmysqlclient-dev");
         Instalacion.ejecutar("apt-get -y install rubygems mongrel ruby1.8-dev rake libopenssl-ruby1.8");
@@ -65,6 +69,33 @@ public class Redmine {
         Instalacion.ejecutar("/etc/init.d/apache2 restart");
         //Instalacion.ejecutar("apache2ctl graceful");
 
+		//Sanity check
+		URL localURL = new URL("http://localhost");
+		HttpURLConnection conn = (HttpURLConnection) localURL.openConnection();
+		conn.setRequestMethod("GET");
+		conn.connect();
+		int rcode = conn.getResponseCode();
+		if (rcode == -1)
+			throw new ExcepcionForja("Sanity check error for Redmine: response code not established, should be 200 but is -1.");
+		System.out.println("Response code from http://localhost is: " + rcode);
+		if (rcode == HttpURLConnection.HTTP_OK) {
+			StringBuffer sb = new StringBuffer();
+			InputStream input = conn.getInputStream();
+			if (null == input)
+				throw new ExcepcionForja("Sanity check error for Redmine: " + 
+					"no input stream to read from, cannot establish if Apache (or Redmine) is alive.");
+			int c;
+			while ((c = input.read()) != -1) {
+				sb.append((char)c);
+			}
+			input.close();
+			if (null == sb || sb.length() == 0 || ! sb.toString().toLowerCase().contains("redmine")) {
+				throw new ExcepcionForja("Sanity check error for Redmine: expected content not found.");
+			} else {
+				System.out.println("Redmine (and, consequently, Apache and MySQL) is working.");
+			}
+		} else
+			throw new ExcepcionForja("Sanity check error for Redmine: response code not 200, but " + rcode);
         System.out.println("**************************************************\n");
     }
 

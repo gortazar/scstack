@@ -12,6 +12,7 @@ package es.sidelab.scstack.installer;
 import es.sidelab.commons.commandline.CommandLine;
 import es.sidelab.commons.commandline.CommandOutput;
 import es.sidelab.commons.commandline.ExecutionCommandException;
+import es.sidelab.scstack.lib.exceptions.ExcepcionForja;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -118,21 +119,22 @@ public class Instalacion {
 	 * Writes a new value for the specified key into the default configuration file.
 	 * @param key the name of the key
 	 * @param newValue the new value
+	 * @throws ExcepcionForja 
 	 * @throws Exception
 	 */
-	public static void overwriteConfigValue(String key, String newValue) throws Exception {
+	public static void overwriteConfigValue(String key, String newValue) throws ExcepcionForja {
 		try {
 			config.put(key, newValue);
 			config.store(new FileOutputStream(configFilename), null);
 		} catch (NullPointerException e) {
 			System.err.println("Key or value argument is null.");
-			throw new Exception(e.getMessage());
+			throw new ExcepcionForja(e.getMessage());
 		} catch (IOException e) {
 			System.err
 			.println("Error while writing new value to key '" + key + "' into file " 
 					+ configFilename
 					+ " inside the root folder.");
-			throw new Exception(e.getMessage());
+			throw new ExcepcionForja(e.getMessage());
 		}
 	}
 }

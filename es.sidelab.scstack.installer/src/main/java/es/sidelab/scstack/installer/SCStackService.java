@@ -1,8 +1,12 @@
 package es.sidelab.scstack.installer;
 
+import java.io.IOException;
+
+import es.sidelab.commons.commandline.ExecutionCommandException;
 import es.sidelab.scstack.crawler.CrawlerException;
 import es.sidelab.scstack.crawler.CrawlerInfo;
 import es.sidelab.scstack.crawler.RedmineCrawler;
+import es.sidelab.scstack.lib.exceptions.ExcepcionForja;
 
 /**
  * Provides a method to install the REST service and web console of 
@@ -14,10 +18,12 @@ public class SCStackService {
 	 * Configures the Redmine installation using a RedmineCrawler and 
 	 * retrieves the REST API key.
 	 * Then it installs the REST service and web console as a daemon. 
-	 * @throws Exception
 	 * @throws CrawlerException
+	 * @throws ExcepcionForja 
+	 * @throws IOException 
+	 * @throws ExecutionCommandException 
 	 */
-	public void install() throws Exception, CrawlerException {
+	public void install() throws CrawlerException, ExcepcionForja, ExecutionCommandException, IOException {
 		System.out.println("\n*** CONFIGURING REDMINE PAGE ***\n");
 		RedmineCrawler rcJSEnabled;
 		rcJSEnabled = new RedmineCrawler(true, new CrawlerInfo("redmine", "http://localhost/login"));
@@ -48,6 +54,14 @@ public class SCStackService {
 		Instalacion.ejecutar("cp scstack-service/daemon/scstack-service /etc/init.d/");
 
 		Instalacion.ejecutar("start scstack-service");
+		//waiting 1 sec before obtaining the daemon's status
+		long time = 1000;
+		try {
+			Thread.sleep(time);
+		} catch (InterruptedException e) {
+			System.out.println("Interrupted while sleeping for " + time + "milis.");
+			e.printStackTrace();
+		}
 		Instalacion.ejecutar("status scstack-service");
 		System.out.println("**************************************************\n");
 	}
