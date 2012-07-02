@@ -9,7 +9,6 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 package es.sidelab.scstack.service.restlets;
 
-import es.sidelab.scstack.lib.exceptions.ExcepcionForja;
 import es.sidelab.scstack.service.ServicioREST;
 import es.sidelab.scstack.service.data.Proxy;
 
@@ -96,6 +95,10 @@ public class BaseResource extends Resource {
     protected final StringRepresentation getHtmlRepresentation(String ruta) throws ResourceException {
         StringBuilder html = new StringBuilder();
         try {
+        	// an explanation for this 'substring(7)':
+        	//  it appears that rootHTML looks like this: file://xxxxa-pathxxxx
+        	//  so it only wants the path, without the file://
+        	// at least, this is what I've managed to find out.
             FileReader fr = new FileReader(ServicioREST.rootHTML.substring(7) + ruta);
             BufferedReader buf = new BufferedReader(fr);
             String linea;

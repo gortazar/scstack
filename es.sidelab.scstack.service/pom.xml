@@ -33,6 +33,10 @@
 
 	<dependencies>
 		<dependency>
+			<groupId>es.sidelab.commons</groupId>
+			<artifactId>commandline</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>es.sidelab.scstack</groupId>
 			<artifactId>lib</artifactId>
 			<version>0.2-SNAPSHOT</version>

@@ -152,7 +152,10 @@
 			<dependency>
 				<groupId>es.sidelab.commons</groupId>
 				<artifactId>commandline</artifactId>
-				<version>0.2.1</version>
+				<!-- <version>0.2.1</version> -->
+				<!-- Only during development; 
+				a stable release must be performed for this module before attempting to release SCStack -->
+				<version>0.2.2-SNAPSHOT</version>
 			</dependency>
 			<dependency> <!-- IMPORTANT: better use a stable release! -->
 				<groupId>es.sidelab.vbman</groupId>

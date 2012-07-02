@@ -9,10 +9,9 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 package es.sidelab.scstack.service;
 
-import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Properties;
 import org.restlet.Application;
@@ -47,7 +46,9 @@ import es.sidelab.scstack.service.restlets.users.UsuariosResource;
  * @author Arek Klauza
  */
 public final class ServicioREST extends Application {
-
+	/** Path and name of the configuration file for the REST service. */
+	public static final String CONFIG_FILE = "scstack.conf";
+	
     /* PARÁMETROS CONFIGURACIÓN SERVIDOR */
     public static String rootHTML;
     private String rootServicio;
@@ -143,8 +144,7 @@ public final class ServicioREST extends Application {
 
     public static void main(String[] args) {
         try {
-            //API_Abierta api = new API_Abierta("configuracion.txt");
-            API_Abierta api = new API_Abierta("scstack.conf"); 
+            API_Abierta api = new API_Abierta(CONFIG_FILE); 
 
             ArrayList listaProy = api.getListaCnProyectos();
             if (listaProy == null || !listaProy.contains(ConfiguracionForja.groupSuperadmin)) {
@@ -172,12 +172,9 @@ public final class ServicioREST extends Application {
      * Método encargado de cargar desde el fichero de configuración todos los
      * parámetros necesarios para lanzar el servicio web REST.
      */
-    public void cargarConfiguracion() {
-        Properties props = new Properties();
-        //String ficheroConfiguracion = "configuracion.txt";
-        String ficheroConfiguracion = "scstack.conf";
+    private void cargarConfiguracion() {
         try {
-            props.load(new FileInputStream(ficheroConfiguracion));
+        	Properties props = loadPropertiesFromFile("scstack.conf");
             host = props.getProperty("hostRest", "localhost");
             port = Integer.valueOf(props.getProperty("puertoRest", "5555"));
             protocolo = props.getProperty("protocoloRest", "HTTPS");
@@ -189,12 +186,21 @@ public final class ServicioREST extends Application {
                 rootHTML = "file://" + System.getProperty("user.dir") + "/" + rootHTML;
 
         } catch (IOException e) {
-            System.err.println("Se ha producido un error durante la carga del fichero: " + ficheroConfiguracion +
+            System.err.println("Se ha producido un error durante la carga del fichero: " + CONFIG_FILE +
                     " - Asegúrese que está en la ruta raíz del JAR");
-
         }
     }
 
-
-    
+    /**
+     * Loads all pairs of key - value from a file into a {@link java.util.Properties} object.
+     * @param filePath
+     * @return the Properties object
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    public static Properties loadPropertiesFromFile(String filePath) throws FileNotFoundException, IOException {
+    	Properties props = new Properties();
+    	props.load(new FileInputStream(filePath));
+    	return props;
+    }
 }
