@@ -22,26 +22,26 @@
 			<directory>src/main/www</directory>
 			<outputDirectory>www</outputDirectory>
 		</fileSet>
-		<!-- Adds config files to the root directory of zip package -->
+		<!-- Adds the certificate used for https to the root directory of zip package -->
 		<fileSet>
 			<directory></directory>
 			<outputDirectory></outputDirectory>
 			<includes>
-				<include>scstack.conf</include>
 				<include>SidelabCode.jks</include>
 			</includes>
 		</fileSet>
-		<!-- Adds README to the root directory of zip package -->
+		<!-- Adds config file & README to the root directory of zip package -->
 		<fileSet>
 			<directory>src/main/resources</directory>
 			<outputDirectory></outputDirectory>
 			<includes>
+				<include>scstack.conf</include>
 				<include>README</include>
 			</includes>
 		</fileSet>
 		<!-- Adds service files to the daemon directory of zip package -->
 		<fileSet>
-			<directory>src/main/resources</directory>
+			<directory>src/main/resources/daemon</directory>
 			<outputDirectory>/daemon</outputDirectory>
 			<includes>
 				<include>scstack-service.conf</include>

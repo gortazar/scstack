@@ -3,8 +3,11 @@ package es.sidelab.scstack.service;
 import static org.junit.Assert.*;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -52,6 +55,8 @@ public class RemoteIT {
 	
 	private static Console sshCons;
 	private static Console localCons;
+	
+	private static File tmpLFTPScriptFile;
 	
 	/**
 	 * Loads configuration to read the superuser's uid and password.
@@ -110,6 +115,7 @@ public class RemoteIT {
 	 */
 	@After
 	public void tearDown() throws Exception {
+		tmpLFTPScriptFile.delete();
 	}
 
 	/**
@@ -126,7 +132,8 @@ public class RemoteIT {
 									MalformedURLException, 
 									IOException, 
 									ExecutionCommandException {
-		String response = getResponseJSON("usuarios", "GET", HttpURLConnection.HTTP_OK);
+		String response = getResponseJSON(
+				"usuarios", "GET", HttpURLConnection.HTTP_OK, superUser, superUserPass);
 		assertNotNull(response);
 		Usuarios uidUsers = new JSONDeserializer<Usuarios>().deserialize(response);
 		boolean superUserIsConfirmed = false;
@@ -148,25 +155,31 @@ public class RemoteIT {
 		String sshdConfigContents = sshCons.getFile(SSHD_CONFIG);
 		assertNotNull(sshdConfigContents);
 		assertFalse(sshdConfigContents.isEmpty());
-		String[] parts = sshdConfigContents.split(sshJailMarker, 2);
-		if (parts.length < 2)
-			fail("Unable to find the text " + sshJailMarker + " in the remote file " + SSHD_CONFIG);
-		System.out.println(parts[1]);
-		String superuserEntry = getUserEntry(superUser, parts[1]); 
+		System.out.println("Contents of SSHD_CONFIG:\n------------\n" + 
+							sshdConfigContents + 
+							"\n------------\n");
+		String superuserEntry = getUserEntryInSSHD_CONFIG(superUser, sshdConfigContents); 
 		assertNotNull(superuserEntry);
 		assertFalse(superuserEntry.isEmpty());
-		//TODO
-		//localCons.exec("lftp -u " + superUser + "," + superUserPass + " sftp://" + stackIP + ";ls;exit");
+		createLFTPScriptTempFile(superUser, superUserPass, new String[]{"ls", "cd private", "ls"});
+//		String lftpCmd = "sh test-scripts/sftp-access.sh " + superUser + " " + superUserPass + " " +
+//						stackIP + " " + " ls";
+//		localCons.exec("echo Executing lftp: " + lftpCmd);
+		//TODO se puede borrar el test-scripts/*
 		
+		
+		String lftpCmd = "lftp -f " + tmpLFTPScriptFile.getAbsolutePath();
+		localCons.exec("echo Executing lftp: " + lftpCmd);
+		localCons.exec(lftpCmd);
 	}
-
+	
 	/**
 	 * Tests the local method that retrieves an entry from the file SSHD_CONFIG,
 	 * by sending it a mocked version of the file. This one includes 2 correct entries.
 	 */
 	@Test
 	public void testSSHD_CONFIG_Pattern_TwoEntries() {
-		String text = "Match User superforja\n" + 
+		String text = sshJailMarker + "\nMatch User superforja\n" + 
 					"	ChrootDirectory /var/files\n" +
 					"	AllowTCPForwarding no\n" +
 					"	X11Forwarding no\n" +
@@ -178,7 +191,7 @@ public class RemoteIT {
 					"	X11Forwarding no\n" +
 					"	ForceCommand internal-sftp\n" +
 					"\n";
-		String superuserEntry = getUserEntry(superUser, text); 
+		String superuserEntry = getUserEntryInSSHD_CONFIG(superUser, text); 
 		assertNotNull(superuserEntry);
 		assertFalse(superuserEntry.isEmpty());
 		System.out.println("Received matched text for 2 entries:\n------------\n" + 
@@ -191,17 +204,40 @@ public class RemoteIT {
 	 */
 	@Test
 	public void testSSHD_CONFIG_Pattern_OneEntry() {
+		String text = sshJailMarker + "\nMatch User superforja\n" + 
+					"	ChrootDirectory /var/files\n" +
+					"	AllowTCPForwarding no\n" +
+					"	X11Forwarding no\n" +
+					"	ForceCommand internal-sftp\n" +
+					"\n";
+		String superuserEntry = getUserEntryInSSHD_CONFIG(superUser, text); 
+		assertNotNull(superuserEntry);
+		assertFalse(superuserEntry.isEmpty());
+		System.out.println("Received matched text for 1 entry:\n------------\n" + 
+							superuserEntry + "\n-------------\n");
+	}
+	
+	/**
+	 * Tests the failure of the local method that retrieves an entry from the file SSHD_CONFIG,
+	 * by sending it a mocked version of the file. This one includes one correct entry
+	 * but NOT the Jail Marker (or placeholder).
+	 */
+	@Test
+	public void testFailureSSHD_CONFIG_Pattern_OneEntry() {
 		String text = "Match User superforja\n" + 
 					"	ChrootDirectory /var/files\n" +
 					"	AllowTCPForwarding no\n" +
 					"	X11Forwarding no\n" +
 					"	ForceCommand internal-sftp\n" +
 					"\n";
-		String superuserEntry = getUserEntry(superUser, text); 
-		assertNotNull(superuserEntry);
-		assertFalse(superuserEntry.isEmpty());
-		System.out.println("Received matched text for 1 entry:\n------------\n" + 
-							superuserEntry + "\n-------------\n");
+		try {
+			getUserEntryInSSHD_CONFIG(superUser, text);
+		} catch (Error e) {
+			assertTrue(e instanceof AssertionError);
+			assertTrue(e.getClass().getName().equalsIgnoreCase(AssertionError.class.getName()));
+			assertEquals("Unable to find the text " + sshJailMarker + " in the provided contents.", 
+					e.getMessage());
+		}
 	}
 	
 	/**
@@ -210,7 +246,7 @@ public class RemoteIT {
 	 */
 	@Test
 	public void testSSHD_CONFIG_Pattern_VariousEntries() {
-		String text = "Match User oneuser\n" + 
+		String text = sshJailMarker + "\nMatch User oneuser\n" + 
 					"	ChrootDirectory /var/files\n" +
 					"	AllowTCPForwarding no\n" +
 					"	X11Forwarding no\n" +
@@ -228,7 +264,7 @@ public class RemoteIT {
 					"	X11Forwarding no\n" +
 					"	ForceCommand internal-sftp\n" +
 					"\n";
-		String superuserEntry = getUserEntry(superUser, text); 
+		String superuserEntry = getUserEntryInSSHD_CONFIG(superUser, text); 
 		assertNotNull(superuserEntry);
 		assertFalse(superuserEntry.isEmpty());
 		System.out.println("Received matched text for several entries:\n------------\n" + 
@@ -241,7 +277,7 @@ public class RemoteIT {
 	 */
 	@Test
 	public void testSSHD_CONFIG_Pattern_VariousEntries_BadText() {
-		String text = "Match User oneuser\n" + 
+		String text = sshJailMarker + "\nMatch User oneuser\n" + 
 					"	ChrootDirectory /var/files\n" +
 					"	AllowTCPForwarding Match User no\n" +
 					"	X11Forwarding no\n" +
@@ -259,17 +295,80 @@ public class RemoteIT {
 					"	X11Forwarding no\n" +
 					"	ForceCommand internal-sftp\n" +
 					"\n";
-		String superuserEntry = getUserEntry(superUser, text); 
+		String superuserEntry = getUserEntryInSSHD_CONFIG(superUser, text); 
 		assertNull(superuserEntry);
 	}
 	
 	/**
-	 * This method interacts to the REST service by using the superuser's credentials 
-	 * ({@code uid:pass} in Base64 encoding). The protocol is HTTPS and
-	 * this method will trust any certificate that the other side is using.
-	 * It employs the connection mechanism exported by the standard Java https implementation
-	 * (the classes {@link URL} and {@link HttpsURLConnection}.
-	 * A description of the steps involved:
+	 * Creates a temporary file in the system's tmp directory that
+	 * will be used as a script with commands for the 
+	 * <strong><a href="http://lftp.yar.ru/lftp-man.html">lftp</a></strong> system tool.
+	 * The first command will be the open connection to the SFTP service offered
+	 * by the installed stack running in the virtual machine. 
+	 * @param user the user ID
+	 * @param pass the password
+	 * @param cmds a list with <strong>lftp</strong> commands
+	 * @throws IOException when the file could not be created
+	 */
+	private static void createLFTPScriptTempFile(String user, String pass, String[] cmds) throws IOException {
+		tmpLFTPScriptFile = File.createTempFile("scstackLFTP", "tmp");
+		PrintWriter out = new PrintWriter(new FileWriter(tmpLFTPScriptFile));
+		out.println("open -u " + user + "," + pass + " sftp://" + stackIP);
+		for (String cmd : cmds)
+			out.println(cmd); 
+		out.close();  
+	}
+	
+	/**
+	 * Parses the contents of the remote file SSHD_CONFIG
+	 * and extracts the entry relative to the specified user.
+	 * An important requirement of this file is that it contains
+	 * the Jail Marker (or placeholder) added by the forge.
+	 * What it comes after this placeholder will be analyzed to
+	 * see if it includes the following line<br/>
+	 * &nbsp;&nbsp;&nbsp;{@code Math User UID}<br/>
+	 * If the placeholder is not found, this method fails 
+	 * ({@link org.junit.Assert#fail}) with a message explaining the error.
+	 * @param uid the user's ID
+	 * @param sshd_configContents the contents of the file
+	 * @return a String with the lines relative to the specified UID (separated by {@code \n}) 
+	 */
+	private static String getUserEntryInSSHD_CONFIG(String uid, String sshd_configContents) {
+		String[] parts = sshd_configContents.split(sshJailMarker, 2);
+		if (parts.length < 2)
+			fail("Unable to find the text " + sshJailMarker + " in the provided contents.");
+		String[] lines = parts[1].split("\\r\\n|\\r|\\n");
+		int counter = 0;
+		StringBuilder result = null;
+		for (String l : lines) {
+			String line = l.trim();
+			if (line.isEmpty())
+				continue;
+			if (counter == 0 && line.compareToIgnoreCase("match user " + uid) == 0) {
+				counter++;
+				if (null == result)
+					result = new StringBuilder();
+				result.append(line);
+			} else if (counter > 0) {
+				if (line.toLowerCase().contains("match user")) {
+					break;
+				} else {	
+					result.append("\n" + line.trim());
+					counter++;
+				}
+			}
+		}
+		return (null == result) ? null : result.toString();
+	}
+	
+	/**
+	 * This method interacts to the REST service by using an user's credentials 
+	 * ({@code uid:pass} in Base64 encoding).<br/>
+	 * The protocol is HTTPS and this method will trust any certificate that 
+	 * the other side (the REST service running remotely) is using.
+	 * It employs the connection mechanism exported by the standard Java 
+	 * <em>https</em> implementation (the classes {@link URL} and {@link HttpsURLConnection}.
+	 * <br/>A description of the steps involved:
 	 * <ul><li>constructs the URI by appending the relativeURI to the service's {@link #baseURL}</li> 
 	 * <li>sends a request with the specified method type</li>
 	 * <li>checks the expected response code with the one that receives</li>
@@ -279,12 +378,15 @@ public class RemoteIT {
 	 * @param expectedCode an integer, should have one of the constant values 
 	 * from {@link HttpURLConnection}:<br/>{@link HttpURLConnection#HTTP_OK}, 
 	 * {@link HttpURLConnection#HTTP_BAD_REQUEST}, etc.
+	 * @param user the user's ID
+	 * @param pass the user's pass
 	 * @return a String with the response message body
 	 * @throws IOException
 	 * @throws NoSuchAlgorithmException
 	 * @throws KeyManagementException
 	 */
-	private static String getResponseJSON(String relativeURI, String method, int expectedCode) throws IOException, NoSuchAlgorithmException, KeyManagementException {
+	private static String getResponseJSON(String relativeURI, String method, int expectedCode, 
+			String user, String pass) throws IOException, NoSuchAlgorithmException, KeyManagementException {
 		X509TrustManager tm = new X509TrustManager() {
 			@Override
 			public X509Certificate[] getAcceptedIssuers() {
@@ -309,7 +411,7 @@ public class RemoteIT {
 		});
 		conn.setRequestMethod(method);
 		conn.setRequestProperty("Accept", "application/json");
-		conn.setRequestProperty("Authorization", "Basic " + getAuthString());
+		conn.setRequestProperty("Authorization", "Basic " + getAuthString(user, pass));
 		conn.connect();
 		if (conn.getResponseCode() != expectedCode) {
 			throw new RuntimeException("Failed : HTTP error code : "
@@ -328,38 +430,15 @@ public class RemoteIT {
 	
 	/**
 	 * Uses an external library ({@link com.unboundid.util.Base64}) to encode the
-	 * superuser's credentials ({@code uid:pass}) that will be used to construct the REST requests. 
+	 * user's credentials ({@code uid:pass}) that will be used to construct the REST requests.
+	 * @param user the user's ID
+	 * @param pass the password
 	 * @return the credentials encoded in a Base64 format
 	 */
-	private static String getAuthString() {
-		String credentials = superUser + ":" + superUserPass;
+	private static String getAuthString(String user, String pass) {
+		String credentials = user + ":" + pass;
 		String enc = com.unboundid.util.Base64.encode(credentials.getBytes());
 		System.out.println("Base64Encoded for '" + credentials + "' is: '" + enc + "'");
 		return enc;
-	}
-	
-	private static String getUserEntry(String uid, String text) {
-		String[] lines = text.split("\\r\\n|\\r|\\n");
-		int counter = 0;
-		StringBuilder result = null;
-		for (String l : lines) {
-			String line = l.trim();
-			if (line.isEmpty())
-				continue;
-			if (counter == 0 && line.compareToIgnoreCase("match user " + uid) == 0) {
-				counter++;
-				if (null == result)
-					result = new StringBuilder();
-				result.append(line);
-			} else if (counter > 0) {
-				if (line.toLowerCase().contains("match user")) {
-					break;
-				} else {	
-					result.append("\n" + line.trim());
-					counter++;
-				}
-			}
-		}
-		return (null == result) ? null : result.toString();
 	}
 }
