@@ -175,6 +175,7 @@
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 							<!-- Classpath is added to the manifest of the created jar file. -->
 							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>
 							<!-- Specifies the main class of the application -->
 							<mainClass>es.sidelab.scstack.service.ServicioREST</mainClass>
 						</manifest>

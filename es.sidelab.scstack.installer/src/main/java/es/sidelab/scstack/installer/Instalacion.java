@@ -10,16 +10,13 @@
 package es.sidelab.scstack.installer;
 
 import es.sidelab.commons.commandline.CommandLine;
-import es.sidelab.commons.commandline.CommandOutput;
 import es.sidelab.commons.commandline.ExecutionCommandException;
 import es.sidelab.scstack.lib.exceptions.ExcepcionForja;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,7 +32,8 @@ import java.util.logging.Logger;
 public class Instalacion {
 	public static Properties config;
 	private static es.sidelab.commons.commandline.CommandLine consola = new CommandLine();
-	private static final String configFilename = "scstack.conf";
+	/** The name of the configuration file; it should exist in the working directory. */
+	public static final String CONFIGURATION_FILENAME = "scstack.conf";
 
 	/**
 	 * Main method of the SCStack installation.
@@ -71,11 +69,7 @@ public class Instalacion {
 				new ServidorApache().instalar();
 				new Repositorios().instalar();
 				new Redmine().instalar();
-				//Instalacion.ejecutar("/etc/init.d/apache2 restart");
 				if (!tools) {//also the service
-//					BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-//					System.out.print("Setup Redmine and then copy its API REST key here: ");
-//					String apiKey = br.readLine();
 					new SCStackService().install();
 				}
 			}
@@ -95,14 +89,13 @@ public class Instalacion {
 	 */
 	public static Properties cargarConfiguracion(String resourcePath) throws Exception {
 		config = new Properties();
-		//String ficheroConfiguracion = "ficherosInstalacion/configInstalacion.txt";
 		try {
-			File configFile = new File(resourcePath, configFilename);
+			File configFile = new File(resourcePath, CONFIGURATION_FILENAME);
 			config.load(new FileInputStream(configFile));
 		} catch (IOException e) {
 			System.err
 			.println("Se ha producido un error durante la carga del fichero: "
-					+ configFilename
+					+ CONFIGURATION_FILENAME
 					+ " - Asegúrese que está en la ruta raíz del proyecto");
 			throw new Exception(e.getMessage());
 		}
@@ -125,14 +118,14 @@ public class Instalacion {
 	public static void overwriteConfigValue(String key, String newValue) throws ExcepcionForja {
 		try {
 			config.put(key, newValue);
-			config.store(new FileOutputStream(configFilename), null);
+			config.store(new FileOutputStream(CONFIGURATION_FILENAME), null);
 		} catch (NullPointerException e) {
 			System.err.println("Key or value argument is null.");
 			throw new ExcepcionForja(e.getMessage());
 		} catch (IOException e) {
 			System.err
 			.println("Error while writing new value to key '" + key + "' into file " 
-					+ configFilename
+					+ CONFIGURATION_FILENAME
 					+ " inside the root folder.");
 			throw new ExcepcionForja(e.getMessage());
 		}

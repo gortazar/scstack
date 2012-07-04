@@ -246,14 +246,14 @@ public class SSH {
         pw.println("# may incur a small performance impact."); 
         pw.println("nss_base_passwd	ou=" + Instalacion.config.getProperty("ouUsuarios") + "," + Instalacion.config.getProperty("baseDN") + "?one"); 
         pw.println("nss_base_shadow	ou=" + Instalacion.config.getProperty("ouUsuarios") + "," + Instalacion.config.getProperty("baseDN") + "?one"); 
-        pw.println("nss_base_group		ou=" + Instalacion.config.getProperty("ouProyectos") + "," + Instalacion.config.getProperty("baseDN") + "one"); 
+        pw.println("nss_base_group		ou=" + Instalacion.config.getProperty("ouProyectos") + "," + Instalacion.config.getProperty("baseDN") + "?one"); 
         pw.println("#nss_base_hosts		ou=Hosts,dc=padl,dc=com?one"); 
         pw.println("#nss_base_services	ou=Services,dc=padl,dc=com?one"); 
         pw.println("#nss_base_networks	ou=Networks,dc=padl,dc=com?one"); 
         pw.println("#nss_base_protocols	ou=Protocols,dc=padl,dc=com?one"); 
         pw.println("#nss_base_rpc		ou=Rpc,dc=padl,dc=com?one"); 
         pw.println("#nss_base_ethers	ou=Ethers,dc=padl,dc=com?one"); 
-        pw.println("#nss_base_netmasks	ou=Networks,dc=padl,dc=com?ne"); 
+        pw.println("#nss_base_netmasks	ou=Networks,dc=padl,dc=com?one"); 
         pw.println("#nss_base_bootparams	ou=Ethers,dc=padl,dc=com?one"); 
         pw.println("#nss_base_aliases	ou=Aliases,dc=padl,dc=com?one"); 
         pw.println("#nss_base_netgroup	ou=Netgroup,dc=padl,dc=com?one"); 

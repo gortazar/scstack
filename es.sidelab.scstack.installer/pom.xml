@@ -57,18 +57,10 @@
 						</manifestEntries>
 					</archive>
 				</configuration>
-				<!-- <configuration> <archive> <manifestEntries> <Implementation-Title>Sidelab 
-					${project.artifactId}</Implementation-Title> <Implementation-Version>${project.version}</Implementation-Version> 
-					<Implementation-Vendor>Sidelab.es - Sidelab Code Installer</Implementation-Vendor> 
-					<Implementation-Vendor-Id>es.sidelab.code.installer</Implementation-Vendor-Id> 
-					<Implementation-Vendor-URL>${scstack-url}</Implementation-Vendor-URL> <Main-Class>es.sidelab.scstack.installer.Instalacion</Main-Class> 
-					</manifestEntries> </archive> </configuration> -->
 			</plugin>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
-					<!-- <descriptorRefs> <descriptorRef>jar-with-dependencies</descriptorRef> 
-						</descriptorRefs> -->
 					<descriptors>
 						<descriptor>src/main/assembly/assembly.xml</descriptor>
 					</descriptors>
@@ -77,6 +69,7 @@
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 							<!-- Classpath is added to the manifest of the created jar file. -->
 							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>
 							<mainClass>es.sidelab.scstack.installer.Instalacion</mainClass>
 						</manifest>
 					</archive>

@@ -43,6 +43,7 @@ import flexjson.JSONDeserializer;
  */
 public class RemoteIT {
 	private static final String SSHD_CONFIG = "/etc/ssh/sshd_config";
+	private static final String RECONNECT_INTERVAL = "1";
 	
 	private static String stackURI;
 	private static String stackIP;
@@ -57,7 +58,7 @@ public class RemoteIT {
 	private static Console localCons;
 	
 	private static File tmpLFTPScriptFile;
-	
+	private static String reconnInterval;
 	/**
 	 * Loads configuration to read the superuser's uid and password.
 	 * Must receive the stack's URL as a Java or system property.
@@ -94,6 +95,18 @@ public class RemoteIT {
 		}
 		System.out.println("OK.");
 		localCons = new LocalConsole();
+		String rint = System.getProperty("RECONNECT_INTERVAL");
+		reconnInterval = (rint == null || rint.isEmpty()) ? RECONNECT_INTERVAL : rint;
+		System.out.println("Reconnection interval for lftp: " + reconnInterval + " sec");
+		
+		createTestUser();
+		
+	}
+
+	private static void createTestUser() throws KeyManagementException, NoSuchAlgorithmException, IOException {
+		String response = getResponseJSON(
+				"usuarios", "POST", HttpURLConnection.HTTP_OK, superUser, superUserPass);
+		assertNotNull(response);
 	}
 
 	/**
@@ -161,13 +174,15 @@ public class RemoteIT {
 		String superuserEntry = getUserEntryInSSHD_CONFIG(superUser, sshdConfigContents); 
 		assertNotNull(superuserEntry);
 		assertFalse(superuserEntry.isEmpty());
-		createLFTPScriptTempFile(superUser, superUserPass, new String[]{"ls", "cd private", "ls"});
-//		String lftpCmd = "sh test-scripts/sftp-access.sh " + superUser + " " + superUserPass + " " +
-//						stackIP + " " + " ls";
-//		localCons.exec("echo Executing lftp: " + lftpCmd);
-		//TODO se puede borrar el test-scripts/*
-		
-		
+		createLFTPScriptTempFile(superUser, superUserPass, 
+				new String[]{
+					"echo Local dir:", "", "lpwd", 
+					"echo Remote dir:", "pwd", "ls",
+					"ls public",
+					"ls private", 
+					"cd private", //"ls superadmins", "cd superadmins",
+					"cd ../public",
+					"ls superadmins", "cd superadmins"});
 		String lftpCmd = "lftp -f " + tmpLFTPScriptFile.getAbsolutePath();
 		localCons.exec("echo Executing lftp: " + lftpCmd);
 		localCons.exec(lftpCmd);
@@ -313,9 +328,13 @@ public class RemoteIT {
 	private static void createLFTPScriptTempFile(String user, String pass, String[] cmds) throws IOException {
 		tmpLFTPScriptFile = File.createTempFile("scstackLFTP", "tmp");
 		PrintWriter out = new PrintWriter(new FileWriter(tmpLFTPScriptFile));
+		out.println("set cmd:fail-exit true");
+		out.println("set net:max-retries 3");
+		out.println("set net:reconnect-interval-base " + reconnInterval);
 		out.println("open -u " + user + "," + pass + " sftp://" + stackIP);
 		for (String cmd : cmds)
 			out.println(cmd); 
+		out.println("");
 		out.close();  
 	}
 	
