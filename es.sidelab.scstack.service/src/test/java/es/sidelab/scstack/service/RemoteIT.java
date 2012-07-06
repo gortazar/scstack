@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -29,11 +30,18 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.restlet.data.CharacterSet;
+import org.restlet.ext.json.JsonRepresentation;
 
 import es.sidelab.commons.commandline.ExecutionCommandException;
 import es.sidelab.commons.commandline.console.Console;
 import es.sidelab.commons.commandline.console.LocalConsole;
 import es.sidelab.commons.commandline.console.SSHConsole;
+import es.sidelab.scstack.lib.exceptions.ExcepcionForja;
+import es.sidelab.scstack.service.data.Proyecto;
+import es.sidelab.scstack.service.data.ProyectoNuevo;
+import es.sidelab.scstack.service.data.Proyectos;
+import es.sidelab.scstack.service.data.Usuario;
 import es.sidelab.scstack.service.data.Usuarios;
 import flexjson.JSONDeserializer;
 
@@ -42,9 +50,10 @@ import flexjson.JSONDeserializer;
  * @author <a href="mailto:radutom.vlad@gmail.com">Radu Tom Vlad</a>
  */
 public class RemoteIT {
-	private static final String SSHD_CONFIG = "/etc/ssh/sshd_config";
-	private static final String RECONNECT_INTERVAL = "1";
-	
+	public static final String SSHD_CONFIG = "/etc/ssh/sshd_config";
+	public static final String RECONNECT_INTERVAL = "1";
+	public static final String DEFAULT_CHARSET = "UTF-8";
+
 	private static String stackURI;
 	private static String stackIP;
 	private static String stackSSHUser;
@@ -53,12 +62,20 @@ public class RemoteIT {
 	private static String superUser;
 	private static String superUserPass;
 	private static String sshJailMarker;
-	
+
 	private static Console sshCons;
 	private static Console localCons;
-	
-	private static File tmpLFTPScriptFile;
+
 	private static String reconnInterval;
+	
+	private static Usuario testUser1 = new Usuario("testuser1", 
+			"Test", "User1", "u@test.com", "testuserpass");
+	// its name can be retrieved by getCn() (not getName())
+	private static ProyectoNuevo testProj1 = new ProyectoNuevo(
+			"testproj1", "A new test project, no repo.", testUser1.getUid(),
+			//no repository
+			null, null, null);
+	
 	/**
 	 * Loads configuration to read the superuser's uid and password.
 	 * Must receive the stack's URL as a Java or system property.
@@ -78,11 +95,11 @@ public class RemoteIT {
 			fail("The superuser's uid was not found!");
 		if (superUserPass == null || superUserPass.isEmpty())
 			fail("The superuser's password was not found!");
-		
+
 		sshJailMarker = props.getProperty("marcadorJaulaSSH");
 		if (sshJailMarker == null || sshJailMarker.isEmpty())
 			fail("The SSH jail placeholder (or marker) was not found!");
-		
+
 		stackIP = System.getProperty("STACK_IP");
 		stackSSHUser = System.getProperty("STACK_USER");
 		sshCons = new SSHConsole(stackIP, stackSSHUser);
@@ -98,17 +115,54 @@ public class RemoteIT {
 		String rint = System.getProperty("RECONNECT_INTERVAL");
 		reconnInterval = (rint == null || rint.isEmpty()) ? RECONNECT_INTERVAL : rint;
 		System.out.println("Reconnection interval for lftp: " + reconnInterval + " sec");
-		
-		createTestUser();
-		
+
+		createTestUser(testUser1);
+		createTestProject(testProj1);
 	}
 
-	private static void createTestUser() throws KeyManagementException, NoSuchAlgorithmException, IOException {
+	///////////// API for the accessing the REST service of the stack //////////////////
+	// Here there are only 2 methods, but it can be further extended by adding 
+	//  methods for the rest of the operations (add user to project, remove user, etc.)
+	/**
+	 * Creates a new {@link Proyecto} by receiving a 
+	 * {@link ProyectoNuevo} object (a new project has to have assigned an admin and
+	 * the Proyecto class doesn't include this information).
+	 * @param proj a {@link ProyectoNuevo} object, the repository information can be set to null
+	 * @throws KeyManagementException
+	 * @throws NoSuchAlgorithmException
+	 * @throws IOException
+	 * @throws ExcepcionForja when the response code is not the expected one; this
+	 * means that the project was not created or an internal error has happen
+	 */
+	public static void createTestProject(ProyectoNuevo proj) throws KeyManagementException, NoSuchAlgorithmException, IOException, ExcepcionForja {
+		JsonRepresentation projJson = proj.serializarJson();
+		projJson.setCharacterSet(CharacterSet.valueOf(DEFAULT_CHARSET));
 		String response = getResponseJSON(
-				"usuarios", "POST", HttpURLConnection.HTTP_OK, superUser, superUserPass);
+				"proyectos", projJson.getText(), "POST", HttpURLConnection.HTTP_CREATED, superUser, superUserPass);
 		assertNotNull(response);
 	}
 
+	/**
+	 * Creates a new {@link Usuario} using its JSON representation
+	 * by sending an HTTP query to the stack's REST service.
+	 * @param user the {@link Usuario} to be created
+	 * @throws KeyManagementException
+	 * @throws NoSuchAlgorithmException
+	 * @throws IOException
+	 * @throws ExcepcionForja when the response code is not the expected one; this
+	 * means that the user was not created
+	 */
+	public static void createTestUser(es.sidelab.scstack.service.data.Usuario user) 
+			throws KeyManagementException, NoSuchAlgorithmException, IOException, ExcepcionForja { 
+		JsonRepresentation userJson = user.serializarJson();
+		userJson.setCharacterSet(CharacterSet.valueOf(DEFAULT_CHARSET));
+		String response = getResponseJSON(
+				"usuarios", userJson.getText(), "POST", HttpURLConnection.HTTP_CREATED, superUser, superUserPass);
+		assertNotNull(response);
+	}
+	///////////// End of API for the accessing the REST service of the stack //////////////////
+	
+	
 	/**
 	 * @throws java.lang.Exception
 	 */
@@ -128,34 +182,46 @@ public class RemoteIT {
 	 */
 	@After
 	public void tearDown() throws Exception {
-		tmpLFTPScriptFile.delete();
 	}
 
 	/**
-	 * Checks the user' list. The super user should be included.
+	 * Checks the user' list for the 2 first users (super user and the Test User).
+	 * Connects by SSH to the machine where the forge is installed and runs the
+	 * <strong>getent passwd</strong> command to see if the users are included in the
+	 * list maintained by LDAP. 
+	 * Then, it retrieves the {@link RemoteIT#SSHD_CONFIG} file to check
+	 * the user entries coincide with the existing users.
+	 * It also checks the list of existing projects (there should be 2, superadmins and testproj1).
+	 * Finally, it connects via SFTP (with each user) and runs a series of commands. 
 	 * @throws NoSuchAlgorithmException
 	 * @throws KeyManagementException
 	 * @throws MalformedURLException
 	 * @throws IOException
 	 * @throws ExecutionCommandException 
+	 * @throws ExcepcionForja 
 	 */
 	@Test
-	public void testUIDs() throws NoSuchAlgorithmException, 
-									KeyManagementException, 
-									MalformedURLException, 
-									IOException, 
-									ExecutionCommandException {
+	public void testInitialConfiguration() throws 
+							NoSuchAlgorithmException, KeyManagementException, 
+							MalformedURLException, IOException,	ExecutionCommandException, ExcepcionForja {
+		// connects to https://REST-stack-url:REST-port/usuarios and receives the list of users
 		String response = getResponseJSON(
-				"usuarios", "GET", HttpURLConnection.HTTP_OK, superUser, superUserPass);
+				"usuarios", null, "GET", HttpURLConnection.HTTP_OK, superUser, superUserPass);
 		assertNotNull(response);
 		Usuarios uidUsers = new JSONDeserializer<Usuarios>().deserialize(response);
 		boolean superUserIsConfirmed = false;
+		boolean testUser1IsConfirmed = false;
 		for (String u : uidUsers.listaUsuarios) {
 			System.out.println("UID#" + uidUsers.listaUsuarios.indexOf(u) + ": " + u);
 			if (u.contentEquals(superUser))
 				superUserIsConfirmed = true;
+			if (u.contentEquals(testUser1.getUid()))
+				testUser1IsConfirmed = true;
 		}
 		assertTrue(superUserIsConfirmed);
+		assertTrue(testUser1IsConfirmed);
+		
+		// connect by ssh and see the contents of passwd
 		try {
 			System.out.println("Entry for the Superuser in the passwd file:");
 			sshCons.exec("getent passwd | grep " + superUser);
@@ -165,6 +231,17 @@ public class RemoteIT {
 			sshCons.exec("getent passwd");
 			fail(e.getMessage() + "Std: " + e.getStandardOutput() + "Err:" + e.getErrorOutput());
 		}
+		try {
+			System.out.println("Entry for the Test User in the passwd file:");
+			sshCons.exec("getent passwd | grep " + testUser1.getUid());
+		} catch (ExecutionCommandException e) {
+			System.err.println("Failed looking for the Test User in the passwd file!");
+			System.err.println("The whole list is:\n-----------------------------");
+			sshCons.exec("getent passwd");
+			fail(e.getMessage() + "Std: " + e.getStandardOutput() + "Err:" + e.getErrorOutput());
+		}
+		
+		// retrieve the SSHD_CONFIG file
 		String sshdConfigContents = sshCons.getFile(SSHD_CONFIG);
 		assertNotNull(sshdConfigContents);
 		assertFalse(sshdConfigContents.isEmpty());
@@ -174,20 +251,56 @@ public class RemoteIT {
 		String superuserEntry = getUserEntryInSSHD_CONFIG(superUser, sshdConfigContents); 
 		assertNotNull(superuserEntry);
 		assertFalse(superuserEntry.isEmpty());
-		createLFTPScriptTempFile(superUser, superUserPass, 
+		String testUser1Entry = getUserEntryInSSHD_CONFIG(testUser1.getUid(), sshdConfigContents); 
+		assertNotNull(testUser1Entry);
+		assertFalse(testUser1Entry.isEmpty());
+		
+		// connects to https://REST-stack-url:REST-port/proyectos and receives the list of existing projects
+		response = getResponseJSON(
+				"proyectos", null, "GET", HttpURLConnection.HTTP_OK, superUser, superUserPass);
+		assertNotNull(response);
+		Proyectos projects = new JSONDeserializer<Proyectos>().deserialize(response);
+		boolean superadminsIsConfirmed = false;
+		boolean testproj1IsConfirmed = false;
+		for (String p : projects.listaProyectos) {
+			System.out.println("UID#" + projects.listaProyectos.indexOf(p) + ": " + p);
+			if (p.contentEquals("superadmins"))
+				superadminsIsConfirmed = true;
+			if (p.contentEquals(testProj1.getCn()))
+				testproj1IsConfirmed = true;
+		}
+		assertTrue(superadminsIsConfirmed);
+		assertTrue(testproj1IsConfirmed);
+				
+		//connect as superuser by SFTP
+		String tmp1Path = createLFTPScriptTempFile(superUser, superUserPass, 
 				new String[]{
-					"echo Local dir:", "", "lpwd", 
-					"echo Remote dir:", "pwd", "ls",
-					"ls public",
-					"ls private", 
-					"cd private", //"ls superadmins", "cd superadmins",
-					"cd ../public",
-					"ls superadmins", "cd superadmins"});
-		String lftpCmd = "lftp -f " + tmpLFTPScriptFile.getAbsolutePath();
+				"echo Local dir:", "", "lpwd", 
+				"echo Remote dir:", "pwd", "ls",
+				"ls public",
+				"ls private", 
+				"cd private", "ls superadmins", "cd superadmins", "cd ..",
+				"cd ../public",
+				"ls superadmins", "cd superadmins"});
+		String lftpCmd = "lftp -f " + tmp1Path;
+		localCons.exec("echo Executing lftp: " + lftpCmd);
+		localCons.exec(lftpCmd);
+		
+		//connect as Test User by SFTP
+		String tmp2Path = createLFTPScriptTempFile(testUser1.getUid(), testUser1.getPass(), 
+				new String[]{
+				"echo Local dir:", "", "lpwd", 
+				"echo Remote dir:", "pwd", "ls",
+				"ls public",
+				"ls private", 
+				"cd private", "ls " + testProj1.getCn(), "cd " + testProj1.getCn(), "cd ..",
+				"cd ../public",
+				"ls " + testProj1.getCn(), "cd " + testProj1.getCn()});
+		lftpCmd = "lftp -f " + tmp2Path;
 		localCons.exec("echo Executing lftp: " + lftpCmd);
 		localCons.exec(lftpCmd);
 	}
-	
+
 	/**
 	 * Tests the local method that retrieves an entry from the file SSHD_CONFIG,
 	 * by sending it a mocked version of the file. This one includes 2 correct entries.
@@ -195,24 +308,24 @@ public class RemoteIT {
 	@Test
 	public void testSSHD_CONFIG_Pattern_TwoEntries() {
 		String text = sshJailMarker + "\nMatch User superforja\n" + 
-					"	ChrootDirectory /var/files\n" +
-					"	AllowTCPForwarding no\n" +
-					"	X11Forwarding no\n" +
-					"	ForceCommand internal-sftp\n" +
-					"\n" +
-					"Match User anotheruser\n" + 
-					"	ChrootDirectory /var/files\n" +
-					"	AllowTCPForwarding no\n" +
-					"	X11Forwarding no\n" +
-					"	ForceCommand internal-sftp\n" +
-					"\n";
+				"	ChrootDirectory /var/files\n" +
+				"	AllowTCPForwarding no\n" +
+				"	X11Forwarding no\n" +
+				"	ForceCommand internal-sftp\n" +
+				"\n" +
+				"Match User anotheruser\n" + 
+				"	ChrootDirectory /var/files\n" +
+				"	AllowTCPForwarding no\n" +
+				"	X11Forwarding no\n" +
+				"	ForceCommand internal-sftp\n" +
+				"\n";
 		String superuserEntry = getUserEntryInSSHD_CONFIG(superUser, text); 
 		assertNotNull(superuserEntry);
 		assertFalse(superuserEntry.isEmpty());
 		System.out.println("Received matched text for 2 entries:\n------------\n" + 
-							superuserEntry + "\n-------------\n");
+				superuserEntry + "\n-------------\n");
 	}
-	
+
 	/**
 	 * Tests the local method that retrieves an entry from the file SSHD_CONFIG,
 	 * by sending it a mocked version of the file. This one includes one correct entry.
@@ -220,18 +333,18 @@ public class RemoteIT {
 	@Test
 	public void testSSHD_CONFIG_Pattern_OneEntry() {
 		String text = sshJailMarker + "\nMatch User superforja\n" + 
-					"	ChrootDirectory /var/files\n" +
-					"	AllowTCPForwarding no\n" +
-					"	X11Forwarding no\n" +
-					"	ForceCommand internal-sftp\n" +
-					"\n";
+				"	ChrootDirectory /var/files\n" +
+				"	AllowTCPForwarding no\n" +
+				"	X11Forwarding no\n" +
+				"	ForceCommand internal-sftp\n" +
+				"\n";
 		String superuserEntry = getUserEntryInSSHD_CONFIG(superUser, text); 
 		assertNotNull(superuserEntry);
 		assertFalse(superuserEntry.isEmpty());
 		System.out.println("Received matched text for 1 entry:\n------------\n" + 
-							superuserEntry + "\n-------------\n");
+				superuserEntry + "\n-------------\n");
 	}
-	
+
 	/**
 	 * Tests the failure of the local method that retrieves an entry from the file SSHD_CONFIG,
 	 * by sending it a mocked version of the file. This one includes one correct entry
@@ -240,11 +353,11 @@ public class RemoteIT {
 	@Test
 	public void testFailureSSHD_CONFIG_Pattern_OneEntry() {
 		String text = "Match User superforja\n" + 
-					"	ChrootDirectory /var/files\n" +
-					"	AllowTCPForwarding no\n" +
-					"	X11Forwarding no\n" +
-					"	ForceCommand internal-sftp\n" +
-					"\n";
+				"	ChrootDirectory /var/files\n" +
+				"	AllowTCPForwarding no\n" +
+				"	X11Forwarding no\n" +
+				"	ForceCommand internal-sftp\n" +
+				"\n";
 		try {
 			getUserEntryInSSHD_CONFIG(superUser, text);
 		} catch (Error e) {
@@ -254,7 +367,7 @@ public class RemoteIT {
 					e.getMessage());
 		}
 	}
-	
+
 	/**
 	 * Tests the local method that retrieves an entry from the file SSHD_CONFIG,
 	 * by sending it a mocked version of the file. This one includes several correct entries.
@@ -262,30 +375,30 @@ public class RemoteIT {
 	@Test
 	public void testSSHD_CONFIG_Pattern_VariousEntries() {
 		String text = sshJailMarker + "\nMatch User oneuser\n" + 
-					"	ChrootDirectory /var/files\n" +
-					"	AllowTCPForwarding no\n" +
-					"	X11Forwarding no\n" +
-					"	ForceCommand internal-sftp\n" +
-					"\n" +
-					"Match User superforja\n" + 
-					"	ChrootDirectory /var/files\n" +
-					"	AllowTCPForwarding no\n" +
-					"	X11Forwarding no\n" +
-					"	ForceCommand internal-sftp\n" +
-					"\n" +
-					"Match User anotheruser\n" + 
-					"	ChrootDirectory /var/files\n" +
-					"	AllowTCPForwarding no\n" +
-					"	X11Forwarding no\n" +
-					"	ForceCommand internal-sftp\n" +
-					"\n";
+				"	ChrootDirectory /var/files\n" +
+				"	AllowTCPForwarding no\n" +
+				"	X11Forwarding no\n" +
+				"	ForceCommand internal-sftp\n" +
+				"\n" +
+				"Match User superforja\n" + 
+				"	ChrootDirectory /var/files\n" +
+				"	AllowTCPForwarding no\n" +
+				"	X11Forwarding no\n" +
+				"	ForceCommand internal-sftp\n" +
+				"\n" +
+				"Match User anotheruser\n" + 
+				"	ChrootDirectory /var/files\n" +
+				"	AllowTCPForwarding no\n" +
+				"	X11Forwarding no\n" +
+				"	ForceCommand internal-sftp\n" +
+				"\n";
 		String superuserEntry = getUserEntryInSSHD_CONFIG(superUser, text); 
 		assertNotNull(superuserEntry);
 		assertFalse(superuserEntry.isEmpty());
 		System.out.println("Received matched text for several entries:\n------------\n" + 
-							superuserEntry + "\n-------------\n");
+				superuserEntry + "\n-------------\n");
 	}
-	
+
 	/**
 	 * Tests the local method that retrieves an entry from the file SSHD_CONFIG,
 	 * by sending it a mocked version of the file. This one includes several bad entries.
@@ -293,27 +406,27 @@ public class RemoteIT {
 	@Test
 	public void testSSHD_CONFIG_Pattern_VariousEntries_BadText() {
 		String text = sshJailMarker + "\nMatch User oneuser\n" + 
-					"	ChrootDirectory /var/files\n" +
-					"	AllowTCPForwarding Match User no\n" +
-					"	X11Forwarding no\n" +
-					"	ForceCommand internal-sftp\n" +
-					"\n" +
-					"Match User superforja Match User\n" + 
-					"	ChrootDirectory /var/files\n" +
-					"	AllowTCPForwarding no\n" +
-					"	X11Forwarding no\n" +
-					"	ForceCommand internal-sftp\n" +
-					"\n" +
-					"Match User anotheruser\n" + 
-					"	ChrootDirectory /var/files\n" +
-					"	AllowTCPForwarding no\n" +
-					"	X11Forwarding no\n" +
-					"	ForceCommand internal-sftp\n" +
-					"\n";
+				"	ChrootDirectory /var/files\n" +
+				"	AllowTCPForwarding Match User no\n" +
+				"	X11Forwarding no\n" +
+				"	ForceCommand internal-sftp\n" +
+				"\n" +
+				"Match User superforja Match User\n" + 
+				"	ChrootDirectory /var/files\n" +
+				"	AllowTCPForwarding no\n" +
+				"	X11Forwarding no\n" +
+				"	ForceCommand internal-sftp\n" +
+				"\n" +
+				"Match User anotheruser\n" + 
+				"	ChrootDirectory /var/files\n" +
+				"	AllowTCPForwarding no\n" +
+				"	X11Forwarding no\n" +
+				"	ForceCommand internal-sftp\n" +
+				"\n";
 		String superuserEntry = getUserEntryInSSHD_CONFIG(superUser, text); 
 		assertNull(superuserEntry);
 	}
-	
+
 	/**
 	 * Creates a temporary file in the system's tmp directory that
 	 * will be used as a script with commands for the 
@@ -323,10 +436,11 @@ public class RemoteIT {
 	 * @param user the user ID
 	 * @param pass the password
 	 * @param cmds a list with <strong>lftp</strong> commands
+	 * @return the absolute path of the temporary file
 	 * @throws IOException when the file could not be created
 	 */
-	private static void createLFTPScriptTempFile(String user, String pass, String[] cmds) throws IOException {
-		tmpLFTPScriptFile = File.createTempFile("scstackLFTP", "tmp");
+	private static String createLFTPScriptTempFile(String user, String pass, String[] cmds) throws IOException {
+		File tmpLFTPScriptFile = File.createTempFile("scstackLFTP", "tmp");
 		PrintWriter out = new PrintWriter(new FileWriter(tmpLFTPScriptFile));
 		out.println("set cmd:fail-exit true");
 		out.println("set net:max-retries 3");
@@ -335,9 +449,11 @@ public class RemoteIT {
 		for (String cmd : cmds)
 			out.println(cmd); 
 		out.println("");
-		out.close();  
+		out.close();
+		tmpLFTPScriptFile.deleteOnExit();
+		return tmpLFTPScriptFile.getAbsolutePath();
 	}
-	
+
 	/**
 	 * Parses the contents of the remote file SSHD_CONFIG
 	 * and extracts the entry relative to the specified user.
@@ -379,7 +495,7 @@ public class RemoteIT {
 		}
 		return (null == result) ? null : result.toString();
 	}
-	
+
 	/**
 	 * This method interacts to the REST service by using an user's credentials 
 	 * ({@code uid:pass} in Base64 encoding).<br/>
@@ -393,6 +509,7 @@ public class RemoteIT {
 	 * <li>checks the expected response code with the one that receives</li>
 	 * <li>returns the response message body (usually a JSONized String)</li></ul>
 	 * @param relativeURI it will be appended to the {@link #baseURL}
+	 * @param body optional body message, can be null
 	 * @param method the request's method type (GET, POST, etc.)
 	 * @param expectedCode an integer, should have one of the constant values 
 	 * from {@link HttpURLConnection}:<br/>{@link HttpURLConnection#HTTP_OK}, 
@@ -403,9 +520,10 @@ public class RemoteIT {
 	 * @throws IOException
 	 * @throws NoSuchAlgorithmException
 	 * @throws KeyManagementException
+	 * @throws ExcepcionForja 
 	 */
-	private static String getResponseJSON(String relativeURI, String method, int expectedCode, 
-			String user, String pass) throws IOException, NoSuchAlgorithmException, KeyManagementException {
+	private static String getResponseJSON(String relativeURI, String body, String method, int expectedCode, 
+			String user, String pass) throws IOException, NoSuchAlgorithmException, KeyManagementException, ExcepcionForja {
 		X509TrustManager tm = new X509TrustManager() {
 			@Override
 			public X509Certificate[] getAcceptedIssuers() {
@@ -430,11 +548,26 @@ public class RemoteIT {
 		});
 		conn.setRequestMethod(method);
 		conn.setRequestProperty("Accept", "application/json");
+		conn.setRequestProperty("Accept-Charset", DEFAULT_CHARSET);
 		conn.setRequestProperty("Authorization", "Basic " + getAuthString(user, pass));
+		if (method.equalsIgnoreCase("POST") && body != null && !body.isEmpty()) {
+			conn.setDoOutput(true); // Triggers POST.
+			conn.setRequestProperty("Content-Type", "application/json;charset=" + DEFAULT_CHARSET);
+			OutputStream output = null;
+			try {
+				output = conn.getOutputStream();
+				output.write(body.getBytes(DEFAULT_CHARSET));
+			} finally {
+				if (output != null) 
+					try { 
+						output.close();
+					} catch (IOException logOrIgnore) {}
+			}
+		}
 		conn.connect();
 		if (conn.getResponseCode() != expectedCode) {
-			throw new RuntimeException("Failed : HTTP error code : "
-					+ conn.getResponseCode() + " instead of expected: " + expectedCode);
+			throw new ExcepcionForja("Failed : HTTP error code : " + 
+					conn.getResponseCode() + " instead of expected: " + expectedCode);
 		}
 		BufferedReader br = new BufferedReader(new InputStreamReader(
 				(conn.getInputStream())));
@@ -446,7 +579,7 @@ public class RemoteIT {
 		conn.disconnect();
 		return response.toString();
 	}
-	
+
 	/**
 	 * Uses an external library ({@link com.unboundid.util.Base64}) to encode the
 	 * user's credentials ({@code uid:pass}) that will be used to construct the REST requests.
