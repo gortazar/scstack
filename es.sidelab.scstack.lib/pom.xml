@@ -37,12 +37,6 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.redmine</groupId>
-			<artifactId>api_redmine</artifactId>
-			<version>1.0.5</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.12</version>
@@ -73,16 +67,12 @@
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
-			<version>4.0.1</version>
-			<type>jar</type>
-			<scope>compile</scope>
+			<version>4.2.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpcore</artifactId>
-			<version>4.0.1</version>
-			<type>jar</type>
-			<scope>compile</scope>
+			<version>4.2.2</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-codec</groupId>
@@ -94,6 +84,16 @@
 		<dependency>
 			<groupId>es.sidelab.commons</groupId>
 			<artifactId>commandline</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.taskadapter</groupId>
+			<artifactId>redmine-java-api</artifactId>
+			<version>1.15</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-jdk14</artifactId>
+			<version>1.7.2</version>
 		</dependency>
 	</dependencies>
 
