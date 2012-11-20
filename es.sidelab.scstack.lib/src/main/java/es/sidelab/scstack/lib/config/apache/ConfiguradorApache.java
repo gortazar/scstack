@@ -17,6 +17,7 @@ import es.sidelab.scstack.lib.exceptions.apache.ExcepcionConsola;
 import es.sidelab.scstack.lib.exceptions.apache.ExcepcionGeneradorFicherosApache;
 
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 
 /**
@@ -39,6 +40,7 @@ public  class ConfiguradorApache {
     private String ficheroProyectos;
     /** Runtime de Java que utilizaremos para escribir en la consola de Linux */
     private Runtime consola;
+	private Logger log;
 
 
 
@@ -47,7 +49,8 @@ public  class ConfiguradorApache {
      * <p>Consructor de la clase que coge todos los parámetros desde la clase
      * de configuración de la Forja.</p>
      */
-    public ConfiguradorApache() {
+    public ConfiguradorApache(Logger log) {
+    	this.log = log;
         this.pathSitesAvailableApache = ConfiguracionForja.pathsitesAvailableApache;
         this.ficheroProyectos = ConfiguracionForja.ficheroProyectosSSL;
         this.pathCarpetaPrivadaWeb = ConfiguracionForja.pathCarpetaPrivadaWeb;
@@ -119,7 +122,7 @@ public  class ConfiguradorApache {
      * algún error a la hora de generar el fichero de configuración de Apache.
      */
     private void generarFicheroProyectosApache(Proyecto[] listaProyectos) throws ExcepcionGeneradorFicherosApache {
-        new GeneradorFicherosApache().generarFicherosProyectos(listaProyectos);
+        new GeneradorFicherosApache(this.log).generarFicherosProyectos(listaProyectos);
     }
 
 

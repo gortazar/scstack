@@ -21,6 +21,7 @@ import es.sidelab.scstack.lib.dataModel.repos.Repositorio;
 import es.sidelab.scstack.lib.exceptions.apache.ExcepcionGeneradorFicherosApache;
 
 import java.io.RandomAccessFile;
+import java.util.logging.Logger;
 
 /**
  * <p>Esta clase será la encargada de generar los ficheros de configuración necesarios
@@ -50,6 +51,7 @@ public class GeneradorFicherosApache {
     private String ouProyectos;
     /** Ruta absoluta / ficheroHTTPS de configuración del SSH (jaula) */
     private String ficheroConfigSSH;
+	private Logger log;
 
 
 
@@ -61,8 +63,10 @@ public class GeneradorFicherosApache {
      * de la Forja.</p>
      * <p>Esta clase nos ayuda a generar el ficheroHTTPS de configuración de los proyectos
      * de la Forja para el servidor Apache.</p>
+     * @param log 
      */
-    public GeneradorFicherosApache() {
+    public GeneradorFicherosApache(Logger log) {
+    	this.log = log;
         this.pathSitesAvailableApache = ConfiguracionForja.pathsitesAvailableApache;
         this.ficheroProyectosSSL = ConfiguracionForja.ficheroProyectosSSL;
         this.ficheroProyectos = ConfiguracionForja.ficheroProyectos;
@@ -138,8 +142,9 @@ public class GeneradorFicherosApache {
      * @param users Lista de Proyectos que hay en la Forja
      * @throws ExcepcionGeneradorFicherosApache Se lanza cuando se produce algún
      * error durante la escritura del ficheroHTTPS de texto de configuración de SSH.
+     * @throws IOException 
      */
-    public void generarFicheroJaulaUsuariosSSH(String[] users) throws ExcepcionGeneradorFicherosApache {
+    public void generarFicheroJaulaUsuariosSSH(String[] users) throws ExcepcionGeneradorFicherosApache, IOException {
         RandomAccessFile fichero = null;
         try {
             fichero = new RandomAccessFile(this.ficheroConfigSSH, "rw");
@@ -154,18 +159,18 @@ public class GeneradorFicherosApache {
                 }
                 
                 if (linea.equals(ConfiguracionForja.marcadorJaulaSSH)) {
+                	log.info("SSH jailing marker found");
                     fichero.setLength(fichero.getFilePointer());                    
                     break;
                 }
             }
             
-            fichero.close();
-
             /* Por cada proyecto que haya en la Forja hay que generar una entrada
              * de configuración para SSH */
             FileWriter fileWr = new FileWriter(this.ficheroConfigSSH, true);
             PrintWriter pw = new PrintWriter(fileWr);
             for (int i = 0; i < users.length; i++) {
+            	log.info("Adding user to jailing");
                 pw.println("Match User " + users[i]);
                 pw.println("    ChrootDirectory " + ConfiguracionForja.pathCarpetas);
                 pw.println("    AllowTCPForwarding no");
@@ -177,6 +182,8 @@ public class GeneradorFicherosApache {
             
         } catch (IOException ex) {
             throw new ExcepcionGeneradorFicherosApache("Error durante la generación del fichero de jaula SSH: " + ex.getMessage());
+        } finally {
+        	fichero.close();
         }
     }
 

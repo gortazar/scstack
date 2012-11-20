@@ -11,6 +11,7 @@ package es.sidelab.scstack.lib.api;
 
 
 import es.sidelab.commons.commandline.CommandLine;
+import es.sidelab.commons.commandline.CommandOutput;
 import es.sidelab.commons.commandline.ExecutionCommandException;
 import es.sidelab.scstack.lib.commons.Utilidades;
 import es.sidelab.scstack.lib.config.ConfiguracionForja;
@@ -37,6 +38,7 @@ import es.sidelab.scstack.lib.redmine.GestorRedmine;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 import org.exolab.castor.util.CommandLineOptions;
 
@@ -47,12 +49,16 @@ import org.exolab.castor.util.CommandLineOptions;
  * @author Arek Klauza
  */
 public class API_Abierta {
+	private Logger log;
 	private GestorLDAP gestorLdap;
 	private ConfiguradorApache configApache;
 	private GestorRedmine gestorRedmine;
 	private ConfiguracionForja config;
 
 
+	public API_Abierta(String configFile) throws ExcepcionForja {
+		this(Logger.getLogger(API_Abierta.class.getName()), configFile);
+	}
 	/**
 	 * <p>Crea la API de la Forja e inicializa todos los componentes necesarios 
 	 * para su correcto funcionamiento.</p>
@@ -61,7 +67,14 @@ public class API_Abierta {
 	 * @throws ExcepcionForja Cuando se produce algún error durante la configuración
 	 * de la API de la Forja.
 	 */
-	public API_Abierta(String ficheroConfiguracion) throws ExcepcionForja {
+	public API_Abierta(Logger log, String ficheroConfiguracion) throws ExcepcionForja {
+		
+		if(log == null)  {
+			throw new IllegalArgumentException("Log may not be null");
+		}
+		
+		this.log = log;
+		
 		try {
 			this.config = new ConfiguracionForja(ficheroConfiguracion);
 		} catch (Exception e) {
@@ -74,13 +87,13 @@ public class API_Abierta {
 			throw new ExcepcionForja("Error durante la creación y configuración de la API de la Forja: " + ex.getMessage());
 		}
 		try {
-			this.configApache = new ConfiguradorApache();
+			this.configApache = new ConfiguradorApache(this.log);
 		} catch (Exception e) {
 			throw new ExcepcionConfiguradorApache("Failed loading apache's config from " +  
 					ficheroConfiguracion + ": "+ e.getMessage());
 		}
 		try {
-			this.gestorRedmine = new GestorRedmine();
+			this.gestorRedmine = new GestorRedmine(this.log);
 		} catch (Exception e) {
 			throw new ExcepcionConfiguradorApache("Failed loading Redmine's config from " +  
 					ficheroConfiguracion + ": "+ e.getMessage());
@@ -102,34 +115,55 @@ public class API_Abierta {
 
 
 	public void addUsuario(String uid, String nombre, String apellidos, String email, String pass) throws ExcepcionUsuario, ExcepcionGestorLDAP, NoSuchAlgorithmException, ExcepcionGestorRedmine {
+		
+		log.info("Adding user...");
+		
 		// Hay que codificar la contraseña a MD5 de LDAP
 		String passMD5 = Utilidades.toMD5(pass);
 
 		// Los emails son clave en Redmine, hay que comprobar que no haya 2 iguales
 		try {
+			
+			log.info("Testing email for duplicates (not allowed)");
+			
 			ArrayList<String> listaEmails = this.gestorLdap.getListaEmailsUsuarios();
 			if (listaEmails != null && listaEmails.contains(email))
 				throw new ExcepcionUsuario("El email del usuario ya existe, no puede haber duplicados. Introduzca otro email por favor");
+			
 		} catch (ExcepcionGestorLDAP ex) {
 			throw new ExcepcionUsuario("No se ha podido comprobar que el email de usuario es único: " + ex.getMessage());
 		}
+		
 		Usuario user = new Usuario(uid, nombre, apellidos, email, passMD5);
+		
+		log.info("Adding user to ldap server");
 		this.gestorLdap.addUsuario(user);
+		
+		log.info("Adding user to Redmine server");
 		this.gestorRedmine.crearUsuario(user, pass);
 
-		GeneradorFicherosApache apache = new GeneradorFicherosApache();
+		log.info("Adding user to SSH jail");
+		GeneradorFicherosApache apache = new GeneradorFicherosApache(log);
 		try {
 			apache.generarFicheroJaulaUsuariosSSH(gestorLdap.getListaUIdsUsuario().toArray(new String[]{}));
 		} catch (ExcepcionGeneradorFicherosApache e) {
+			log.severe(e.getMessage());
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			log.severe(e.getMessage());
 			throw new RuntimeException(e);
 		}
 
 		CommandLine commandLine = new CommandLine();
-		try {        	
-			commandLine.syncExec("/etc/init.d/ssh restart");
+		try {      
+			log.info("Restarting SSH server");
+			CommandOutput co = commandLine.syncExec("/etc/init.d/ssh restart");
+			log.info("SSH restarted: [/etc/init.d/ssh restart] -> " + co.getStandardOutput());
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		} catch (ExecutionCommandException e) {
+			log.severe("Couldn't restart SSH server. Err: " + e.getErrorOutput());
+			log.severe("Couldn't restart SSH server. Std: " + e.getStandardOutput());
 			throw new RuntimeException(e);
 		}         
 	}

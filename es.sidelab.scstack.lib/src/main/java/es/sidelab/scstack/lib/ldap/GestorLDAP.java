@@ -35,6 +35,8 @@ import es.sidelab.scstack.lib.exceptions.ldap.ExcepcionLDAPNoExisteRegistro;
 import es.sidelab.scstack.lib.exceptions.ldap.ExcepcionLDAPYaExisteEntrada;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.logging.Logger;
+
 import javax.net.ssl.SSLSocketFactory;
 
 /**
@@ -52,6 +54,7 @@ public class GestorLDAP {
     private String ouConfiguracion;
     /** Proxy de la API para hablar directamente con LDAP */
     private LDAPConnection conexion;
+	private Logger log;
 
     
 
@@ -65,15 +68,24 @@ public class GestorLDAP {
      * conexión con el servidor de LDAP.
      */
     public GestorLDAP() throws ExcepcionGestorLDAP {
+    	this.log = Logger.getLogger(GestorLDAP.class.getName());
         this.baseDN = ConfiguracionForja.baseDN;
         this.ouUsuarios = ConfiguracionForja.ouUsuarios;
         this.ouProyectos = ConfiguracionForja.ouProyectos;
         this.ouConfiguracion = ConfiguracionForja.ouConfiguracion;
 
         try {
-            SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
-            SSLSocketFactory socketFactory = sslUtil.createSSLSocketFactory();
-            conexion = new LDAPConnection(socketFactory, ConfiguracionForja.hostLDAP, ConfiguracionForja.puertoLDAP);
+        	log.info("Connecting to LDAP server on " + ConfiguracionForja.hostLDAP + ":" + ConfiguracionForja.puertoLDAP);
+        	if(ConfiguracionForja.puertoLDAP == 636) {
+        		log.info("Configuring SSL connection to LDAP server");
+                SSLUtil sslUtil = new SSLUtil(new TrustAllTrustManager());
+                SSLSocketFactory socketFactory = sslUtil.createSSLSocketFactory();
+                conexion = new LDAPConnection(socketFactory, ConfiguracionForja.hostLDAP, ConfiguracionForja.puertoLDAP);
+        	} else {
+        		log.info("Configuring clear text connection to LDAP server");
+        		conexion = new LDAPConnection(ConfiguracionForja.hostLDAP, ConfiguracionForja.puertoLDAP);
+        	}
+        	log.info("Binding to LDAP server");
             conexion.bind(ConfiguracionForja.bindDN, ConfiguracionForja.passBindDN);
         } catch (Exception e) {
             throw new ExcepcionGestorLDAP(e);
@@ -480,7 +492,7 @@ public class GestorLDAP {
         Proyecto[] listaProyectos = this.getListaProyectos();
 
         for (Proyecto p : listaProyectos) {
-            if (p.getUsuarios().contains(uid))
+            if (p.getAdministradores().contains(uid))
                 lista.add(p.getCn());
         }
         return lista;
@@ -1041,12 +1053,17 @@ public class GestorLDAP {
     private ArrayList<String> getListaXAtributo(String ou, String nombreAtributo) throws ExcepcionGestorLDAP {
         try {
             SearchResult searchResults = null;
-            if (ou.equals(this.ouUsuarios))
-                searchResults = conexion.search("ou=" + ouUsuarios + "," + baseDN, SearchScope.SUB, "(uid=*)", nombreAtributo);
-            else if (ou.equals(this.ouProyectos))
-                searchResults = conexion.search("ou=" + ouProyectos + "," + baseDN, SearchScope.SUB, "(cn=*)", nombreAtributo);
-            else
+            if (ou.equals(this.ouUsuarios)) {
+            	String query = new StringBuilder().append("ou=").append(ouUsuarios).append(",").append(baseDN).toString();
+            	log.info("LDAP Query: " + query);
+                searchResults = conexion.search(query, SearchScope.SUB, "(uid=*)", nombreAtributo);
+            } else if (ou.equals(this.ouProyectos)) {
+            	String query = new StringBuilder().append("ou=").append(ouProyectos).append(",").append(baseDN).toString();
+            	log.info("LDAP Query: " + query);
+                searchResults = conexion.search(query, SearchScope.SUB, "(cn=*)", nombreAtributo);
+            } else {
                 throw new ExcepcionGestorLDAP("Atributo OU incorrecto");
+            }
             
             if (searchResults.getEntryCount() > 0) {
                 ArrayList<String> lista = new ArrayList<String>();

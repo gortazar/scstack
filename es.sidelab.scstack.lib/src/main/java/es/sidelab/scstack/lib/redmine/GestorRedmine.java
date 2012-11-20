@@ -9,19 +9,19 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 package es.sidelab.scstack.lib.redmine;
 
+import java.util.logging.Logger;
+
 import es.sidelab.scstack.lib.config.ConfiguracionForja;
 import es.sidelab.scstack.lib.dataModel.Proyecto;
 import es.sidelab.scstack.lib.dataModel.Usuario;
 import es.sidelab.scstack.lib.exceptions.redmine.ExcepcionGestorRedmine;
 import es.sidelab.scstack.lib.exceptions.redmine.ExcepcionMysql;
 
-import java.io.IOException;
-import org.redmine.ta.AuthenticationException;
-import org.redmine.ta.NotFoundException;
-import org.redmine.ta.RedmineException;
-import org.redmine.ta.RedmineManager;
-import org.redmine.ta.beans.Project;
-import org.redmine.ta.beans.User;
+import com.taskadapter.redmineapi.NotFoundException;
+import com.taskadapter.redmineapi.RedmineException;
+import com.taskadapter.redmineapi.RedmineManager;
+import com.taskadapter.redmineapi.bean.Project;
+import com.taskadapter.redmineapi.bean.User;
 
 /**
  * <p>Clase encargada de la comunicación con la API de Redmine. A través de ésta
@@ -32,14 +32,17 @@ public class GestorRedmine {
     private String redmineHost;
     private String apiAccessKey;
     private RedmineManager gestorAPI;
+	private Logger log;
 
 
     /**
      * <p>Crea una clase GestorRedmine para poder gestionar los proyectos y
      * usuarios de Redmine. Utilizando para ello los parámetros de las variables
      * estáticas de la Forja.</p>
+     * @param log 
      */
-    public GestorRedmine() throws ExcepcionMysql {
+    public GestorRedmine(Logger log) throws ExcepcionMysql {
+    	this.log = log;
         this.redmineHost = ConfiguracionForja.protocolRedmine + ConfiguracionForja.hostRedmine;
         this.apiAccessKey = ConfiguracionForja.keyRedmineAPI;
         this.gestorAPI = new RedmineManager(redmineHost, apiAccessKey);
@@ -53,6 +56,8 @@ public class GestorRedmine {
      * la comunicación o ejecución de la API de Redmine.
      */
     public void crearProyecto(Proyecto proyecto) throws ExcepcionGestorRedmine {
+    	
+    	log.info("Creating project " + proyecto.getCn());
         // Transformamos el Proyecto de la Forja en Project de Redmine
         Project proyectoRedmine = new Project();
 
@@ -61,21 +66,22 @@ public class GestorRedmine {
         proyectoRedmine.setName(proyecto.getCn());
         proyectoRedmine.setDescription(proyecto.getDescription());
         try {
+        	log.info("Creating project in Redmine");
             Project proyectoCreado = gestorAPI.createProject(proyectoRedmine);
-            GestorMysql gestorMysql = new GestorMysql();
+            
+            GestorMysql gestorMysql = new GestorMysql(this.log);
 
             // Solo si el proyecto tiene repositorio se lo añadimos en Redmine
-            if (proyecto.tieneRepositorio())
+            if (proyecto.tieneRepositorio()) {
+            	log.info("Adding repository to redmine db");
                 gestorMysql.addRepositorio(proyecto, proyectoCreado.getId());
+            }
 
             // Añade al primer administrador del proyecto en Redmine
+            log.info("Adding admin to project");
             gestorMysql.addAdministradorAProyecto(proyecto.getPrimerAdmin(), proyecto.getCn());
         } catch (ExcepcionMysql ex) {
             throw new ExcepcionGestorRedmine("Se ha producido un error de Mysql en el GestorRedmine: " + ex.getMessage());
-        } catch (IOException ex) {
-            throw new ExcepcionGestorRedmine("Se ha producido un error al intentar conectar con la API Redmine: " + ex.getMessage());
-        } catch (AuthenticationException ex) {
-            throw new ExcepcionGestorRedmine("Se ha proudcido un error de autenticación con la API Redmine: " + ex.getMessage());
         } catch (RedmineException ex) {
             throw new ExcepcionGestorRedmine("Se ha producido un error al ejecutar la API Redmine: " + ex.getMessage());
         }
@@ -91,19 +97,15 @@ public class GestorRedmine {
     public void editarProyecto(Proyecto proyecto) throws ExcepcionGestorRedmine {
         // Unificamos el Proyecto de la Forja con el Project de Redmine
         try {
-            Project proyectoRedmine = gestorAPI.getProjectByIdentifier(proyecto.getCn());
+            Project proyectoRedmine = gestorAPI.getProjectByKey(proyecto.getCn());
             proyectoRedmine.setDescription(proyecto.getDescription());
-            gestorAPI.updateProject(proyectoRedmine);
+            gestorAPI.update(proyectoRedmine);
             if (proyecto.tieneRepositorio())
-                new GestorMysql().updateRepositorio(proyecto, proyectoRedmine.getId());
+                new GestorMysql(this.log).updateRepositorio(proyecto, proyectoRedmine.getId());
         } catch (ExcepcionMysql ex) {
             throw new ExcepcionGestorRedmine("Se ha producido un error de Mysql en el GestorRedmine: " + ex.getMessage());
-        } catch (IOException ex) {
-            throw new ExcepcionGestorRedmine("Se ha producido un error al intentar conectar con la API Redmine: " + ex.getMessage());
         } catch (NotFoundException ex) {
             throw new ExcepcionGestorRedmine("El proyecto " + proyecto.getCn() + " no existe en Redmine: " + ex.getMessage());
-        } catch (AuthenticationException ex) {
-            throw new ExcepcionGestorRedmine("Se ha proudcido un error de autenticación con la API Redmine: " + ex.getMessage());
         } catch (RedmineException ex) {
             throw new ExcepcionGestorRedmine("Se ha producido un error al ejecutar la API Redmine: " + ex.getMessage());
         }
@@ -119,12 +121,8 @@ public class GestorRedmine {
     public void borrarProyecto(Proyecto proyecto) throws ExcepcionGestorRedmine {
         try {
             gestorAPI.deleteProject(proyecto.getCn());
-        } catch (IOException ex) {
-            throw new ExcepcionGestorRedmine("Se ha producido un error al intentar conectar con la API Redmine: " + ex.getMessage());
         } catch (NotFoundException ex) {
             throw new ExcepcionGestorRedmine("El proyecto " + proyecto.getCn() + " no existe en Redmine: " + ex.getMessage());
-        } catch (AuthenticationException ex) {
-            throw new ExcepcionGestorRedmine("Se ha proudcido un error de autenticación con la API Redmine: " + ex.getMessage());
         } catch (RedmineException ex) {
             throw new ExcepcionGestorRedmine("Se ha producido un error al ejecutar la API Redmine: " + ex.getMessage());
         }
@@ -151,19 +149,20 @@ public class GestorRedmine {
         userRed.setMail(userForja.getEmail());
         userRed.setPassword(pass);
         
-        try {            
+        try {          
+        	log.info("Creating Redmine user");
             User userCreado = gestorAPI.createUser(userRed);
-            new GestorMysql().activarLoginUsuarioLDAP(userForja.getUid());
-        } catch (ExcepcionMysql ex) {
-            throw new ExcepcionGestorRedmine("Se ha producido un error al intentar activar el login por LDAP en Redmine: " + ex.getMessage());
-        } catch (IOException ex) {
-            throw new ExcepcionGestorRedmine("Se ha producido un error al intentar conectar con la API Redmine: " + ex.getMessage());
-        } catch (NotFoundException ex) {
-            throw new ExcepcionGestorRedmine("El usuario " + userRed.getLogin() + " no existe en Redmine: " + ex.getMessage());
-        } catch (AuthenticationException ex) {
-            throw new ExcepcionGestorRedmine("Se ha proudcido un error de autenticación con la API Redmine: " + ex.getMessage());
         } catch (RedmineException ex) {
+        	log.severe("Couldn't create Redmine user: " + ex.getMessage());
             throw new ExcepcionGestorRedmine("Se ha producido un error al ejecutar la API Redmine: " + ex.getMessage());
+        }
+   
+        try {
+            log.info("Activating user login by writing directly to SQL");
+            new GestorMysql(this.log).activarLoginUsuarioLDAP(userForja.getUid());
+        } catch (ExcepcionMysql ex) {
+        	log.severe("Couldn't activate Redmine user login: " + ex.getMessage());
+            throw new ExcepcionGestorRedmine("Se ha producido un error al intentar activar el login por LDAP en Redmine: " + ex.getMessage());
         }
     }
 
@@ -191,16 +190,12 @@ public class GestorRedmine {
                     if (user.getPassMD5() != null && !user.getPassMD5().isEmpty())
                         userRed.setPassword(user.getPassMD5());
 
-                    gestorAPI.updateUser(userRed);
+                    gestorAPI.update(userRed);
                     break;
                 }
             }
-        } catch (IOException ex) {
-            throw new ExcepcionGestorRedmine("Se ha producido un error al intentar conectar con la API Redmine: " + ex.getMessage());
         } catch (NotFoundException ex) {
             throw new ExcepcionGestorRedmine("El usuario " + user.getUid() + " no existe en Redmine: " + ex.getMessage());
-        } catch (AuthenticationException ex) {
-            throw new ExcepcionGestorRedmine("Se ha producido un error de autenticación con la API Redmine: " + ex.getMessage());
         } catch (RedmineException ex) {
             throw new ExcepcionGestorRedmine("Se ha producido un error al ejecutar la API Redmine: " + ex.getMessage());
         }
@@ -212,7 +207,7 @@ public class GestorRedmine {
 
     public void activarLoginUsuarioLDAP(String uid) throws ExcepcionGestorRedmine {
         try {
-             new GestorMysql().activarLoginUsuarioLDAP(uid);
+             new GestorMysql(this.log).activarLoginUsuarioLDAP(uid);
         } catch(ExcepcionMysql ex) {
             throw new ExcepcionGestorRedmine("Error durante el manejo de la BBDD Redmine: " + ex.getMessage());
         }
@@ -220,7 +215,7 @@ public class GestorRedmine {
 
     public void desactivarPublicidadProyectos(String cnProyecto) throws ExcepcionGestorRedmine {
         try {
-            new GestorMysql().desactivarPublicidadProyectos(cnProyecto);
+            new GestorMysql(this.log).desactivarPublicidadProyectos(cnProyecto);
         } catch(ExcepcionMysql ex) {
             throw new ExcepcionGestorRedmine("Error durante el manejo de la BBDD Redmine: " + ex.getMessage());
         }
@@ -228,7 +223,7 @@ public class GestorRedmine {
 
     public void addAdministradorAProyecto(String uid, String cnProyecto) throws ExcepcionGestorRedmine {
         try {
-            new GestorMysql().addAdministradorAProyecto(uid, cnProyecto);
+            new GestorMysql(this.log).addAdministradorAProyecto(uid, cnProyecto);
         } catch(ExcepcionMysql ex) {
             throw new ExcepcionGestorRedmine("Error durante el manejo de la BBDD Redmine: " + ex.getMessage());
         }
@@ -236,7 +231,7 @@ public class GestorRedmine {
 
     public void addMiembroAProyecto(String uid, String cnProyecto) throws ExcepcionGestorRedmine {
         try {
-            new GestorMysql().addMiembroAProyecto(uid, cnProyecto);
+            new GestorMysql(this.log).addMiembroAProyecto(uid, cnProyecto);
         } catch(ExcepcionMysql ex) {
             throw new ExcepcionGestorRedmine("Error durante el manejo de la BBDD Redmine: " + ex.getMessage());
         }
@@ -244,7 +239,7 @@ public class GestorRedmine {
 
     public void deleteAdministradorDeProyecto(String uid, String cnProyecto) throws ExcepcionGestorRedmine {
         try {
-            new GestorMysql().deleteAdministradorProyecto(uid, cnProyecto);
+            new GestorMysql(this.log).deleteAdministradorProyecto(uid, cnProyecto);
         } catch(ExcepcionMysql ex) {
             throw new ExcepcionGestorRedmine("Error durante el manejo de la BBDD Redmine: " + ex.getMessage());
         }
@@ -252,7 +247,7 @@ public class GestorRedmine {
 
     public void deleteMiembroDeProyecto(String uid, String cnProyecto) throws ExcepcionGestorRedmine {
         try {
-            new GestorMysql().deleteMiembroProyecto(uid, cnProyecto);
+            new GestorMysql(this.log).deleteMiembroProyecto(uid, cnProyecto);
         } catch(ExcepcionMysql ex) {
             throw new ExcepcionGestorRedmine("Error durante el manejo de la BBDD Redmine: " + ex.getMessage());
         }
@@ -260,7 +255,7 @@ public class GestorRedmine {
 
     public void deleteUsuario(String uid) throws ExcepcionGestorRedmine {
         try {
-            new GestorMysql().deleteUsuario(uid);
+            new GestorMysql(this.log).deleteUsuario(uid);
         } catch(ExcepcionMysql ex) {
             throw new ExcepcionGestorRedmine("Error durante el manejo de la BBDD Redmine: " + ex.getMessage());
         }

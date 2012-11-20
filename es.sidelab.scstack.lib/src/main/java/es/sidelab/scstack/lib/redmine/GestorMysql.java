@@ -15,6 +15,8 @@ import es.sidelab.scstack.lib.dataModel.repos.RepositorioGIT;
 import es.sidelab.scstack.lib.exceptions.redmine.ExcepcionMysql;
 
 import java.sql.*;
+import java.util.Locale;
+import java.util.logging.Logger;
 
 
 /**
@@ -25,15 +27,18 @@ import java.sql.*;
 public class GestorMysql {
     private Connection conexion;
     private Statement stmt;
+	private Logger log;
 
 
     /**
      * <p>Construye un sencillo gestor para poder ejecutar consultas y sentencias
      * sobre la base de datos Mysql de Redmine.</p>
+     * @param log 
      * @throws ExcepcionMysql Cuando se ha producido algún error al intentar
      * establecer la conexión con el servidor de Mysql.
      */
-    public GestorMysql() throws ExcepcionMysql {
+    public GestorMysql(Logger log) throws ExcepcionMysql {
+    	this.log = log;
         try {
             Class.forName("com.mysql.jdbc.Driver");
             conexion = DriverManager.getConnection("jdbc:mysql://" + ConfiguracionForja.hostMysql, ConfiguracionForja.usernameMysql, ConfiguracionForja.passMysql);
@@ -56,6 +61,7 @@ public class GestorMysql {
     public void activarLoginUsuarioLDAP(String uid) throws ExcepcionMysql {
         String consulta = "UPDATE " + ConfiguracionForja.schemaRedmine + ".users SET auth_source_id=1 WHERE login='" + uid + "'";
         try {
+        	log.info("Running sql statement: " + consulta);
             stmt.executeUpdate(consulta);
         } catch (SQLException e) {
             throw new ExcepcionMysql("Error de MySQL al intentar realizar la consulta: " + consulta);
@@ -181,19 +187,44 @@ public class GestorMysql {
     public void addRepositorio(Proyecto proyecto, Integer id) throws ExcepcionMysql {
         String consulta = "";
         try {
-            if (proyecto.getDefaultRepositorio().equals(RepositorioGIT.tipo))
-                consulta = "INSERT INTO " + ConfiguracionForja.schemaRedmine + ".repositories "
-                    + "VALUES (null, " + id + ", 'file://" + ConfiguracionForja.pathGITApache + "/" + proyecto.getCn() + "', "
-                    + "null, null, "
-                    + "'file://" + ConfiguracionForja.pathGITApache + "/" + proyecto.getCn() + "', "
-                    + " 'Git')";
-            else
-                consulta = "INSERT INTO " + ConfiguracionForja.schemaRedmine + ".repositories "
-                    + "VALUES (null, " + id + ", 'file://" + ConfiguracionForja.pathSVNApache + "/" + proyecto.getCn() + "', "
-                    + "null, null, "
-                    + "'file://" + ConfiguracionForja.pathSVNApache + "/" + proyecto.getCn() + "', "
-                    + " 'Subversion')";
+            if (proyecto.getDefaultRepositorio().equals(RepositorioGIT.tipo)) {
+                consulta = String.format(
+                		Locale.US, 
+                		"INSERT INTO %s.repositories VALUES(%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%d)", 
+                		ConfiguracionForja.schemaRedmine,
+                		"null",
+                		id,
+                		"'file://" + ConfiguracionForja.pathGITApache + "/" + proyecto.getCn() + "'",
+                		"''",
+                		"''",
+                		"''",
+                		"'Repository::Git'",
+                		"null",
+                		"null",
+                		"null",
+                		"'" + proyecto.getCn() + "'",
+                		1);
+            } else {
+                consulta = String.format(
+                		Locale.US, 
+                		"INSERT INTO %s.repositories VALUES(%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%d)", 
+                		ConfiguracionForja.schemaRedmine,
+                		"null",
+                		id,
+                		"'file://" + ConfiguracionForja.pathSVNApache + "/" + proyecto.getCn() + "'",
+                		"''",
+                		"''",
+                		"''",
+                		"'Repository::Subversion'",
+                		"null",
+                		"null",
+                		"null",
+                		"'" + proyecto.getCn() + "'",
+                		1);
+            }
+            log.info("Executing query: " + consulta);
             stmt.execute(consulta);
+            
         } catch (SQLException e) {
             throw new ExcepcionMysql(e);
         }
@@ -214,16 +245,28 @@ public class GestorMysql {
     public void updateRepositorio(Proyecto proyecto, Integer id) throws ExcepcionMysql {
         String consulta = "";
         try {
-            if (proyecto.getDefaultRepositorio().equals(RepositorioGIT.tipo))
-                consulta = "UPDATE " + ConfiguracionForja.schemaRedmine + ".repositories SET "
-                        + "url='file://" + ConfiguracionForja.pathGITApache + "/" + proyecto.getCn() + "', "
-                        + "root_url='file://" + ConfiguracionForja.pathGITApache + "/" + proyecto.getCn() + "', "
-                        + "type='Git' WHERE project_id=" + id;
-            else
-                consulta = "UPDATE " + ConfiguracionForja.schemaRedmine + ".repositories SET "
-                        + "url='file://" + ConfiguracionForja.pathSVNApache + "/" + proyecto.getCn() + "', "
-                        + "root_url='file://" + ConfiguracionForja.pathSVNApache + "/" + proyecto.getCn() + "', "
-                        + "type='Subversion' WHERE project_id=" + id;
+        	
+            if (proyecto.getDefaultRepositorio().equals(RepositorioGIT.tipo)) {
+            	consulta = String.format(
+            			Locale.US,
+            			"UPDATE %s.repositories SET url=%s, type=%s WHERE project_id=%d",
+            			ConfiguracionForja.schemaRedmine,
+            			"'file://" + ConfiguracionForja.pathGITApache + "/" + proyecto.getCn() + "'",
+            			"Repositories::Git",
+            			id
+            			);
+            } else {
+            	consulta = String.format(
+            			Locale.US,
+            			"UPDATE %s.repositories SET url=%s, type=%s WHERE project_id=%d",
+            			ConfiguracionForja.schemaRedmine,
+            			"'file://" + ConfiguracionForja.pathSVNApache + "/" + proyecto.getCn() + "'",
+            			"Repositories::Subversion",
+            			id
+            			);
+            }
+            
+            log.info("Executing query: " + consulta);
             stmt.executeUpdate(consulta);
         } catch (SQLException e) {
             throw new ExcepcionMysql("Error de MySQL al intentar realizar la consulta: " + consulta);
@@ -243,33 +286,44 @@ public class GestorMysql {
      * @throws ExcepcionMysql
      */
     private void addRoleAProyecto(String uid, String cn, String role) throws ExcepcionMysql {
-        // Primero recuperamos los datos para el manejo de la BBDD Redmine
+        
+    	log.info("Adding role " + role + " to project " + cn + " for user " + uid);
+    	
+    	// Primero recuperamos los datos para el manejo de la BBDD Redmine
         String userID = this.getUserID(uid);
         String projectID = this.getProjectID(cn);
 
         // Solo insertamos si no existe ese miembro con ese rol
         String consulta = "SELECT * FROM " + ConfiguracionForja.schemaRedmine + ".members WHERE user_id='" + userID + "' AND project_id='" + projectID + "'";
         try {
+        	log.info("Executing query: " + consulta);
             ResultSet resultado = stmt.executeQuery(consulta);
+
             if (resultado.next()) {
+            	
                 String member_id = resultado.getString("id");
                 consulta = "SELECT * FROM " + ConfiguracionForja.schemaRedmine + ".member_roles WHERE role_id=" + role + " AND member_id='"+member_id+"'";
+            	log.info("Executing query: " + consulta);
                 resultado = stmt.executeQuery(consulta);
                 // Si ya existe el usuario con ese rol en ese proyecto, no hay que hacer nada
-                if (resultado.next())
+                if (resultado.next()) {
+                	log.info("User " + uid + " already has role " + role);
                     return;
-                // Si existe el usuario en el proyecto pero con otro rol, añadimos
-                else {
-                    consulta = "INSERT INTO " + ConfiguracionForja.schemaRedmine + ".member_roles VALUES(null, " + member_id + ", " + role + ", null)";
+                } else {
+                    // Si existe el usuario en el proyecto pero con otro rol, añadimos
+                	consulta = "INSERT INTO " + ConfiguracionForja.schemaRedmine + ".member_roles VALUES(null, " + member_id + ", " + role + ", null)";
+                	log.info("Executing query: " + consulta);
                     stmt.execute(consulta);
                 }
             // Si no existe aún el usuario en el proyecto
             } else {
                 consulta = "INSERT INTO " + ConfiguracionForja.schemaRedmine + ".members "
                     + "VALUES(null, '" + userID + "', '" + projectID + "', null, 0)";
+            	log.info("Executing query: " + consulta);
                 stmt.execute(consulta);
                 consulta = "INSERT INTO " + ConfiguracionForja.schemaRedmine + ".member_roles "
                     + "VALUES(null, (SELECT id FROM " + ConfiguracionForja.schemaRedmine + ".members WHERE user_id=" + userID + " AND project_id=" + projectID + "), " + role + ", null)";
+            	log.info("Executing query: " + consulta);
                 stmt.execute(consulta);
             }
         } catch (SQLException e) {

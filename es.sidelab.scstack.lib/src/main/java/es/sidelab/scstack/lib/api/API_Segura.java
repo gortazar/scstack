@@ -28,6 +28,8 @@ import es.sidelab.scstack.lib.exceptions.ldap.ExcepcionLDAPNoExisteRegistro;
 import es.sidelab.scstack.lib.exceptions.redmine.ExcepcionGestorRedmine;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 /**
  * <p>Esta clase recubre la API original dotándola de una capa de control de
@@ -39,6 +41,7 @@ public class API_Segura {
 		USUARIO, ADMIN, SUPERADMIN
 	}
 	private API_Abierta api;
+	private Logger log;
 
 	/**
 	 * <p>Constructor que por defecto usa como fichero de configuración el fichero
@@ -58,7 +61,8 @@ public class API_Segura {
 	 * @throws ExcepcionForja
 	 */
 	public API_Segura(String ficheroConfig) throws ExcepcionForja {
-		this.api = new API_Abierta(ficheroConfig);
+		this.log = Logger.getLogger(API_Segura.class.getName());
+		this.api = new API_Abierta(this.log, ficheroConfig);
 	}
 
 
