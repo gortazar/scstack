@@ -1,0 +1,64 @@
+<assembly>
+	<id>bin</id>
+	<!-- Generates a tar.gz package containing the needed files -->
+	<formats>
+		<format>tar.gz</format>
+	</formats>
+	<fileSets>
+		<!-- Adds ficherosInstalacion dir to the root directory of zip package -->
+		<fileSet>
+			<directory>${basedir}/../scstack</directory>
+			<outputDirectory>scstack</outputDirectory>
+		</fileSet>
+<!-- 		<fileSet>
+			<directory>../scstack/manifests</directory>
+			<outputDirectory>scstack/manifests</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>../scstack/spec</directory>
+			<outputDirectory>scstack/spec</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>templates</directory>
+			<outputDirectory>scstack/templates</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>tests</directory>
+			<outputDirectory>scstack/tests</outputDirectory>
+		</fileSet>
+		Adds README and scstack.conf files to the root directory of zip package
+		<fileSet>
+			<directory></directory>
+			<outputDirectory></outputDirectory>
+			<includes>
+				<include>scstack/README.markdown</include>
+				<include>scstack/metadata.json</include>
+				<include>scstack/Modulefile</include>
+				<include>scstack/Rakefile</include>
+			</includes>
+		</fileSet>
+ -->		
+		<!-- Adds the scstack-service ZIP to the root directory of zip package -->
+		<fileSet>
+			<directory>${basedir}/../apache/</directory>
+			<outputDirectory>apache</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>${basedir}/../ldap/</directory>
+			<outputDirectory>ldap</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>${basedir}/../mysql/</directory>
+			<outputDirectory>mysql</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>${basedir}/../ssh/</directory>
+			<outputDirectory>ssh</outputDirectory>
+		</fileSet>
+		<fileSet>
+			<directory>${basedir}/../stdlib/</directory>
+			<outputDirectory>stdlib</outputDirectory>
+		</fileSet>
+		
+	</fileSets>
+</assembly>
