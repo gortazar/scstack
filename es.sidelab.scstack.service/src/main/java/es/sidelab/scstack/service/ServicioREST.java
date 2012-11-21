@@ -53,6 +53,8 @@ import es.sidelab.scstack.service.restlets.users.UsuariosResource;
 public final class ServicioREST extends Application {
 	/** Path and name of the configuration file for the REST service. */
 	public static final String CONFIG_FILE = "scstack.conf";
+
+	public static final String GLOBAL_LOG_NAME = "global_log";
 	
     /* PARÁMETROS CONFIGURACIÓN SERVIDOR */
     public static String rootHTML;
@@ -100,7 +102,7 @@ public final class ServicioREST extends Application {
     public ServicioREST() throws Exception {
         super();
 
-    	Logger log = Logger.getLogger(ServicioREST.class.getName());
+    	Logger log = Logger.getLogger(GLOBAL_LOG_NAME);
     	log.setLevel(Level.ALL);
     	log.info("Loading configuration");
         // Necesario antes de lanzar el servidor
@@ -112,6 +114,7 @@ public final class ServicioREST extends Application {
 
         LogService logService = new LogService(true);
         logService.setLoggerName("REST Server");
+        logService.setEnabled(true);
         logService.start();
         
         component.setLogService(logService);

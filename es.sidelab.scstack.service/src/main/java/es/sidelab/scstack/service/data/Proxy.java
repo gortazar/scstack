@@ -23,7 +23,10 @@ import es.sidelab.scstack.lib.exceptions.ldap.ExcepcionGestorLDAP;
 import es.sidelab.scstack.lib.exceptions.ldap.ExcepcionLDAPAdministradorUnico;
 import es.sidelab.scstack.lib.exceptions.ldap.ExcepcionLDAPNoExisteRegistro;
 import es.sidelab.scstack.lib.exceptions.redmine.ExcepcionGestorRedmine;
+
 import java.security.NoSuchAlgorithmException;
+import java.util.logging.Logger;
+
 import org.restlet.data.Status;
 import org.restlet.resource.ResourceException;
 
@@ -41,13 +44,16 @@ import org.restlet.resource.ResourceException;
 public class Proxy {
     public API_Segura api;
 
+	private Logger log;
+
     /**
      * Patrón Singleton
      */
-    private static Proxy instance = new Proxy();
+    private static Proxy instance = new Proxy(Logger.getLogger(Proxy.class.getName()));
 
 
-    private Proxy() {
+    private Proxy(Logger logger) {
+    	this.log = logger;
         try {
             api = new API_Segura();
         } catch (ExcepcionForja e) {
@@ -65,9 +71,10 @@ public class Proxy {
 
 
 
-    public String doLogin(String user, String pass) 
-            throws ExcepcionParametros, ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP {
-        return api.doLogin(user, pass);
+    public String doLogin(String user, String pass) throws ExcepcionLDAPNoExisteRegistro, ExcepcionParametros, ExcepcionLogin, ExcepcionGestorLDAP {
+    	
+   		return api.doLogin(user, pass);
+   		
     }
 
 

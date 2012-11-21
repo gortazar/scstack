@@ -20,6 +20,7 @@
 		<module>../es.sidelab.scstack.lib</module>
 		<module>../es.sidelab.scstack.service</module>
 		<module>../es.sidelab.scstack.installer</module>
+		<module>../es.sidelab.scstack.puppet-installer</module>
 	</modules>
 
 	<issueManagement>
@@ -106,19 +107,17 @@
 	<!-- This places are used to solve the dependencies (if not found in the 
 		local repo) -->
 	<repositories>
-		<!-- <repository> <id>nexus.snapshots</id> <url>http://build.sidelab.es:8080/nexus/content/repositories/snapshots/</url> 
-			</repository> -->
 		<!-- Sidelab's repos -->
 		<repository>
-			<id>archiva.internal</id>
+			<id>internal</id>
 			<url>http://build.sidelab.es:8080/archiva/repository/internal/</url>
 		</repository>
 		<repository>
-			<id>archiva.snapshots</id>
+			<id>snapshots</id>
 			<url>http://build.sidelab.es:8080/archiva/repository/snapshots/</url>
 		</repository>
 		<repository>
-			<id>archiva.releases</id>
+			<id>releases</id>
 			<url>http://build.sidelab.es:8080/archiva/repository/releases/</url>
 		</repository>
 	</repositories>
@@ -128,13 +127,13 @@
 	<distributionManagement>
 		<!-- use the following if you're not using a snapshot version. -->
 		<repository>
-			<id>archiva.releases</id>
+			<id>releases</id>
 			<name>Sidelab Archiva Releases</name>
 			<url>http://build.sidelab.es:8080/archiva/repository/releases/</url>
 		</repository>
 		<!-- use the following if you ARE using a snapshot version. -->
 		<snapshotRepository>
-			<id>archiva.snapshots</id>
+			<id>snapshots</id>
 			<name>Sidelab Archiva Snapshots</name>
 			<url>http://build.sidelab.es:8080/archiva/repository/snapshots/</url>
 		</snapshotRepository>
