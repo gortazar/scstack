@@ -329,11 +329,11 @@ class scstack::redmine (
   
   exec {"move-connector":
     cwd => "/tmp",
-    command => "/bin/mv redmine_mylyn_connector-stable-2.8 $installFolder/redmine/plugins/",
+    command => "/bin/mv redmine_mylyn_connector-stable-2.8 $installFolder/redmine/plugins/redmine_mylyn_connector",
     require => [Exec["extract-connector"],Exec["rename-redmine"]],
   }
   
-  file {"$installFolder/redmine/plugins/redmine_mylyn_connector-stable-2.8":
+  file {"$installFolder/redmine/plugins/redmine_mylyn_connector":
     owner => www-data,
     group => www-data,
     recurse => true,
@@ -349,7 +349,7 @@ class scstack::redmine (
   exec {"migrate-plugin":
     cwd => "$installFolder/redmine",
     #require => Exec["clone-redmine-mylyn-connector"],
-    require => File["$installFolder/redmine/plugins/redmine_mylyn_connector-stable-2.8"],
+    require => File["$installFolder/redmine/plugins/redmine_mylyn_connector"],
     environment => ["RAILS_ENV=production"],
     command => "rake db:migrate_plugins",
     logoutput => true,
