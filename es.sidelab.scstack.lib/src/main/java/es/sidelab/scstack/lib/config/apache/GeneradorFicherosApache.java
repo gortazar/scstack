@@ -171,6 +171,7 @@ public class GeneradorFicherosApache {
             PrintWriter pw = new PrintWriter(fileWr);
             for (int i = 0; i < users.length; i++) {
             	log.info("Adding user to jailing");
+            	pw.println("");
                 pw.println("Match User " + users[i]);
                 pw.println("    ChrootDirectory " + ConfiguracionForja.pathCarpetas);
                 pw.println("    AllowTCPForwarding no");
