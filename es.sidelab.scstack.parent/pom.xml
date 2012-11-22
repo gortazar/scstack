@@ -19,7 +19,6 @@
 	<modules> <!-- Modules' order is important as it indicates the build order -->
 		<module>../es.sidelab.scstack.lib</module>
 		<module>../es.sidelab.scstack.service</module>
-		<module>../es.sidelab.scstack.installer</module>
 		<module>../es.sidelab.scstack.puppet-installer</module>
 	</modules>
 
