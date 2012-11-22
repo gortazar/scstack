@@ -1,0 +1,24 @@
+version: 1
+
+dn: cn=<%=sadmin%>,ou=projects,<%= baseDN %>
+objectClass: posixGroup
+objectClass: top
+objectClass: proyectoForja
+adminUid: <%=sadmin%>
+description: Superadmin group
+gidNumber: 20000
+
+dn: uid=<%=sadmin%>,ou=people,<%= baseDN %>
+objectClass: posixAccount
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Superadmin
+gidNumber: 19999
+homeDirectory: /home/<%=sadmin%>
+sn: Superadmin
+uid: <%=sadmin%>
+uidNumber: 19999
+mail: <%=sadmin%>@<%= domain %>
+userPassword: <%= sadminpass %>

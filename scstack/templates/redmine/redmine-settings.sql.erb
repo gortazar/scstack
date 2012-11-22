@@ -1,0 +1,17 @@
+USE <%= redminedb %>;
+INSERT INTO settings (name, value) VALUES ('autologin', 0);
+INSERT INTO settings (name, value) VALUES ('rest_api_enabled', 1);
+INSERT INTO settings (name, value) VALUES ('login_required', 1);
+INSERT INTO settings (name, value) VALUES ('self_registration', 0);
+INSERT INTO settings (name, value) VALUES ('lost_password', 0);
+INSERT INTO settings (name, value) VALUES ('unsubscribe', 0);
+INSERT INTO settings (name, value) VALUES ('thumbnails_enabled', 0);
+INSERT INTO settings (name, value) VALUES ('gravatar_enabled', 1);
+INSERT INTO settings (name, value) VALUES ('default_projects_public', 0);
+INSERT INTO settings (name, value) VALUES ('attachment_max_size', 20000);
+INSERT INTO settings (name, value) VALUES ('welcome_text', 'This is the <%= compname %> project management tool');
+INSERT INTO settings (name, value) VALUES ('protocol', 'https');
+INSERT INTO settings (name, value) VALUES ('app_title', '<%= codename %>');
+INSERT INTO settings (name, value) VALUES ('host_name', '<%= domain %>');
+INSERT INTO settings (name, value) VALUES ('emails_footer', 'You have received this notification because you have either subscribed to it, or are involved in it. To change your notification preferences, please click here: http://<%= domain %>/my/account');
+INSERT INTO settings (name, value) VALUES ('mail_from', 'redmine@<%= domain %>');

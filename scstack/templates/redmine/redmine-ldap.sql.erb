@@ -1,0 +1,4 @@
+USE <%= redminedb %>;
+INSERT INTO auth_sources (type, name, host, port, account, account_password, base_dn, attr_login, attr_firstname, attr_lastname, attr_mail, onthefly_register, tls, filter, timeout) 
+	VALUES ('AuthSourceLdap', 'Code LDAP', 'localhost', 389, '<%= bindDN %>', '<%= passBindDN %>', '<%= baseDN %>', 'uid', 'cn', 'sn', 'mail', 1, 0, '', NULL);
+
