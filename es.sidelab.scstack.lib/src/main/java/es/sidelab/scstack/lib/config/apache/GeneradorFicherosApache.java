@@ -158,7 +158,7 @@ public class GeneradorFicherosApache {
                 	throw new ExcepcionGeneradorFicherosApache("The file "+this.ficheroConfigSSH+" doesn't not contains the \"SSH cage marker\" (marcador jaula SSH): "+ConfiguracionForja.marcadorJaulaSSH);
                 }
                 
-                if (linea.equals(ConfiguracionForja.marcadorJaulaSSH)) {
+                if (linea.contains(ConfiguracionForja.marcadorJaulaSSH)) {
                 	log.info("SSH jailing marker found");
                     fichero.setLength(fichero.getFilePointer());                    
                     break;
