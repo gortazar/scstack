@@ -61,6 +61,7 @@ class scstack::scstack_service(
       File["/etc/init.d/scstack-service"],
       File["/etc/init/scstack-service.conf"],
       Class["scstack::scstack_ldap"],
+      Class["scstack::scstack_ssh"],
     ]
   }
   
