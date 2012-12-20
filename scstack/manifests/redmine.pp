@@ -365,42 +365,4 @@ class scstack::redmine (
     environment => "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/opt/vagrant_ruby/bin",
   }
 
-# Install redmine wysiwyg textile plugin.
-
-  # Download plugin
-  exec { "download-wysiwyg":
-    cwd => "/tmp",
-    command   => "/usr/bin/wget http://code.sidelab.es/public/sidelabcodestack/artifacts/0.2/redmine_wysiwyg_textile.tar.gz",
-    logoutput => true,
-  }
-
-  # Unzip plugin
-  exec {"extract-wysiwyg":
-    cwd => "/tmp",
-    command => "/bin/tar -xvzf redmine_wysiwyg_textile.tar.gz",
-    require => Exec["download-wysiwyg"],
-  }
-
-  exec {"move-wysiwyg":
-    cwd => "/tmp",
-    command => "/bin/mv redmine_wysiwyg_textile $installFolder/redmine/plugins/redmine_wysiwyg_textile",
-    require => [Exec["rename-redmine"], Exec["extract-wysiwyg"]],
-  }
-
-  file {"$installFolder/redmine/plugins/redmine_wysiwyg_textile":
-    owner => www-data,
-    group => www-data,
-    recurse => true,
-    require => Exec["move-wysiwyg"],
-  }
-
-  exec {"migrate-plugin-wysiwyg":
-    cwd => "$installFolder/redmine",
-    require => [File["$installFolder/redmine/plugins/redmine_wysiwyg_textile"], Exec["bundle-install"]],
-    environment => ["RAILS_ENV=production"],
-    command => "rake redmine:plugins:migrate",
-    logoutput => true,
-    path => ["/usr/local/bin"],
-  }
-
 }

@@ -134,7 +134,21 @@ class scstack(
     passBindDN => $passBindDN,
     installFolder => $installFolder
   }
-  
+
+# Install Redmine WYSIWYG plugin
+
+  class { "puppet_plugins_redmine":
+    installFolder => $installFolder,
+    require       => Class["scstack::redmine"],
+  }
+
+  # Touch file redmine restart.
+  exec { "touch-restart-redmine":
+    command => "/usr/bin/touch $installFolder/redmine/tmp/restart.txt",
+    require => Class["puppet_plugins_redmine"],
+    notify  => Service['httpd'],
+  }
+
 # Install svn
  
   class {"scstack::svn": }

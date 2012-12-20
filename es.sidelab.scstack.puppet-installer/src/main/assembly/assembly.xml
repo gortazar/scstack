@@ -59,6 +59,10 @@
 			<directory>${basedir}/../stdlib/</directory>
 			<outputDirectory>stdlib</outputDirectory>
 		</fileSet>
+		<fileSet>
+			<directory>${basedir}/../puppet_plugins_redmine/</directory>
+			<outputDirectory>puppet_plugins_redmine</outputDirectory>
+		</fileSet>
 		
 	</fileSets>
 </assembly>

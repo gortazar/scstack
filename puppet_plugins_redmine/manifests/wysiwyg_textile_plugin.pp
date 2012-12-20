@@ -13,6 +13,8 @@
 class puppet_plugins_redmine::wysiwyg_textile_plugin (
   $installFolder) {
   
+  Class["scstack::redmine"] -> Class["puppet_plugins_redmine::wysiwyg_textile_plugin"]
+
   # Download plugin
   exec { "download-wysiwyg":
     cwd       => "/tmp",
