@@ -121,6 +121,7 @@ class scstack::tomcat (
     mode    => 775,
     owner   => "tomcat",
     group   => "tomcat",
+    ensure => link,
     require => [File["$installFolder/$tomcatdir"], User["tomcat"]],
   }
 
@@ -135,15 +136,15 @@ class scstack::tomcat (
     owner   => "tomcat",
     group   => "tomcat",
     mode    => 0750,
-    require => User["tomcat"],
+    require => [User["tomcat"], File["$installFolder/tomcat"]],
   }
 
   file { "$installFolder/tomcat/conf/server.xml":
     source  => "puppet:///modules/scstack/tomcat/server.xml",
     owner   => "tomcat",
     group   => "tomcat",
-    mode    => 750,
-    require => User["tomcat"],
+    mode    => 0750,
+    require => [User["tomcat"], File["$installFolder/tomcat"]],
   }
 
   service { "tomcat":
