@@ -255,7 +255,7 @@ class scstack::tomcat (
 
   exec { "download-jenkins":
     cwd       => "$installFolder",
-    command   => "/usr/bin/wget http://mirrors.jenkins-ci.org/war/latest/jenkins.war",
+    command   => "/usr/bin/wget http://mirrors.jenkins-ci.org/war/1.491/jenkins.war",
     logoutput => true,
   }
 
