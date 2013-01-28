@@ -118,7 +118,7 @@ class scstack::tomcat (
 
   file { "$installFolder/tomcat":
     target  => "$installFolder/$tomcatdir",
-    mode    => 775,
+    mode    => 0775,
     owner   => "tomcat",
     group   => "tomcat",
     ensure => link,
@@ -136,7 +136,7 @@ class scstack::tomcat (
     owner   => "tomcat",
     group   => "tomcat",
     mode    => 0750,
-    require => [User["tomcat"], File["$installFolder/tomcat"]],
+    require => [File["$installFolder/tomcat"], User["tomcat"]],
   }
 
   file { "$installFolder/tomcat/conf/server.xml":
@@ -144,11 +144,12 @@ class scstack::tomcat (
     owner   => "tomcat",
     group   => "tomcat",
     mode    => 0750,
-    require => [User["tomcat"], File["$installFolder/tomcat"]],
+    require => [File["$installFolder/tomcat"], User["tomcat"]],
   }
 
   service { "tomcat":
     ensure  => running,
+    enable  => true, 
     require => [
       File["$installFolder/tomcat/conf/tomcat-users.xml"],
       File["/etc/init.d/tomcat"],
@@ -186,9 +187,11 @@ class scstack::tomcat (
     require => File["$installFolder/tomcat"],
   }
 
-  #  file { "$installFolder/$archiva":
-  #    source => "puppet:///modules/scstack/tomcat/$archiva",
-  #  }
+    file { "$installFolder/$archiva":
+      source => "puppet:///modules/scstack/tomcat/$archiva",
+      owner   => "tomcat",
+      group   => "tomcat",
+    }
 
   exec { "rename-archiva":
     cwd     => "$installFolder",

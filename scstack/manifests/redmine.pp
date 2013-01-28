@@ -12,10 +12,11 @@ class scstack::redmine (
   $passBindDN,
   $baseDN,
   $installFolder,
-  $redminePackage = "redmine-2.1.2.tar.gz",
+  $redminePackage = "redmine-2.2.2",
 ){
 
-  $redmineURL = "http://rubyforge.org/frs/download.php/76495/$redminePackage"
+  $targz = ".tar.gz"
+  $redmineURL = "http://rubyforge.org/frs/download.php/76722/$redminePackage$targz"
   
   include mysql
   
@@ -63,12 +64,12 @@ class scstack::redmine (
 
   exec {"download-redmine":
     cwd => "/tmp",
-    command => "/usr/bin/wget $redmineURL",
+    command => "/usr/bin/wget -c $redmineURL",
     logoutput => true,
   }
 
   exec { "extract-redmine":
-    command => "tar xvzf /tmp/$redminePackage",
+    command => "tar xvzf /tmp/$redminePackage$targz",
     path => ["/bin", "/usr/bin"],
     cwd => "$installFolder",
     require => Exec["download-redmine"],
@@ -86,7 +87,7 @@ class scstack::redmine (
 #  }
 
   exec { "rename-redmine":
-    command => "/bin/mv $installFolder/redmine-2.1.2 $installFolder/redmine",
+    command => "/bin/mv $installFolder/$redminePackage $installFolder/redmine",
     require => Exec["extract-redmine"],
   }
 
