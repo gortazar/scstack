@@ -18,7 +18,7 @@ class scstack::scstack_service(
   
   exec { "get-scstack-service":
     cwd => "/tmp",
-    command => "/usr/bin/wget -c  http://code.sidelab.es/public/sidelabcodestack/artifacts/0.2/scstack-service-bin.tar.gz",
+    command => "/usr/bin/wget -c  http://code.sidelab.es/public/sidelabcodestack/artifacts/0.3/scstack-service-bin.tar.gz",
     logoutput => true,
   }
   
