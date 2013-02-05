@@ -1,0 +1,13 @@
+nslcd	nslcd/ldap-bindpw	password	<%= passBindDN %>
+nslcd	nslcd/ldap-sasl-authcid	string	
+nslcd	nslcd/ldap-sasl-realm	string	
+nslcd	nslcd/ldap-sasl-mech	select	
+nslcd	nslcd/ldap-starttls	boolean	false
+nslcd	nslcd/ldap-base	string	<%= baseDN %>
+nslcd	nslcd/ldap-sasl-krb5-ccname	string	/var/run/nslcd/nslcd.tkt
+nslcd	nslcd/ldap-auth-type	select	simple
+nslcd	nslcd/ldap-reqcert	select	
+nslcd	nslcd/ldap-sasl-authzid	string	
+nslcd	nslcd/ldap-uris	string	ldap://localhost:389/
+nslcd	nslcd/ldap-sasl-secprops	string	
+nslcd	nslcd/ldap-binddn	string	<%= bindDN %>

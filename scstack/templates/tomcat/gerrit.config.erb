@@ -1,0 +1,34 @@
+[gerrit]
+	basePath = /opt/gerrit/git
+	canonicalWebUrl = http://localhost:9090/
+[database]
+	type = MYSQL
+	hostname = localhost
+	database = gerrit
+	username = gerrit 
+[auth]
+	type = LDAP
+[ldap]
+	server = ldap://localhost:389
+	username = <%= bindDN %>
+	password = <%= passBindDN %>
+	accountBase = <%= searchDN %>
+	accountScope = one
+	accountFullName = ${cn} ${sn}
+	accountEmailAddress = mail
+	accountSshUserName = uid
+	groupBase = <%= searchProjectDN %>
+	groupScope = one
+	groupMemberPattern = (memberUid=${username})
+[sendemail]
+	smtpServer = <%= domain %>
+	smtpUser = gerrit
+[container]
+	user = tomcat
+	javaHome = <%= javahome %>
+[sshd]
+	listenAddress = <%= domain %>:29418
+[httpd]
+	listenUrl = http://localhost:9090/
+[cache]
+	directory = cache

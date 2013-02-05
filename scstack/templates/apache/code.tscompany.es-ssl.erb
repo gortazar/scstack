@@ -1,0 +1,86 @@
+<IfModule mod_ssl.c>
+NameVirtualHost <%= ip %>:443
+<VirtualHost <%= ip %>:443>
+
+	ServerAdmin <%= adminmail %>
+	ServerName <%= domain %>:443
+
+	DocumentRoot <%=installFolder%>/www
+	
+	Alias /redmine <%=installFolder%>/redmine/public/
+	<Directory "<%=installFolder%>/redmine/public/">
+		Options Indexes ExecCGI FollowSymLinks
+		AllowOverride all
+		Order allow,deny
+		Allow from all
+	</Directory>
+
+	ProxyRequests Off
+  	ProxyPreserveHost On
+
+	<Proxy *>
+    	Order deny,allow
+    	Allow from all
+  	</Proxy>
+
+  	ProxyPass /jenkins http://localhost:8080/jenkins
+  	ProxyPassReverse /jenkins http://localhost:8080/jenkins
+
+  	ProxyPass /archiva http://localhost:8080/archiva
+  	ProxyPassReverse /archiva http://localhost:8080/archiva
+  	
+  	ProxyPass /manager http://localhost:8080/manager
+  	ProxyPassReverse /manager http://localhost:8080/manager
+  	
+  	ProxyPass /host-manager http://localhost:8080/host-manager
+  	ProxyPassReverse /host-manager http://localhost:8080/host-manager
+  	
+  	ProxyPass /gerrit http://localhost:9090
+  	ProxyPassReverse /gerrit http://localhost:9090
+  	
+	# Página principal de code.sidelab.es
+#	RedirectMatch ^/$ http://<%= domain %>/projects/sidelab/wiki/Sidelab
+
+	Include /etc/apache2/sites-available/configProjects-ssl
+
+	Alias /public <%=installFolder%>/files/public
+
+	<Directory "<%=installFolder%>/files/public">
+		Order allow,deny
+		Allow from all
+	</Directory>
+
+	ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/
+	<Directory "/usr/lib/cgi-bin">
+		AllowOverride None
+		Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
+		Order allow,deny
+		Allow from all
+	</Directory>
+
+	ErrorLog /var/log/apache2/ForjaSoftware.error.log
+
+	LogLevel warn
+
+	CustomLog /var/log/apache2/ForjaSoftware-access.log combined
+
+	SSLEngine on
+	SSLCertificateFile    /etc/ssl/certs/<%= cert_apache %>
+	SSLCertificateKeyFile /etc/ssl/private/<%= key_apache %>
+	SSLCertificateChainFile /etc/ssl/certs/<%= cacert_apache %>
+
+	<FilesMatch "\.(cgi|shtml|phtml|php)$">
+		SSLOptions +StdEnvVars
+	</FilesMatch>
+
+	<Directory /usr/lib/cgi-bin>
+		SSLOptions +StdEnvVars
+	</Directory>
+
+	BrowserMatch "MSIE [2-6]" \
+	nokeepalive ssl-unclean-shutdown \
+	downgrade-1.0 force-response-1.0
+	BrowserMatch "MSIE [17-9]" ssl-unclean-shutdown
+
+</VirtualHost>
+</IfModule>
