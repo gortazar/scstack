@@ -4,7 +4,7 @@
 	<parent>
 		<artifactId>parent</artifactId>
 		<groupId>es.sidelab.scstack</groupId>
-		<version>0.2</version>
+		<version>0.3-SNAPSHOT</version>
 		<relativePath>../es.sidelab.scstack.parent</relativePath>
 	</parent>
 	<artifactId>service</artifactId>
@@ -39,7 +39,7 @@
 		<dependency>
 			<groupId>es.sidelab.scstack</groupId>
 			<artifactId>lib</artifactId>
-			<version>0.2</version>
+			<version>0.3-SNAPSHOT</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
