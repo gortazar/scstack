@@ -1,0 +1,60 @@
+<assembly>
+	<id>bin</id>
+	<!-- Generates a zip package containing the needed files -->
+	<formats>
+		<format>tar.gz</format>
+	</formats>
+	
+	<!-- Adds dependencies to zip package under lib directory -->
+	<dependencySets>
+		<dependencySet>
+			<!-- Project artifact is not copied under library directory since it is 
+				added to the root directory of the zip package. -->
+			<useProjectArtifact>false</useProjectArtifact>
+			<outputDirectory>lib</outputDirectory>
+			<unpack>false</unpack>
+		</dependencySet>
+	</dependencySets>
+
+	<fileSets>
+		<!-- Adds SidelabCode_Interface dir to the root directory of zip package -->
+		<fileSet>
+			<directory>src/main/www</directory>
+			<outputDirectory>www</outputDirectory>
+		</fileSet>
+		<!-- Adds the certificate used for https to the root directory of zip package -->
+		<fileSet>
+			<directory></directory>
+			<outputDirectory></outputDirectory>
+			<includes>
+				<include>SidelabCode.jks</include>
+			</includes>
+		</fileSet>
+		<!-- Adds config file & README to the root directory of zip package -->
+		<fileSet>
+			<directory>src/main/resources</directory>
+			<outputDirectory></outputDirectory>
+			<includes>
+				<include>scstack.conf</include>
+				<include>README</include>
+			</includes>
+		</fileSet>
+		<!-- Adds service files to the daemon directory of zip package -->
+		<fileSet>
+			<directory>src/main/resources/daemon</directory>
+			<outputDirectory>/daemon</outputDirectory>
+			<includes>
+				<include>scstack-service.conf</include>
+				<include>scstack-service</include>
+			</includes>
+		</fileSet>
+		<!-- adds jar package to the root directory of zip package -->
+		<fileSet>
+			<directory>${project.build.directory}</directory>
+			<outputDirectory></outputDirectory>
+			<includes>
+				<include>*.jar</include>
+			</includes>
+		</fileSet>
+	</fileSets>
+</assembly>

@@ -1,0 +1,266 @@
+<!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ * Fichero: usuario.html - Panel de un Usuario concreto
+ * Autor: Arek Klauza
+ * Fecha: Abril 2011
+ * Revisión: -
+ * Versión: 1.0
+ *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+    <head>
+        <title>SidelabCode WebInterface</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />   
+
+        <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico" />
+        <link href="../styles/main.css" rel="stylesheet" type="text/css" />
+        <link href="../themes/blue/styles.css" rel="stylesheet" type="text/css" />
+        <link href="../styles/ui-darkness/jquery-ui-1.8.11.custom.css" rel="stylesheet" type="text/css" />
+
+        <script type="text/javascript"  src="http://code.jquery.com/jquery-1.5.1.js"></script>
+        <script type='text/javascript' src='../scripts/jquery-ui.min.js'></script>
+        <script type='text/javascript' src='../scripts/jquery.cookies.js'></script>
+        <script type='application/javascript' src='../scripts/presentacion.js'></script>
+        <script type="text/javascript" src="../scripts/logica.js"></script>
+        <script type="text/javascript" src="../scripts/comunicacionREST.js"></script>
+
+        <script type="text/javascript">
+            /* Redirección si no está autenticado o tiene rol de usuario */
+            $(document).ready(function(){
+                if ($.cookie("uid") == "" || $.cookie("uid") == null ||
+                    $.cookie("pass") == "" || $.cookie("pass") == null ||
+                    $.cookie("rol") == "" || $.cookie("rol") == null) {
+
+                    window.location = "/";
+                } else {
+                    $.inicializacionComun();
+                    $.inicializacionEspecifica();
+                }
+            });
+
+
+
+            /* VARS GLOBALES DE LA PÁGINA */
+            var usuario;
+            var listaProyAdmin = [];
+            var listaProyParticip = [];
+            var listaUsuariosEmails = [];
+
+            /* UID del usuario cuya página estamos visitando */
+            var uid = window.location.pathname.substring(window.location.pathname.lastIndexOf('/') + 1);
+
+
+            
+            /**
+             * Función encargada de inicializar todos los elementos y componentes
+             * específicos de esta página web
+             */
+            jQuery.inicializacionEspecifica = function() {
+                $.getLista("/usuarios?emails", "listaUsuarios", listaUsuariosEmails);
+                $.getLista("/usuarios/" + uid + "/proyectos", "listaProyectos", listaProyParticip);
+                $.getLista("/usuarios/" + uid + "/proyectos?administrados", "listaProyectos", listaProyAdmin);
+
+                /* Imprime en el HTML la lista de proyectos administrados y participados */
+                $.printLista(listaProyParticip, "ul#proyectosParticip", "/proyectos");
+                $.printLista(listaProyAdmin, "ul#proyectosAdmin", "/proyectos");
+
+                /* Recuperar los datos del usuario de la página y rellenar el formulario */
+                $.getUsuario(uid);
+                $.printUsuario(usuario, "#formEditarUsuario");
+
+                /* Expandir fondo de la página acorde al tamaño de las listas */
+                $('#content').css('min-height', '600px');
+                if ((listaProyParticip.length + listaProyAdmin.length) > 7) {
+                    var pixels = 600 + (37 * (listaProyParticip.length + listaProyAdmin.length -7));
+                    $('#content').css('min-height', pixels + 'px');
+                }
+
+                /* Breadcrumb */
+                $('#breadcrumb > ul > li.current').append(uid);
+
+                /* Eliminar el email del usuario de la lista para que verifique bien el formulario */
+                listaUsuariosEmails = $.grep(listaUsuariosEmails, function(value) {
+                    return value != usuario.email;
+                });
+
+                /* Gestión del menú de usuario */
+                if (usuario.pass == null) {
+                    $('li > a#bloquearUsuario').hide();
+                } else {
+                    $('li > a#desbloquearUsuario').hide();
+                }
+                if ($.cookie("rol") != "superadmin") {
+                    $('li > a#bloquearUsuario').hide();
+                    $('li > a#desbloquearUsuario').hide();
+                    $('li > a#crearUsuario').hide();
+                    $('li > a#eliminarUsuario').hide();
+                    if ($.cookie("rol") == "usuario") {
+                        $('li > a#proyectos').hide();
+                        $('li > a#usuarios').hide();
+                        $('#topbtns > li.desc:first').hide();
+                        $('#breadcrumb > ul > li#root > a').remove();
+                        $('<p>Usuarios<p>').appendTo("#breadcrumb > ul > li#root");
+                    }
+                } else {
+                    $('input#passActual').attr("disabled", true);
+                    $('input#passActual').val("password");
+                    $('input#passActual').addClass("correctbox");
+                }
+            }
+
+        </script>
+    </head>
+    <body>
+
+        <!-- HEADER DE LA PÁGINA -->
+        <div id="header">
+            <a href="/" title="Ir al Home de SidelabCode" ><img src="../images/logo.png" alt="SidelabCode" class="logo" /></a>
+            <div id="searchbox">
+                <form method="GET" action="">
+                    <input type="text" name="hola" id="caja_busqueda" class="searchinput" />
+                    <input type="submit" id="boton_busqueda" class="searchbtn" value="" />
+                </form>
+            </div>
+        </div>
+
+
+        <!-- PANEL IZQUIERDO -->
+        <div id="left">
+            <div id="openCloseIdentifier"></div>
+            <div id="slider">
+                <ul id="sliderContent">
+                    <li><a href="#" class="miPanel" title="">Ver mis proyectos</a></li>
+                    <li class="alt"><a href="#" title="" class="miPanel">Ir a mi panel</a></li>
+                    <li><a href="#" title="" class="miPanel">Editar mis datos</a></li>
+                    <li class="alt"><a href="#" title="" class="miPanel">Cambiar mi contraseña</a></li>
+                    <li><a href="/logout" title="">Log Out</a></li>
+                </ul>
+                <div id="openCloseWrap">
+                    <div id="toolbox">
+                        <a href="#" title="Perfil de usuario" class="toolboxdrop">Perfil Usuario<img src="../images/icon_expand_grey.png" alt="Expandir" /></a>
+                    </div>
+                </div>
+            </div>
+            <div id="userbox">
+                <p id="welcome"></p>
+                <p><span>Estás dentro de SidelabCode</span></p>
+                <ul>
+                    <li><a href="#" title="Contacto" id="contacto"><img src="../images/icons/icon_mail.png" alt="Contacto" /></a></li>
+                    <li><a href="#" class="miPanel" title="Gestión de mi cuenta"><img src="../images/icons/icon_cog.png" alt="Configure" /></a></li>
+                    <li><a href="/logout" title="Logout"><img src="../images/icons/icon_unlock.png" alt="Logout" /></a></li>
+                </ul>
+            </div>
+            <ul id="nav">
+                <li>
+                    <a class="heading expanded">Mis Usuarios</a>
+                    <ul class="navigation" id="listaUsuarios">
+                        <li/>
+                    </ul>
+                </li>
+                <li>
+                    <a class="collapsed heading">Mis Proyectos</a>
+                    <ul class="navigation" id="listaProyectos">
+                        <li/>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+
+        <!-- PANEL DERECHO -->
+        <div id="right">
+            <div id="breadcrumb">
+                <ul>
+                    <li><img src="../images/icon_breadcrumb.png" alt="Location" /></li>
+                    <li id="root"><a href="/usuarios" title="">Usuarios</a></li>
+                    <li>/</li>
+                    <li class="current"></li>
+                </ul>
+            </div>
+            <ul id="topbtns">
+                <li class="desc"><strong>Menú General</strong><br />Selecciona una opción</li>
+                <li><a href="/usuarios" id="usuarios"><img src="../images/icons/usuarios.png" alt="Usuarios" title="Panel de usuarios" /><br />Usuarios</a></li>
+                <li><a href="/proyectos" id="proyectos"><img src="../images/icons/proyectos.png" alt="Proyectos" title="Panel de proyectos" /><br />Proyectos</a></li>
+                <li class="desc"><strong>Menú de Usuario</strong><br />Selecciona una opción</li>
+                <li><a href="/usuarios" id="crearUsuario"><img src="../images/icons/user_add.png" title="Crear nuevo Usuario" alt="Crear Nuevo" /><br />Nuevo</a></li>
+                <li><a href="#" id="editarUsuario"><img src="../images/icons/user_edit.png" title="Editar Usuario" alt="Editar" /><br />Editar</a></li>
+                <li><a href="#" id="bloquearUsuario"><img src="../images/icons/user_lock.png" title="Bloquear Usuario" alt="Bloquear" /><br />Bloquear</a></li>
+                <li><a href="#" id="desbloquearUsuario"><img src="../images/icons/user_unlock.png" title="Desbloquear Usuario" alt="Desbloquear" /><br />Desbloquear</a></li>
+                <li><a href="#" id="eliminarUsuario"><img src="../images/icons/user_delete.png" title="Eliminar Usuario" alt="Eliminar" /><br />Eliminar</a></li>
+            </ul>
+
+            <!-- Contenido de la página -->
+            <div id="content">
+                <div class="container half left">
+                    <div class="conthead">
+                        <h2>Datos de usuario</h2>
+                    </div>
+                    <div class="contentbox"><form action="" method="POST" id="formEditarUsuario">
+                            <div class="inputboxes">
+                                <label for="regular">UID: </label>
+                                <input type="text" id="uidfijo" class="inputbox" name="uid" maxlength="10" disabled />
+                            </div>
+                            <div class="inputboxes">
+                                <label for="regular">Nombre: </label>
+                                <input type="text" id="nombre" class="inputbox" name="nombre" maxlength="20" disabled />
+                            </div>
+                            <div class="inputboxes">
+                                <label for="regular">Apellidos: </label>
+                                <input type="text" id="apellidos" class="inputbox" name="apellidos" maxlength="20" disabled />
+                            </div>
+                            <div class="inputboxes">
+                                <label for="regular">eMail: </label>
+                                <input type="text" id="email" class="inputbox" name="email" maxlength="50" disabled />
+                                <label class="explicacion">Debe ser único en la Base de Datos (caja verde)</label>
+                            </div>
+                            <div class="inputboxes">
+                                <label style="padding-left:0" class="explicacion">Modificar contraseña del usuario: </label>
+                                <input name="" type="checkbox" value="" id="checkModificarPass" disabled />
+                            </div>
+                            <div class="inputboxes oculto">
+                                <label for="regular">Contraseña actual: </label>
+                                <input type="password" id="passActual" class="inputbox" name="passActual" maxlength="20" disabled />
+                                <label class="explicacion">Mínimo 5 caracteres</label>
+                            </div>
+                            <div class="inputboxes oculto">
+                                <label for="regular">Contraseña nueva: </label>
+                                <input type="password" id="pass" class="inputbox" name="pass" maxlength="20" disabled />
+                                <label class="explicacion">Mínimo 5 caracteres</label>
+                            </div>
+                            <div class="inputboxes oculto">
+                                <label for="regular">Confirmar nueva: </label>
+                                <input type="password" id="pass2" class="inputbox" name="pass2" maxlength="20" disabled />
+                            </div>
+                            <input type="submit" id="submitEditarUsuario" value="Guardar cambios" class="btnalt" />
+                            <input type="button" id="borrarCamposUsuario" value="Borrar campos" class="btnalt" />
+                            <input type="button" id="reestablecerCamposUsuario" value="Reestablecer campos" class="btnalt" />
+                        </form>
+                    </div>
+                </div>
+
+                <div class="container half right">
+                    <div class="conthead"><h2>Proyectos del usuario</h2></div>
+                    <div class="contentbox">
+                        <ul class="summarystats">
+                            <li><p>Proyectos</p><p class="statcount">Admin</p><p class="statview"><a href="#" id="expandirAdmin" title="Expandir/Colapsar">+/-</a></p></li>
+                            <li style="background:none; border:0;"><ul id="proyectosAdmin"></ul></li>
+                            <li><p>Proyectos</p><p class="statcount">Miembro</p><p class="statview"><a href="#" id ="expandirParticip" title="Expandir/Colapsar">+/-</a></p></li>
+                            <li style="background:none; border:0;"><ul id="proyectosParticip"></ul></li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer start -->
+            <p id="footer">&copy; Sidelab.es</p>
+            <!-- Footer end -->
+
+        </div>
+        <!-- Right side end -->
+
+    </body>
+</html>

@@ -1,0 +1,28 @@
+Running the SidelabCode Stack administration console and the REST service:
+
+1. Unzip the scstack-service-bin.zip file and cd into the scstack-service folder.
+
+2. Change the configuration file 'scstack.conf' according to the same file from the installer.
+
+ 2.1. Take notice of your REST host and port.
+ 
+ 2.2. Open the Redmine page with your browser, login as admin (pass: admin) 
+      and copy the Redmin API key to the configuration file. 
+      (you'll find it in the MyAccount tab, on the right part of the screen).
+ 
+ 2.3. Assign a name and password for the stack's super user.
+  
+3. Execute the service:
+
+    sudo java -jar scstack-service.jar
+
+4. Next, the web service will be started. 
+
+5. Open the URL http://RESTurl:RESTport with your browser, login as the superuser
+   and test the forge (create users, projects, etc.), then open the Redmine page 
+   and see if everything works as expected.
+
+   
+You can also use the installer from es.sidelab.scstack.installer, if you want 
+ the service to be started as a system demon. In this case you only have to 
+ configure the 'scstack.conf' file inside the installer's folder.
