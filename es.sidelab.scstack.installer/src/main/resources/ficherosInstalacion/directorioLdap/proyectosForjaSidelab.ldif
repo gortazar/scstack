@@ -1,0 +1,8 @@
+# SCHEMA "PROYECTOSFORJASIDELAB" 
+dn: cn=ProyectosForjaSidelab,cn=schema,cn=config
+objectClass: olcSchemaConfig
+cn: ProyectosForjaSidelab
+olcAttributeTypes: ( 1.3.6.1.4.1.31483.100.1 NAME 'adminUid' EQUALITY caseExactIA5Match SUBSTR caseExactIA5SubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.3.6.1.4.1.31483.100.2 NAME 'repositorio' EQUALITY caseExactIA5Match SUBSTR caseExactIA5SubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcAttributeTypes: ( 1.3.6.1.4.1.31483.100.3 NAME 'defaultRepositorio' EQUALITY caseExactIA5Match SUBSTR caseExactIA5SubstringsMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.26 )
+olcObjectClasses: ( 1.3.6.1.4.1.31483.100 NAME 'proyectoForja' DESC 'Proyecto de la Forja Sidelab con una lista de administradores y de repositorios' SUP top AUXILIARY MUST ( adminUid ) MAY ( repositorio $ defaultRepositorio) )

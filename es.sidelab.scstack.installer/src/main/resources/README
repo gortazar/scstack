@@ -1,0 +1,82 @@
+Installation procedure of the forge's system dependencies in Ubuntu Desktop (10.04 LTS):
+
+1. Install the prerequisites (if not already installed):
+   
+    sudo apt-get install openjdk-6-jdk
+    sudo apt-get -y install mysql-server-5.1
+    
+2. Unzip the 'scstack-installer-bin.zip' file and cd into the 'scstack-installer' folder.
+   Inside this folder, there should exist 'scstack-service-bin.zip', which contains
+   the installation files for the REST service and web console of the forge. If not,
+   then only the software dependencies can be installed.
+
+3. Open the configuration file and change it accordingly:
+    
+    gedit scstack.conf &
+   
+   You can find what each parameter means in the SidelabCode Stack's wiki.
+   Two important values are the super user of the forge and its password. You use them
+   to access the web console when everything has been installed. 
+    
+4. Execute the installer:
+
+ 4.1. You can choose the type of installation to perform by giving a VALUE to the 'type' argument:
+	* all     -> install everything and set scstack-service as daemon (default if '-Dtype' is not set).
+	* tools   -> install only the required software.
+	* service -> do not install any software dependency, only set the service as a daemon.
+	        It will attempt to configure Redmine using its web interface (retrieves the REST API key),
+	        so it assumes the software dependencies are already in place.
+	
+    sudo java -Dtype=VALUE -jar scstack-installer.jar
+
+  Note: 
+   The Ruby gems take a lot of time to install (during the Redmine installation). 
+   Don't despair, they will end eventually.
+
+ 4.2. When the REST service and web console have been installed, you can check the daemon's status:
+ 
+    sudo status scstack-service
+    
+    For the moment, the log file for this daemon is '/tmp/scstack-service.log'.
+    
+    Open the URL https://RESTurl:RESTport with your browser, login as the superuser
+   and test the forge (create users, projects, etc.), then open the Redmine page 
+   and see if everything works as expected.
+   
+
+
+************************************************************************************
+--Description of the unattended Redmine configuration--
+
+The installer uses the Selenium technology to access the Redmine web page and configure the following: 
+1. Login as admin (pass: admin) into Redmine and accepts the Load Default Configuration message.
+ 1.1. Goes to 'Roles and permissions' and UNCHECKs the following for the Manager role:
+   - Create project
+   - Edit project
+   - Create subproject
+   - Manage members
+   then Save.
+ 1.2. Goes to Settings > Authentication
+ 1.3. Authentication required: Checked
+ 1.4. Self-registration: Disabled
+ 1.5. Enable REST web service: Checked
+ 1.6. SAVE
+2. Integration of the OpenLDAP protocol into Redmine:
+ 2.1. Goto Administration > LDAP Authentication
+ 2.2. Select 'New authentication mode' and input the following parameters:
+        Name: pick up a name for the connection
+        Host: hostname (default: localhost)
+        Port: 636
+        Check LDAPS
+        Account: cn=admin,dc=sidelab,dc=es (or whatever you specified in the configuration file)
+        Pass: LDAP's password from the config file (e.g. ld4p)
+        BaseDN: dc=sidelab,dc=es (or from the config file)
+        Check 'On the fly user creation'
+        Login: uid
+        First name: cn
+        Last name: sn
+        Email: mail
+ 2.3. Create
+ 2.4. Press 'Test' in the connections' list
+ 2.5. Checks the connection has been tested successfully. 
+3. Copies the Redmine's REST API key to the configuration file 'stack.conf'.
