@@ -10,7 +10,7 @@
 
 package es.sidelab.scstack.lib.exceptions.api;
 
-import es.sidelab.scstack.lib.exceptions.ExcepcionForja;
+import es.sidelab.scstack.lib.exceptions.SCStackException;
 
 /**
  * <p>Este tipo de excepción nos indicará que ha sucedido algún tipo de problema
@@ -20,7 +20,7 @@ import es.sidelab.scstack.lib.exceptions.ExcepcionForja;
  * de Java para tener mejor clasificado el origen de la Excepción.</p>
  * @author Arek Klauza
  */
-public class ExcepcionLogin extends ExcepcionForja {
+public class ExcepcionLogin extends SCStackException {
     public ExcepcionLogin(Exception e) {
         super(e);
     }

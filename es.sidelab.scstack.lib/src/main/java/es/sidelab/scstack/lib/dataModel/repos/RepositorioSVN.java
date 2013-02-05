@@ -9,6 +9,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 package es.sidelab.scstack.lib.dataModel.repos;
 
+import es.sidelab.scstack.lib.api.API_Abierta;
 import es.sidelab.scstack.lib.config.ConfiguracionForja;
 import es.sidelab.scstack.lib.exceptions.apache.ExcepcionConsola;
 
@@ -39,7 +40,7 @@ public class RepositorioSVN extends Repositorio {
      * del método a la consola Linux del servidor.
      */
     @Override
-    public void crearRepositorio(String cnProyecto, String uidAdminProyecto) throws ExcepcionConsola {        
+    public void crearRepositorio(String cnProyecto, String uidAdminProyecto, API_Abierta apiAbierta) throws ExcepcionConsola {        
         try {
             this.setConsola();
             // Se pone un waitFor() para esperar a que se haga el svnadmin antes del chown

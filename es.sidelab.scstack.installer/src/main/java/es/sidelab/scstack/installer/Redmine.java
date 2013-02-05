@@ -11,7 +11,7 @@ package es.sidelab.scstack.installer;
 
 import es.sidelab.commons.commandline.CommandLine;
 import es.sidelab.commons.commandline.ExecutionCommandException;
-import es.sidelab.scstack.lib.exceptions.ExcepcionForja;
+import es.sidelab.scstack.lib.exceptions.SCStackException;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -35,9 +35,9 @@ public class Redmine {
 	 * @throws ExecutionCommandException
 	 * @throws IOException
 	 * @throws NoSuchAlgorithmException
-	 * @throws ExcepcionForja
+	 * @throws SCStackException
 	 */
-    public void instalar() throws ExecutionCommandException, IOException, NoSuchAlgorithmException, ExcepcionForja {
+    public void instalar() throws ExecutionCommandException, IOException, NoSuchAlgorithmException, SCStackException {
         System.out.println("\n*** INSTALACIÓN REDMINE ***\n");
         Instalacion.ejecutar("apt-get -y install mysql-client-5.1 libmysqlclient-dev");
         Instalacion.ejecutar("apt-get -y install rubygems mongrel ruby1.8-dev rake libopenssl-ruby1.8");
@@ -76,13 +76,13 @@ public class Redmine {
 		conn.connect();
 		int rcode = conn.getResponseCode();
 		if (rcode == -1)
-			throw new ExcepcionForja("Sanity check error for Redmine: response code not established, should be 200 but is -1.");
+			throw new SCStackException("Sanity check error for Redmine: response code not established, should be 200 but is -1.");
 		System.out.println("Response code from http://localhost is: " + rcode);
 		if (rcode == HttpURLConnection.HTTP_OK) {
 			StringBuffer sb = new StringBuffer();
 			InputStream input = conn.getInputStream();
 			if (null == input)
-				throw new ExcepcionForja("Sanity check error for Redmine: " + 
+				throw new SCStackException("Sanity check error for Redmine: " + 
 					"no input stream to read from, cannot establish if Apache (or Redmine) is alive.");
 			int c;
 			while ((c = input.read()) != -1) {
@@ -90,12 +90,12 @@ public class Redmine {
 			}
 			input.close();
 			if (null == sb || sb.length() == 0 || ! sb.toString().toLowerCase().contains("redmine")) {
-				throw new ExcepcionForja("Sanity check error for Redmine: expected content not found.");
+				throw new SCStackException("Sanity check error for Redmine: expected content not found.");
 			} else {
 				System.out.println("Redmine (and, consequently, Apache and MySQL) is working.");
 			}
 		} else
-			throw new ExcepcionForja("Sanity check error for Redmine: response code not 200, but " + rcode);
+			throw new SCStackException("Sanity check error for Redmine: response code not 200, but " + rcode);
         System.out.println("**************************************************\n");
     }
 

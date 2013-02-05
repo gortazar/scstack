@@ -9,7 +9,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 package es.sidelab.scstack.lib.exceptions.apache;
 
-import es.sidelab.scstack.lib.exceptions.ExcepcionForja;
+import es.sidelab.scstack.lib.exceptions.SCStackException;
 
 /**
  * <p>Este tipo de excepción nos indicará que ha sucedido algún tipo de problema
@@ -19,7 +19,7 @@ import es.sidelab.scstack.lib.exceptions.ExcepcionForja;
  * de Java para tener mejor clasificado el origen de la Excepción.</p>
  * @author Arek Klauza
  */
-public class ExcepcionGeneradorFicherosApache extends ExcepcionForja {
+public class ExcepcionGeneradorFicherosApache extends SCStackException {
     public ExcepcionGeneradorFicherosApache(String msg) {
         super(msg);
     }

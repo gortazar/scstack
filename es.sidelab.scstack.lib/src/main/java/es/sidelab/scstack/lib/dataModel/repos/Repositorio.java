@@ -9,6 +9,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 package es.sidelab.scstack.lib.dataModel.repos;
 
+import es.sidelab.scstack.lib.api.API_Abierta;
 import es.sidelab.scstack.lib.exceptions.apache.ExcepcionConsola;
 
 import java.io.PrintWriter;
@@ -84,10 +85,11 @@ public abstract class Repositorio {
      * creado en la llamada al constructor.
      * @param cnProyecto Nombre del proyecto.
      * @param uidAdminProyecto UID del usuario Administrador del proyecto
+     * @param apiAbierta 
      * @throws ExcepcionConsola Cuando se produce algún error durante el acceso
      * del método a la consola Linux del servidor.
      */
-    public abstract void crearRepositorio(String cnProyecto, String uidAdminProyecto) throws ExcepcionConsola;
+    public abstract void crearRepositorio(String cnProyecto, String uidAdminProyecto, API_Abierta apiAbierta) throws ExcepcionConsola;
 
 
     /**

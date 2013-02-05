@@ -72,12 +72,31 @@ class scstack::scstack_ldap (
     command => "/usr/bin/ldapadd -x -D ${bindDN} -w ${passBindDN} -f /etc/ldap/construir.ldif",
   }
   
+  exec {"sadminpass to file":
+    cwd => "/tmp",
+    command => "/bin/echo $sadminpass > sadminpass",
+    require => Class["ldap"],
+  }
+  
+  exec { "to md5 sadmin pass":
+    cwd => "/tmp",
+    command => "/usr/sbin/slappasswd -h {MD5}  -T /tmp/sadminpass > sadminpass.md5",
+    logoutput => true,
+    require => Exec["sadminpass to file"],
+  }
+  
   file { "/etc/ldap/superadmin.ldif":
     content => template("scstack/ldap/superadmin.ldif.erb"),
   }
   
+  exec {"add md5 pass":
+    cwd => "/etc/ldap",
+    command => "/bin/echo /tmp/sadminpass.md5 >> superadmin.ldif",
+    require => [File["/etc/ldap/superadmin.ldif"], Exec["to md5 sadmin pass"]],
+  }
+  
   exec { "ldapadd sadmin":
-    require => [File["/etc/ldap/superadmin.ldif"],Service["slapd"]],
+    require => [Exec["add md5 pass"],Service["slapd"]],
     logoutput => true,
     command => "/usr/bin/ldapadd -x -D ${bindDN} -w ${passBindDN} -f /etc/ldap/superadmin.ldif",
   }
@@ -86,6 +105,11 @@ class scstack::scstack_ldap (
     cwd => "/etc/ldap",
     command => "/bin/rm superadmin.ldif",
     require => Exec["ldapadd sadmin"],
+  }
+  
+  exec { "rm sadminpass sadminpass.md5":
+    cwd => "/tmp",
+    command => "/bin/rm sadminpass sadminpass.md5"
   }
   
 #  exec { 'ldapadd sc-stack-projects.ldif':

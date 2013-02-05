@@ -9,6 +9,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 package es.sidelab.scstack.service.restlets.projects;
 
+import es.sidelab.scstack.lib.exceptions.SCStackException;
 import es.sidelab.scstack.lib.exceptions.apache.ExcepcionConsola;
 import es.sidelab.scstack.lib.exceptions.apache.ExcepcionGeneradorFicherosApache;
 import es.sidelab.scstack.lib.exceptions.api.ExcepcionLogin;
@@ -93,7 +94,10 @@ public class ProyectosResource extends BaseProyectosResource {
             throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND , ex.getMessage());
         } catch (ExcepcionGestorLDAP ex) {
             throw new ResourceException(Status.SERVER_ERROR_INTERNAL , ex.getMessage());
-        }
+        } catch (SCStackException e) {
+        	LOGGER.log(Level.SEVERE,"Exception",e);
+            throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage());
+		}
         return rep;
     }
 
@@ -163,7 +167,10 @@ public class ProyectosResource extends BaseProyectosResource {
         } catch (IOException ex) {
         	LOGGER.log(Level.SEVERE,"Exception",ex);
             throw new ResourceException(Status.SERVER_ERROR_INTERNAL, ex.getMessage());
-        }
+        } catch (SCStackException e) {
+        	LOGGER.log(Level.SEVERE,"Exception",e);
+            throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage());
+		}
     }
     @Override
     public boolean allowPost() {

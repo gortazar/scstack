@@ -160,6 +160,11 @@ public final class ConfiguracionForja {
     /** Nombre schema de Redmine (por defecto: "redmine") */
     public static String schemaRedmine;
 
+    /** Nombre schema de Gerrit (por defecto: "gerrit") */
+    public static String schemaGerrit;
+    
+    /** Nombre host del servidor ssh interno de Gerrit */
+    public static String hostGerrit;
 
 
     
@@ -214,7 +219,7 @@ public final class ConfiguracionForja {
         ConfiguracionForja.sadminPass = props.getProperty("sadminPass", "super");
         ConfiguracionForja.pathSVNApache = props.getProperty("pathSVNApache", "/var/svn");
         ConfiguracionForja.pathSVNWeb = props.getProperty("pathSVNWeb", "/svn");
-        ConfiguracionForja.pathGITApache = props.getProperty("pathGITApache", "/var/git");
+        ConfiguracionForja.pathGITApache = props.getProperty("pathGITApache", "/opt/gerrit/git");
         ConfiguracionForja.pathGITWeb = props.getProperty("pathGITWeb", "/git");
         ConfiguracionForja.pathReposPublicosWeb = props.getProperty("pathReposPublicosWeb", "/public/repos");
         ConfiguracionForja.pathCarpetas = props.getProperty("pathCarpetas", "/var/files");
@@ -235,6 +240,8 @@ public final class ConfiguracionForja {
         ConfiguracionForja.usernameMysql = props.getProperty("usernameMysql", "root");
         ConfiguracionForja.passMysql = props.getProperty("passMysql", "admin");
         ConfiguracionForja.schemaRedmine = props.getProperty("schemaRedmine", "redmine");
+        ConfiguracionForja.schemaGerrit = props.getProperty("schemaGerrit", "gerrit");
+        ConfiguracionForja.hostGerrit = props.getProperty("hostGerrit");
     }
 
 

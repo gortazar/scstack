@@ -9,15 +9,20 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 package es.sidelab.scstack.service.restlets.users;
 
+import es.sidelab.scstack.lib.exceptions.SCStackException;
 import es.sidelab.scstack.lib.exceptions.api.ExcepcionLogin;
 import es.sidelab.scstack.lib.exceptions.api.ExcepcionParametros;
 import es.sidelab.scstack.lib.exceptions.ldap.ExcepcionGestorLDAP;
 import es.sidelab.scstack.lib.exceptions.ldap.ExcepcionLDAPNoExisteRegistro;
 import es.sidelab.scstack.service.data.Usuario;
+import es.sidelab.scstack.service.restlets.BaseProyectosResource;
 import es.sidelab.scstack.service.restlets.BaseUsuariosResource;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.json.JSONException;
 import org.restlet.Context;
 import org.restlet.Request;
@@ -34,11 +39,11 @@ import org.restlet.resource.ResourceException;
  */
 public class UsuarioActivadoResource extends BaseUsuariosResource {
 
+	private static final Logger LOGGER = Logger.getLogger(BaseProyectosResource.class.getName());
+	
     public UsuarioActivadoResource(Context context, Request request, Response response) throws ResourceException {
         super(context, request, response);
     }
-
-
 
 
     /**
@@ -82,13 +87,14 @@ public class UsuarioActivadoResource extends BaseUsuariosResource {
             throw new ResourceException(Status.CLIENT_ERROR_UNAUTHORIZED, ex.getMessage());
         } catch (ExcepcionLDAPNoExisteRegistro ex) {
             throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, ex.getMessage());
-        } catch (NoSuchAlgorithmException ex) {
-            throw new ResourceException(Status.SERVER_ERROR_INTERNAL, ex.getMessage());
         } catch (ExcepcionGestorLDAP ex) {
             throw new ResourceException(Status.SERVER_ERROR_INTERNAL, ex.getMessage());
         } catch (IOException ex) {
             throw new ResourceException(Status.SERVER_ERROR_INTERNAL, ex.getMessage());
-        }
+        } catch (SCStackException e) {
+        	LOGGER.log(Level.SEVERE,"Exception",e);
+            throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage());
+		}
     }
     @Override
     public boolean allowPut() {
@@ -128,7 +134,10 @@ public class UsuarioActivadoResource extends BaseUsuariosResource {
             throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, ex.getMessage());
         } catch (ExcepcionGestorLDAP ex) {
             throw new ResourceException(Status.SERVER_ERROR_INTERNAL, ex.getMessage());
-        }
+        } catch (SCStackException e) {
+        	LOGGER.log(Level.SEVERE,"Exception",e);
+            throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage());
+		}
     }
     @Override
     public boolean allowDelete() {

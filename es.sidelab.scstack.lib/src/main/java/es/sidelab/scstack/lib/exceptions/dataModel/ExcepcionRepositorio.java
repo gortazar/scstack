@@ -9,7 +9,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 package es.sidelab.scstack.lib.exceptions.dataModel;
 
-import es.sidelab.scstack.lib.exceptions.ExcepcionForja;
+import es.sidelab.scstack.lib.exceptions.SCStackException;
 
 /**
  * <p>Este tipo de excepción nos indica que hemos ha sucedido algún error durante
@@ -18,7 +18,7 @@ import es.sidelab.scstack.lib.exceptions.ExcepcionForja;
  * de Java para tener mejor clasificado el origen de la Excepción.</p>
  * @author Arek Klauza
  */
-public class ExcepcionRepositorio extends ExcepcionForja {
+public class ExcepcionRepositorio extends SCStackException {
     public ExcepcionRepositorio(Exception e) {
         super(e);
     }

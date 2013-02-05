@@ -55,8 +55,9 @@ class scstack(
   $redminedbuser = "redminedbuser"
   $redminedbpass = "r3dm1n3"
   $old_pw = ''
-  $archivadbpass = "t0rc0zu310"
+  $archivadbpass = "t0rc0zu310" 
   $gerritdbpass = "t0rc0zu310"
+  $gerritAdminPass = "t0rc0zu310"
   
   # Redmine params
   $redminekey = "bc8f104416bbb259a87d411ad0228adafa4d348a"
@@ -160,6 +161,7 @@ class scstack(
     mysqlrootpass => $mysqlpass,
     archivadbpass => $archivadbpass,
     gerritdbpass => $gerritdbpass,
+    gerritAdminPass => $gerritAdminPass,
     bindDN => $bindDN,
     passBindDN => $passBindDN,
     searchDN => $searchDN,

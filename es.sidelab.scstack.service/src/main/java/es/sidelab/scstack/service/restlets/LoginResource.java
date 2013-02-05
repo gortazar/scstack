@@ -8,6 +8,7 @@ package es.sidelab.scstack.service.restlets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import es.sidelab.scstack.lib.exceptions.SCStackException;
 import es.sidelab.scstack.lib.exceptions.api.ExcepcionLogin;
 import es.sidelab.scstack.lib.exceptions.api.ExcepcionParametros;
 import es.sidelab.scstack.lib.exceptions.ldap.ExcepcionGestorLDAP;
@@ -72,7 +73,7 @@ public class LoginResource extends BaseResource {
 		} catch (ExcepcionLDAPNoExisteRegistro ex) {
 			getLogger().severe(ex.getMessage());
 			throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, ex.getMessage());
-		} catch (ExcepcionGestorLDAP ex) {
+		} catch (SCStackException ex) {
 			getLogger().severe(ex.getMessage());
 			throw new ResourceException(Status.SERVER_ERROR_INTERNAL, ex.getMessage());
 		}

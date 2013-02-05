@@ -20,6 +20,7 @@ class scstack::tomcat (
   $mysqlrootpass,
   $archivadbpass,
   $gerritdbpass,
+  $gerritAdminPass,
   $domain,
   $bindDN,
   $passBindDN,
@@ -303,6 +304,23 @@ class scstack::tomcat (
 
   $gerrit = "gerrit-full-2.5.war"
 
+  file { "/etc/ldap/gerritadmin.ldif":
+    content => template("scstack/tomcat/gerritadmin.ldif.erb"),
+  }
+  
+  exec { "ldapadd gerritadmin":
+    require => [File["/etc/ldap/gerritadmin.ldif"],Service["slapd"]],
+    logoutput => true,
+    command => "/usr/bin/ldapadd -x -D ${bindDN} -w ${passBindDN} -f /etc/ldap/gerritadmin.ldif",
+  }
+  
+  exec { "rm-gerritadmin.ldif":
+    cwd => "/etc/ldap",
+    command => "/bin/rm gerritadmin.ldif",
+    require => Exec["ldapadd gerritadmin"],
+  }
+
+
   package { "git": ensure => installed, }
 
   file { "$installFolder/gerrit-db-setup.sql": content => template('scstack/tomcat/gerrit-db-setup.sql.erb'), }
@@ -311,6 +329,26 @@ class scstack::tomcat (
     cwd     => "$installFolder",
     command => "/usr/bin/mysql -uroot -p$mysqlrootpass < gerrit-db-setup.sql",
     require => [File["$installFolder/gerrit-db-setup.sql"], Class["mysql"]],
+  }
+  
+  exec { "exec gerritadmin-ssh-key":
+    cwd => "$installFolder/ssh-keys",
+    command => "/usr/bin/ssh-keygen -t rsa -C 'gerritadmin@$domain' -N '' -f /opt/ssh-keys/gerritadmin_rsa",
+    creates => ["/opt/ssh-keys/gerritadmin_rsa", "/opt/ssh-keys/gerritadmin_rsa.pub"],
+  }
+  
+  file { "$installFolder/gerrit-db-admin-setup.sql": content => template('scstack/tomcat/gerrit-db-admin-setup.sql.erb'), }
+  
+  exec {"add ssh key":
+    cwd => "$installFolder",
+    command => "/bin/echo -n /opt/ssh-keys/gerritadmin_rsa.pub >> gerrit-db-admin-setup.sql ; echo -n  \"');\" >> gerrit-db-admin-setup.sql",
+    require => [File["$installFolder/gerrit-db-admin-setup.sql"], Exec["exec gerritadmin-ssh-key"]],
+  }
+  
+  exec { "mysql-gerrit-admin-setup":
+    cwd => "$installFolder",
+    command => "/usr/bin/mysql -u root -p$mysqlrootpass < gerrit-db-admin-setup.sql",
+    require => [Exec["mysql-gerrit-setup"],Exec["exec gerritadmin-ssh-key"], Exec["add ssh key"]],
   }
 
   file { "$installFolder/gerrit": ensure => directory, }

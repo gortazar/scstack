@@ -11,7 +11,7 @@ package es.sidelab.scstack.installer;
 
 import es.sidelab.commons.commandline.CommandLine;
 import es.sidelab.commons.commandline.ExecutionCommandException;
-import es.sidelab.scstack.lib.exceptions.ExcepcionForja;
+import es.sidelab.scstack.lib.exceptions.SCStackException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -112,22 +112,22 @@ public class Instalacion {
 	 * Writes a new value for the specified key into the default configuration file.
 	 * @param key the name of the key
 	 * @param newValue the new value
-	 * @throws ExcepcionForja 
+	 * @throws SCStackException 
 	 * @throws Exception
 	 */
-	public static void overwriteConfigValue(String key, String newValue) throws ExcepcionForja {
+	public static void overwriteConfigValue(String key, String newValue) throws SCStackException {
 		try {
 			config.put(key, newValue);
 			config.store(new FileOutputStream(CONFIGURATION_FILENAME), null);
 		} catch (NullPointerException e) {
 			System.err.println("Key or value argument is null.");
-			throw new ExcepcionForja(e.getMessage());
+			throw new SCStackException(e.getMessage());
 		} catch (IOException e) {
 			System.err
 			.println("Error while writing new value to key '" + key + "' into file " 
 					+ CONFIGURATION_FILENAME
 					+ " inside the root folder.");
-			throw new ExcepcionForja(e.getMessage());
+			throw new SCStackException(e.getMessage());
 		}
 	}
 }

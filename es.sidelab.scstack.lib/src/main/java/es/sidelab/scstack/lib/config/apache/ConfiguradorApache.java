@@ -9,6 +9,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 package es.sidelab.scstack.lib.config.apache;
 
+import es.sidelab.scstack.lib.api.API_Abierta;
 import es.sidelab.scstack.lib.commons.Utilidades;
 import es.sidelab.scstack.lib.config.ConfiguracionForja;
 import es.sidelab.scstack.lib.dataModel.Proyecto;
@@ -73,16 +74,17 @@ public  class ConfiguradorApache {
      * @param proyecto Proyecto que queremos configurar
      * @param listaUidsUsuarios Lista con los Uids de todos los usuarios de la
      * Forja para poder enjaularlos
+     * @param api_Abierta 
      * @throws ExcepcionGeneradorFicherosApache Se lanza cuando se ha producido
      * algún tipo de error durante la generación del fichero de configuración de
      * Apache.
      * @throws ExcepcionConsola Cuando se produce algún error durante el acceso
      * del método a la consola Linux del servidor.
      */
-    public void configurarProyecto(Proyecto[] listaProyectos, Proyecto proyecto, ArrayList<String> listaUidsUsuarios)
+    public void configurarProyecto(Proyecto[] listaProyectos, Proyecto proyecto, ArrayList<String> listaUidsUsuarios, API_Abierta apiAbierta)
             throws ExcepcionGeneradorFicherosApache, ExcepcionConsola {
         this.generarFicheroProyectosApache(listaProyectos);
-        this.crearRepositorios(proyecto);
+        this.crearRepositorios(proyecto, apiAbierta);
         this.crearCarpetasProyecto(proyecto.getCn(), proyecto.getPrimerAdmin());
         this.reiniciarApache();
     }
@@ -131,14 +133,15 @@ public  class ConfiguradorApache {
      * <p>Crea y configura los repositorios que tenga el proyecto. En caso de que
      * ya se haya creado uno se omite su creación y pasa al siguiente.</p>
      * @param proyecto Proyecto cuyos repositorios queremos crear
+     * @param apiAbierta 
      * @throws ExcepcionConsola Cuando se produjo algún error durante la creación
      * del repositorio por error de la consola linux
      */
-    private void crearRepositorios(Proyecto proyecto) throws ExcepcionConsola {
+    private void crearRepositorios(Proyecto proyecto, API_Abierta apiAbierta) throws ExcepcionConsola {
         if (proyecto.tieneRepositorio())
             for (Repositorio repo : proyecto.getRepositorios()) {
                 if (!Utilidades.existeCarpeta(repo.getRuta(), proyecto.getCn()))
-                    repo.crearRepositorio(proyecto.getCn(), proyecto.getPrimerAdmin());
+                    repo.crearRepositorio(proyecto.getCn(), proyecto.getPrimerAdmin(), apiAbierta);
             }
     }
 

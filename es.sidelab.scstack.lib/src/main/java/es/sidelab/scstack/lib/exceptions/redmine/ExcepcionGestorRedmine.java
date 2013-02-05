@@ -10,7 +10,7 @@
 
 package es.sidelab.scstack.lib.exceptions.redmine;
 
-import es.sidelab.scstack.lib.exceptions.ExcepcionForja;
+import es.sidelab.scstack.lib.exceptions.SCStackException;
 
 /**
  * <p>Este tipo de excepción nos indicará que ha sucedido algún tipo de problema
@@ -19,7 +19,7 @@ import es.sidelab.scstack.lib.exceptions.ExcepcionForja;
  * de Java para tener mejor clasificado el origen de la Excepción.</p>
  * @author Arek Klauza
  */
-public class ExcepcionGestorRedmine extends ExcepcionForja {
+public class ExcepcionGestorRedmine extends SCStackException {
 
     public ExcepcionGestorRedmine(Exception e) {
         super(e);

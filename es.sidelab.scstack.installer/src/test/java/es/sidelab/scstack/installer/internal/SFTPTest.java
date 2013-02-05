@@ -21,7 +21,7 @@ import com.xebialabs.overthere.ssh.SshConnectionType;
 
 import es.sidelab.scstack.lib.api.API_Abierta;
 import es.sidelab.scstack.lib.dataModel.repos.FactoriaRepositorios.TipoRepositorio;
-import es.sidelab.scstack.lib.exceptions.ExcepcionForja;
+import es.sidelab.scstack.lib.exceptions.SCStackException;
 import es.sidelab.scstack.lib.exceptions.apache.ExcepcionConsola;
 import es.sidelab.scstack.lib.exceptions.apache.ExcepcionGeneradorFicherosApache;
 import es.sidelab.scstack.lib.exceptions.ldap.ExcepcionGestorLDAP;
@@ -39,7 +39,7 @@ public class SFTPTest {
 	API_Abierta api;
 	
 	@Before
-	public void setUp() throws ExcepcionForja, NoSuchAlgorithmException {
+	public void setUp() throws SCStackException, NoSuchAlgorithmException {
 		api = new API_Abierta(CONFIG_FILE);
 		api.addUsuario(USERNAME1, "Alex", "Xela", "xela@alex.com", PASSWORD);
 		api.addUsuario(USERNAME2, "John", "McDonald", "john@example.com", PASSWORD);

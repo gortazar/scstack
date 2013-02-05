@@ -17,15 +17,19 @@ package es.sidelab.scstack.lib.exceptions;
  * de Java para tener mejor clasificado el origen de la Excepción.</p>
  * @author Arek Klauza
  */
-public class ExcepcionForja extends Exception {
+public class SCStackException extends Exception {
 
-    public ExcepcionForja(Exception e) {
+    public SCStackException(Exception e) {
         super(e);
     }
 
-    public ExcepcionForja(String msg) {
+    public SCStackException(String msg) {
         super(msg);
     }
+
+	public SCStackException(String msg, Throwable t) {
+		super(msg, t);
+	}
 
 
 

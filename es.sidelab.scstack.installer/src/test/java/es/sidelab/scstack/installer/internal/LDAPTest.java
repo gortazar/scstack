@@ -18,7 +18,7 @@ import es.sidelab.scstack.lib.config.ConfiguracionForja;
 import es.sidelab.scstack.lib.dataModel.Proyecto;
 import es.sidelab.scstack.lib.dataModel.Usuario;
 import es.sidelab.scstack.lib.dataModel.repos.FactoriaRepositorios.TipoRepositorio;
-import es.sidelab.scstack.lib.exceptions.ExcepcionForja;
+import es.sidelab.scstack.lib.exceptions.SCStackException;
 import es.sidelab.scstack.lib.exceptions.ldap.ExcepcionGestorLDAP;
 import es.sidelab.scstack.lib.exceptions.ldap.ExcepcionLDAPYaExisteEntrada;
 
@@ -35,7 +35,7 @@ public class LDAPTest {
 	}
 
 	@Test
-	public void testUser() throws ExcepcionForja, NoSuchAlgorithmException {
+	public void testUser() throws SCStackException, NoSuchAlgorithmException {
 
 		API_Abierta api = new API_Abierta(CONFIG_FILE);
 		api.addUsuario("alex", "Alex", "Xela", "xela@alex.com", "kakatua");
@@ -48,7 +48,7 @@ public class LDAPTest {
 	}
 
 	@Test
-	public void testProject() throws ExcepcionForja, NoSuchAlgorithmException {
+	public void testProject() throws SCStackException, NoSuchAlgorithmException {
 
 		API_Abierta api = new API_Abierta(CONFIG_FILE);
 		api.addUsuario("alex", "Alex", "Xela", "xela@alex.com", "kakatua");

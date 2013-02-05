@@ -11,7 +11,7 @@ package es.sidelab.scstack.service.data;
 
 import es.sidelab.scstack.lib.api.API_Segura;
 import es.sidelab.scstack.lib.commons.Utilidades;
-import es.sidelab.scstack.lib.exceptions.ExcepcionForja;
+import es.sidelab.scstack.lib.exceptions.SCStackException;
 import es.sidelab.scstack.lib.exceptions.apache.ExcepcionConsola;
 import es.sidelab.scstack.lib.exceptions.apache.ExcepcionGeneradorFicherosApache;
 import es.sidelab.scstack.lib.exceptions.api.ExcepcionLogin;
@@ -23,6 +23,7 @@ import es.sidelab.scstack.lib.exceptions.ldap.ExcepcionGestorLDAP;
 import es.sidelab.scstack.lib.exceptions.ldap.ExcepcionLDAPAdministradorUnico;
 import es.sidelab.scstack.lib.exceptions.ldap.ExcepcionLDAPNoExisteRegistro;
 import es.sidelab.scstack.lib.exceptions.redmine.ExcepcionGestorRedmine;
+import es.sidelab.scstack.lib.gerrit.GerritException;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.logging.Logger;
@@ -56,7 +57,7 @@ public class Proxy {
     	this.log = logger;
         try {
             api = new API_Segura();
-        } catch (ExcepcionForja e) {
+        } catch (SCStackException e) {
             System.err.println(e.getMessage());
         }
     }
@@ -71,7 +72,7 @@ public class Proxy {
 
 
 
-    public String doLogin(String user, String pass) throws ExcepcionLDAPNoExisteRegistro, ExcepcionParametros, ExcepcionLogin, ExcepcionGestorLDAP {
+    public String doLogin(String user, String pass) throws SCStackException {
     	
    		return api.doLogin(user, pass);
    		
@@ -79,15 +80,19 @@ public class Proxy {
 
 
     public Usuarios getUsuariosXUid(String user, String pass) 
-            throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionParametros {
+            throws SCStackException {
+    	try {
         Usuarios users = new Usuarios();
         users.setListaUsuarios(api.getListadoUidsUsuarios(user, pass));
         return users;
+    	} catch(Exception e) {
+    		throw new SCStackException(e);
+    	}
     }
 
 
     public Usuarios getUsuariosXNombre(String user, String pass)
-            throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionParametros {
+            throws SCStackException {
         Usuarios users = new Usuarios();
         users.setListaUsuarios(api.getListadoNombresUsuarios(user, pass));
         return users;
@@ -95,7 +100,7 @@ public class Proxy {
 
     
     public Usuarios getEmailsUsuarios(String user, String pass)
-            throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionParametros {
+            throws SCStackException {
         Usuarios users = new Usuarios();
         users.setListaUsuarios(api.getListadoEmailsUsuarios(user, pass));
         return users;
@@ -103,20 +108,20 @@ public class Proxy {
 
 
     public Usuario getUsuario(String uid, String user, String pass) 
-            throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionParametros {
+            throws SCStackException {
         es.sidelab.scstack.lib.dataModel.Usuario api_user = api.getDatosUsuario(uid, user, pass);
         return new Usuario(api_user);
     }
 
 
     synchronized public void postUsuario(Usuario usuario, String user, String pass)
-            throws ExcepcionUsuario, ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, NoSuchAlgorithmException, ExcepcionGestorLDAP, ExcepcionParametros, ExcepcionGestorRedmine {
+            throws NoSuchAlgorithmException, SCStackException {
         api.crearUsuario(usuario.getUid(), usuario.getNombre(), usuario.getApellidos(), usuario.getEmail(), usuario.getPass(), user, pass);
     }
 
     
     synchronized public void putUsuario(Usuario usuario, String user, String pass)
-            throws NoSuchAlgorithmException, ExcepcionLDAPNoExisteRegistro, ExcepcionLogin, ExcepcionGestorRedmine, ExcepcionUsuario, ExcepcionGestorLDAP, ExcepcionParametros {
+            throws NoSuchAlgorithmException, SCStackException {
         // En la edición no se codifica a MD5 la contraseña en la API,
         // Como lo tiene que recibir codificado, lo tenemos que hacer a mano
         if (usuario.getPass() != null && !usuario.getPass().isEmpty())
@@ -127,25 +132,25 @@ public class Proxy {
 
 
     synchronized public void deleteUsuario(String uid, String user, String pass)
-            throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionLDAPAdministradorUnico, ExcepcionConsola, ExcepcionGeneradorFicherosApache, ExcepcionGestorLDAP, ExcepcionParametros, ExcepcionGestorRedmine {
+            throws SCStackException {
         api.eliminarUsuario(uid, user, pass);
     }
 
 
     synchronized public void desactivarUsuario(String uid, String user, String pass)
-            throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionParametros {
+            throws SCStackException {
         api.bloquearUsuario(uid, user, pass);
     }
 
 
     synchronized public void activarUsuario(String uid, String nuevaPass, String user, String pass)
-            throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, NoSuchAlgorithmException, ExcepcionGestorLDAP, ExcepcionParametros {
+            throws SCStackException {
         api.desbloquearUsuario(uid, nuevaPass, user, pass);
     }
 
 
     public Proyectos getListaProyectosParticipados(String uid, String user, String pass) 
-            throws ExcepcionLDAPNoExisteRegistro, ExcepcionLogin, ExcepcionGestorLDAP, ExcepcionParametros {
+            throws SCStackException {
         Proyectos proyectos = new Proyectos();
         proyectos.setListaProyectos(api.getListadoProyectosParticipados(uid, user, pass));
         return proyectos;
@@ -153,7 +158,7 @@ public class Proxy {
 
 
     public Proyectos getListaProyectosAdministrados(String uid, String user, String pass)
-            throws ExcepcionLDAPNoExisteRegistro, ExcepcionLogin, ExcepcionGestorLDAP, ExcepcionParametros {
+            throws SCStackException {
         Proyectos proyectos = new Proyectos();
         proyectos.setListaProyectos(api.getListadoProyectosAdministrados(uid, user, pass));
         return proyectos;
@@ -161,7 +166,7 @@ public class Proxy {
 
 
     public Usuarios getListaUsuariosAdministrados(String uid, String user, String pass)
-            throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionParametros {
+            throws SCStackException {
         Usuarios users = new Usuarios();
         users.setListaUsuarios(api.getListadoUsuariosAdministrados(uid, user, pass));
         return users;
@@ -169,7 +174,7 @@ public class Proxy {
 
 
     public Proyectos getListaProyectos(String user, String pass) 
-            throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionParametros {
+            throws SCStackException {
         Proyectos proyectos = new Proyectos();
         proyectos.setListaProyectos(api.getListadoProyectos(user, pass));
         return proyectos;
@@ -177,22 +182,20 @@ public class Proxy {
 
 
     public Proyecto getProyecto(String cn, String user, String pass) 
-            throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionParametros {
+            throws SCStackException {
         es.sidelab.scstack.lib.dataModel.Proyecto api_proy = api.getDatosProyecto(cn, user, pass);
         return new Proyecto(api_proy);
     }
 
 
     synchronized public void postProyecto(ProyectoNuevo p, String user, String pass)
-            throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionProyecto, ExcepcionGeneradorFicherosApache,
-            ExcepcionConsola, ExcepcionRepositorio, ExcepcionGestorRedmine, ExcepcionGestorLDAP, ExcepcionParametros {
+            throws SCStackException {
         api.crearProyecto(p.getCn(), p.getDescripcion(), p.getPrimerAdmin(), p.getTipoRepo() , p.isEsRepoPublico(), p.getRutaRepo(), user, pass);
     }
 
 
     synchronized public void putProyecto(Proyecto proyecto, String user, String pass)
-            throws ExcepcionProyecto, ExcepcionLogin, ExcepcionGestorRedmine, ExcepcionLDAPNoExisteRegistro,
-            ExcepcionParametros, ExcepcionGestorLDAP, ResourceException {
+            throws ResourceException, SCStackException {
         if (proyecto.getCn() != null && proyecto.getDescripcion() != null)
             api.editarDatosProyecto(proyecto.toProyectoAPI(), user, pass);
         else
@@ -201,14 +204,13 @@ public class Proxy {
 
 
     synchronized public void deleteProyecto(String cn, String user, String pass)
-            throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGeneradorFicherosApache, ExcepcionConsola,
-            ExcepcionGestorRedmine, ExcepcionGestorLDAP, ExcepcionParametros {
+            throws SCStackException {
         api.eliminarProyecto(cn, user, pass);
     }
 
 
     public Usuarios getMiembrosProyecto(String cn, String user, String pass)
-            throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionParametros {
+            throws SCStackException {
         Usuarios users = new Usuarios();
         users.setListaUsuarios(api.getListadoUsuariosPorProyecto(cn, user, pass));
         return users;
@@ -216,20 +218,19 @@ public class Proxy {
 
 
     synchronized public void putMiembroProyecto(String uid, String cn, String user, String pass)
-            throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionParametros, ExcepcionGestorRedmine {
+            throws SCStackException {
         api.addUsuarioAProyecto(uid, cn, user, pass);
     }
 
 
     synchronized public void deleteMiembroProyecto(String uid, String cn, String user, String pass)
-            throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionConsola, ExcepcionGeneradorFicherosApache,
-            ExcepcionLDAPAdministradorUnico, ExcepcionGestorLDAP, ExcepcionParametros, ExcepcionGestorRedmine {
+            throws SCStackException {
         api.eliminarUsuarioDeProyecto(uid, cn, user, pass);
     }
 
 
     public Usuarios getAdminsProyecto(String cn, String user, String pass) 
-            throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionParametros {
+            throws SCStackException {
         Usuarios users = new Usuarios();
         users.setListaUsuarios(api.getListadoAdministradoresPorProyecto(cn, user, pass));
         return users;
@@ -237,28 +238,25 @@ public class Proxy {
 
 
      synchronized public void putAdminProyecto(String uid, String cn, String user, String pass)
-             throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionParametros, ExcepcionGestorRedmine {
+             throws SCStackException {
          api.addAdminAProyecto(uid, cn, user, pass);
     }
 
 
     synchronized public void deleteAdminProyecto(String uid, String cn, String user, String pass)
-            throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGeneradorFicherosApache,
-            ExcepcionLDAPAdministradorUnico, ExcepcionConsola, ExcepcionGestorLDAP, ExcepcionParametros, ExcepcionGestorRedmine {
+            throws SCStackException {
         api.eliminarAdminDeProyecto(uid, cn, user, pass);
     }
 
 
     synchronized public void postRepositorio(Repositorio repo, String cn, String user, String pass)
-            throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionRepositorio, ExcepcionGeneradorFicherosApache,
-            ExcepcionParametros, ExcepcionConsola, ExcepcionGestorLDAP {
+            throws SCStackException {
         api.addRepositorioAProyecto(repo.getTipo(), repo.isEsPublico(), repo.getRuta(), cn, user, pass);
     }
 
 
     synchronized public void deleteRepositorio(String tipo, String cn, String user, String pass)
-            throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGeneradorFicherosApache, ExcepcionConsola,
-            ExcepcionParametros, ExcepcionGestorLDAP {
+            throws SCStackException {
         api.eliminarRepositorioDeProyecto(tipo, cn, user, pass);
     }
 

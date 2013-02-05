@@ -37,7 +37,7 @@ import es.sidelab.commons.commandline.ExecutionCommandException;
 import es.sidelab.commons.commandline.console.Console;
 import es.sidelab.commons.commandline.console.LocalConsole;
 import es.sidelab.commons.commandline.console.SSHConsole;
-import es.sidelab.scstack.lib.exceptions.ExcepcionForja;
+import es.sidelab.scstack.lib.exceptions.SCStackException;
 import es.sidelab.scstack.service.data.Proyecto;
 import es.sidelab.scstack.service.data.ProyectoNuevo;
 import es.sidelab.scstack.service.data.Proyectos;
@@ -131,10 +131,10 @@ public class RemoteIT {
 	 * @throws KeyManagementException
 	 * @throws NoSuchAlgorithmException
 	 * @throws IOException
-	 * @throws ExcepcionForja when the response code is not the expected one; this
+	 * @throws SCStackException when the response code is not the expected one; this
 	 * means that the project was not created or an internal error has happen
 	 */
-	public static void createTestProject(ProyectoNuevo proj) throws KeyManagementException, NoSuchAlgorithmException, IOException, ExcepcionForja {
+	public static void createTestProject(ProyectoNuevo proj) throws KeyManagementException, NoSuchAlgorithmException, IOException, SCStackException {
 		JsonRepresentation projJson = proj.serializarJson();
 		projJson.setCharacterSet(CharacterSet.valueOf(DEFAULT_CHARSET));
 		String response = getResponseJSON(
@@ -149,11 +149,11 @@ public class RemoteIT {
 	 * @throws KeyManagementException
 	 * @throws NoSuchAlgorithmException
 	 * @throws IOException
-	 * @throws ExcepcionForja when the response code is not the expected one; this
+	 * @throws SCStackException when the response code is not the expected one; this
 	 * means that the user was not created
 	 */
 	public static void createTestUser(es.sidelab.scstack.service.data.Usuario user) 
-			throws KeyManagementException, NoSuchAlgorithmException, IOException, ExcepcionForja { 
+			throws KeyManagementException, NoSuchAlgorithmException, IOException, SCStackException { 
 		JsonRepresentation userJson = user.serializarJson();
 		userJson.setCharacterSet(CharacterSet.valueOf(DEFAULT_CHARSET));
 		String response = getResponseJSON(
@@ -198,12 +198,12 @@ public class RemoteIT {
 	 * @throws MalformedURLException
 	 * @throws IOException
 	 * @throws ExecutionCommandException 
-	 * @throws ExcepcionForja 
+	 * @throws SCStackException 
 	 */
 	@Test
 	public void testInitialConfiguration() throws 
 							NoSuchAlgorithmException, KeyManagementException, 
-							MalformedURLException, IOException,	ExecutionCommandException, ExcepcionForja {
+							MalformedURLException, IOException,	ExecutionCommandException, SCStackException {
 		// connects to https://REST-stack-url:REST-port/usuarios and receives the list of users
 		String response = getResponseJSON(
 				"usuarios", null, "GET", HttpURLConnection.HTTP_OK, superUser, superUserPass);
@@ -520,10 +520,10 @@ public class RemoteIT {
 	 * @throws IOException
 	 * @throws NoSuchAlgorithmException
 	 * @throws KeyManagementException
-	 * @throws ExcepcionForja 
+	 * @throws SCStackException 
 	 */
 	private static String getResponseJSON(String relativeURI, String body, String method, int expectedCode, 
-			String user, String pass) throws IOException, NoSuchAlgorithmException, KeyManagementException, ExcepcionForja {
+			String user, String pass) throws IOException, NoSuchAlgorithmException, KeyManagementException, SCStackException {
 		X509TrustManager tm = new X509TrustManager() {
 			@Override
 			public X509Certificate[] getAcceptedIssuers() {
@@ -566,7 +566,7 @@ public class RemoteIT {
 		}
 		conn.connect();
 		if (conn.getResponseCode() != expectedCode) {
-			throw new ExcepcionForja("Failed : HTTP error code : " + 
+			throw new SCStackException("Failed : HTTP error code : " + 
 					conn.getResponseCode() + " instead of expected: " + expectedCode);
 		}
 		BufferedReader br = new BufferedReader(new InputStreamReader(

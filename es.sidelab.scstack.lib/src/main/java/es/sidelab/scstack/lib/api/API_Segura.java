@@ -14,7 +14,7 @@ import es.sidelab.scstack.lib.config.ConfiguracionForja;
 import es.sidelab.scstack.lib.dataModel.Proyecto;
 import es.sidelab.scstack.lib.dataModel.Usuario;
 import es.sidelab.scstack.lib.dataModel.repos.FactoriaRepositorios.TipoRepositorio;
-import es.sidelab.scstack.lib.exceptions.ExcepcionForja;
+import es.sidelab.scstack.lib.exceptions.SCStackException;
 import es.sidelab.scstack.lib.exceptions.apache.ExcepcionConsola;
 import es.sidelab.scstack.lib.exceptions.apache.ExcepcionGeneradorFicherosApache;
 import es.sidelab.scstack.lib.exceptions.api.ExcepcionLogin;
@@ -26,6 +26,8 @@ import es.sidelab.scstack.lib.exceptions.ldap.ExcepcionGestorLDAP;
 import es.sidelab.scstack.lib.exceptions.ldap.ExcepcionLDAPAdministradorUnico;
 import es.sidelab.scstack.lib.exceptions.ldap.ExcepcionLDAPNoExisteRegistro;
 import es.sidelab.scstack.lib.exceptions.redmine.ExcepcionGestorRedmine;
+import es.sidelab.scstack.lib.gerrit.GerritException;
+
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.logging.LogRecord;
@@ -46,9 +48,9 @@ public class API_Segura {
 	/**
 	 * <p>Constructor que por defecto usa como fichero de configuración el fichero
 	 * "configuracion.txt" de la raíz del proyecto.</p>
-	 * @throws ExcepcionForja
+	 * @throws SCStackException
 	 */
-	public API_Segura() throws ExcepcionForja {
+	public API_Segura() throws SCStackException {
 		//this("configuracion.txt");
 		this("scstack.conf");
 	}
@@ -58,9 +60,9 @@ public class API_Segura {
 	 * <p>Constructor al cual se le debe indicar la ruta y nombre del fichero de
 	 * configuración que se quiere utilizar.</p>
 	 * @param ficheroConfig Ruta relativa o absoluta y nombre del fichero
-	 * @throws ExcepcionForja
+	 * @throws SCStackException
 	 */
-	public API_Segura(String ficheroConfig) throws ExcepcionForja {
+	public API_Segura(String ficheroConfig) throws SCStackException {
 		this.log = Logger.getLogger(API_Segura.class.getName());
 		this.api = new API_Abierta(this.log, ficheroConfig);
 	}
@@ -72,18 +74,18 @@ public class API_Segura {
 	 * el primer Superadministrador la primera vez que se vaya a usar la Forja.</p>
 	 * @param uid UID del primer Superadministrador de la Forja
 	 * @param pass Contraseña en claro del primer Superadministrador de la Forja
-	 * @throws ExcepcionForja Cuando se ha producido algún error durante la inicialización
+	 * @throws SCStackException Cuando se ha producido algún error durante la inicialización
 	 * @throws NoSuchAlgorithmException Cuando se produce erro al codificar a MD5
 	 * la contraseña suministrada
 	 */
-	public void inicializarForja(String uid, String pass) throws ExcepcionForja, NoSuchAlgorithmException {
+	public void inicializarForja(String uid, String pass) throws SCStackException, NoSuchAlgorithmException {
 //		this.api = new API_Abierta("configuracion.txt");
 		this.api = new API_Abierta("scstack.conf");
 		ArrayList listaProy = api.getListaCnProyectos();
 		if (listaProy == null || !listaProy.contains(ConfiguracionForja.groupSuperadmin))
 			this.api.inicializaForja(uid, pass);
 		else
-			throw new ExcepcionForja("La Forja ya contiene un grupo de Superadministradores denominado: " + ConfiguracionForja.groupSuperadmin);
+			throw new SCStackException("La Forja ya contiene un grupo de Superadministradores denominado: " + ConfiguracionForja.groupSuperadmin);
 	}
 
 
@@ -103,17 +105,9 @@ public class API_Segura {
 	 * @param pass Contraseña del usuario
 	 * @return String que puede ser {"superadmin", "admin" ó "usuario"} en función
 	 * del rol que desempeñe el UID suministrado en la Forja.
-	 * @throws ExcepcionLogin Se produce cuando el login suministrado no es correcto
-	 * o no existe el usuario cuyo login se facilita o este no puede consultar
-	 * dicha información.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando el usuario buscado no existe
-	 * en la Forja
-	 * @throws ExcepcionGestorLDAP Cuando no se puede conectar con el directorio
-	 * LDAP.
-	 * @throws ExcepcionParametros Se lanza cuando se llama al método con algún parámetro
-	 * a null que no puede ser nulo.
+	 * @throws SCStackException 
 	 */
-	public String doLogin(String uid, String pass) throws ExcepcionParametros, ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP {
+	public String doLogin(String uid, String pass) throws SCStackException {
 		// Comprobación de los parámetros de invocación del parámetro
 		Object[] paramsRequeridos = {uid,pass};
 		if (!this.checkParamsOk(paramsRequeridos))
@@ -139,18 +133,10 @@ public class API_Segura {
 	 * @param uid UID del usuario que realiza la consulta
 	 * @param pass Contraseña en claro de quien realiza la consulta
 	 * @return Objeto Usuario con los datos personales
-	 * @throws ExcepcionLogin Se produce cuando el login suministrado no es correcto
-	 * o no existe el usuario cuyo login se facilita o este no puede consultar
-	 * dicha información.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando el usuario buscado no existe
-	 * en la Forja
-	 * @throws ExcepcionGestorLDAP Cuando no se puede conectar con el directorio
-	 * LDAP.
-	 * @throws ExcepcionParametros Se lanza cuando se llama al método con algún parámetro
-	 * a null que no puede ser nulo.
+	 * @throws SCStackException 
 	 */
 	public Usuario getDatosUsuario(String uidConsulta, String uid, String pass)
-			throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionParametros {
+			throws SCStackException {
 
 		// Comprobación de los parámetros de invocación del parámetro
 		Object[] paramsRequeridos = {uidConsulta,uid,pass};
@@ -175,20 +161,10 @@ public class API_Segura {
 	 * @param user Objeto estructurado con los datos nuevos del usuario
 	 * @param uid UID del usuario que realiza la consulta
 	 * @param pass Contraseña en claro de quien realiza la consulta
-	 * @throws ExcepcionLogin Se produce cuando el login suministrado no es correcto
-	 * o no existe el usuario cuyo login se facilita o este no puede consultar
-	 * dicha información.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando el usuario buscado no existe
-	 * en la Forja
-	 * @throws ExcepcionGestorLDAP Cuando no se puede conectar con el directorio
-	 * LDAP.
-	 * @throws ExcepcionGestorRedmine Cuando existe algún problema durante la 
-	 * modificación de los datos en Redmine
-	 * @throws ExcepcionParametros Se lanza cuando se llama al método con algún parámetro
-	 * a null que no puede ser nulo.
+	 * @throws SCStackException 
 	 */
 	public void editarDatosUsuario(Usuario user, String uid, String pass)
-			throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorRedmine, ExcepcionGestorLDAP, ExcepcionParametros, ExcepcionUsuario {
+			throws SCStackException {
 
 		// Comprobación de los parámetros de invocación del parámetro
 		Object[] paramsRequeridos = {user,uid,pass};
@@ -212,18 +188,10 @@ public class API_Segura {
 	 * @param pass Contraseña en claro de quien realiza la consulta
 	 * @return ArrayList de Strings con los nombres de proyectos participados por
 	 * el usuario
-	 * @throws ExcepcionLogin Se produce cuando el login suministrado no es correcto
-	 * o no existe el usuario cuyo login se facilita o este no puede consultar
-	 * dicha información.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando el usuario buscado no existe
-	 * en la Forja
-	 * @throws ExcepcionGestorLDAP Cuando no se puede conectar con el directorio
-	 * LDAP.
-	 * @throws ExcepcionParametros Se lanza cuando se llama al método con algún parámetro
-	 * a null que no puede ser nulo.
+	 * @throws SCStackException 
 	 */
 	public ArrayList<String> getListadoProyectosParticipados(String uidConsulta, String uid, String pass) 
-			throws ExcepcionLDAPNoExisteRegistro, ExcepcionLogin, ExcepcionGestorLDAP, ExcepcionParametros {
+			throws SCStackException {
 
 		// Comprobación de los parámetros de invocación del parámetro
 		Object[] paramsRequeridos = {uidConsulta,uid,pass};
@@ -248,18 +216,10 @@ public class API_Segura {
 	 * @param pass Contraseña en claro de quien realiza la consulta
 	 * @return ArrayList de Strings con los nombres de proyectos administrados por
 	 * el usuario
-	 * @throws ExcepcionLogin Se produce cuando el login suministrado no es correcto
-	 * o no existe el usuario cuyo login se facilita o este no puede consultar
-	 * dicha información.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando el usuario buscado no existe
-	 * en la Forja
-	 * @throws ExcepcionGestorLDAP Cuando no se puede conectar con el directorio
-	 * LDAP.
-	 * @throws ExcepcionParametros Se lanza cuando se llama al método con algún parámetro
-	 * a null que no puede ser nulo.
+	 * @throws SCStackException 
 	 */
 	public ArrayList<String> getListadoProyectosAdministrados(String uidConsulta, String uid, String pass)
-			throws ExcepcionLDAPNoExisteRegistro, ExcepcionLogin, ExcepcionGestorLDAP, ExcepcionParametros {
+			throws SCStackException {
 
 		// Comprobación de los parámetros de invocación del parámetro
 		Object[] paramsRequeridos = {uidConsulta,uid,pass};
@@ -283,18 +243,10 @@ public class API_Segura {
 	 * @param pass Contraseña en claro de quien realiza la consulta
 	 * @return ArrayList de Strings con los UIDs de los usuarios miembros de los
 	 * proyectos del administrador cuyo UID se pasa como parámetro.
-	 * @throws ExcepcionLogin Se produce cuando el login suministrado no es correcto
-	 * o no existe el usuario cuyo login se facilita o este no puede consultar
-	 * dicha información.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando el usuario buscado no existe
-	 * en la Forja
-	 * @throws ExcepcionGestorLDAP Cuando no se puede conectar con el directorio
-	 * LDAP.
-	 * @throws ExcepcionParametros Se lanza cuando se llama al método con algún parámetro
-	 * a null que no puede ser nulo.
+	 * @throws SCStackException 
 	 */
 	public ArrayList<String> getListadoUsuariosAdministrados(String uidConsulta, String uid, String pass)
-			throws ExcepcionLDAPNoExisteRegistro, ExcepcionLogin, ExcepcionGestorLDAP, ExcepcionParametros {
+			throws SCStackException {
 
 		// Comprobación de los parámetros de invocación del parámetro
 		Object[] paramsRequeridos = {uidConsulta,uid,pass};
@@ -317,18 +269,10 @@ public class API_Segura {
 	 * @param uid UID del usuario que realiza la consulta
 	 * @param pass Contraseña del usuario que realiza la consulta
 	 * @return Lista de UIDs de usuarios que participan en el proyecto
-	 * @throws ExcepcionLogin Se produce cuando el login suministrado no es correcto
-	 * o no existe el usuario cuyo login se facilita o este no puede consultar
-	 * dicha información.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando el proyecto buscado no existe
-	 * en la Forja
-	 * @throws ExcepcionGestorLDAP Cuando no se puede conectar con el directorio
-	 * LDAP.
-	 * @throws ExcepcionParametros Se lanza cuando se llama al método con algún parámetro
-	 * a null que no puede ser nulo.
+	 * @throws SCStackException 
 	 */
 	public ArrayList<String> getListadoUsuariosPorProyecto(String cnProyecto, String uid, String pass)
-			throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionParametros {
+			throws SCStackException {
 
 		// Comprobación de los parámetros de invocación del parámetro
 		Object[] paramsRequeridos = {cnProyecto,uid,pass};
@@ -352,18 +296,10 @@ public class API_Segura {
 	 * @param uid UID del usuario que realiza la consulta
 	 * @param pass Contraseña del usuario que realiza la consulta
 	 * @return Lista de UIDs de administradores del proyecto
-	 * @throws ExcepcionLogin Se produce cuando el login suministrado no es correcto
-	 * o no existe el usuario cuyo login se facilita o este no puede consultar
-	 * dicha información.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando el proyecto buscado no existe
-	 * en la Forja
-	 * @throws ExcepcionGestorLDAP Cuando no se puede conectar con el directorio
-	 * LDAP.
-	 * @throws ExcepcionParametros Se lanza cuando se llama al método con algún parámetro
-	 * a null que no puede ser nulo.
+	 * @throws SCStackException 
 	 */
 	public ArrayList<String> getListadoAdministradoresPorProyecto(String cnProyecto, String uid, String pass)
-			throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionParametros {
+			throws SCStackException {
 
 		// Comprobación de los parámetros de invocación del parámetro
 		Object[] paramsRequeridos = {cnProyecto,uid,pass};
@@ -387,18 +323,10 @@ public class API_Segura {
 	 * @param uid UID del usuario que realiza la consulta
 	 * @param pass Contraseña del usuario que realiza la consulta
 	 * @return Objeto Proyecto con los datos del mismo
-	 * @throws ExcepcionLogin Se produce cuando el login suministrado no es correcto
-	 * o no existe el usuario cuyo login se facilita o este no puede consultar
-	 * dicha información.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando el proyecto buscado no existe
-	 * en la Forja
-	 * @throws ExcepcionGestorLDAP Cuando no se puede conectar con el directorio
-	 * LDAP.
-	 * @throws ExcepcionParametros Se lanza cuando se llama al método con algún parámetro
-	 * a null que no puede ser nulo.
+	 * @throws SCStackException 
 	 */
 	public Proyecto getDatosProyecto(String cnProyecto, String uid, String pass)
-			throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionParametros {
+			throws SCStackException {
 
 		// Comprobación de los parámetros de invocación del parámetro
 		Object[] paramsRequeridos = {cnProyecto,uid,pass};
@@ -431,18 +359,10 @@ public class API_Segura {
 	 * @param uid UID de quien invoca el método
 	 * @param pass Contraseña de quien invoca el método
 	 * @return Lista de UIDs de todos los usuarios que hay en la Forja
-	 * @throws ExcepcionLogin Se produce cuando el login suministrado no es correcto
-	 * o no existe el usuario cuyo login se facilita o este no puede consultar
-	 * dicha información.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando el recurso buscado no existe
-	 * en la Forja
-	 * @throws ExcepcionGestorLDAP Cuando no se puede conectar con el directorio
-	 * LDAP.
-	 * @throws ExcepcionParametros Se lanza cuando se llama al método con algún parámetro
-	 * a null que no puede ser nulo.
+	 * @throws SCStackException 
 	 */
 	public ArrayList<String> getListadoUidsUsuarios(String uid, String pass)
-			throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionParametros {
+			throws SCStackException {
 
 		// Comprobación de los parámetros de invocación del parámetro
 		Object[] paramsRequeridos = {uid,pass};
@@ -463,18 +383,10 @@ public class API_Segura {
 	 * @param uid UID de quien invoca el método
 	 * @param pass Contraseña de quien invoca el método
 	 * @return Lista de Nombres y apellidos de todos los usuarios que hay en la Forja
-	 * @throws ExcepcionLogin Se produce cuando el login suministrado no es correcto
-	 * o no existe el usuario cuyo login se facilita o este no puede consultar
-	 * dicha información.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando el recurso buscado no existe
-	 * en la Forja
-	 * @throws ExcepcionGestorLDAP Cuando no se puede conectar con el directorio
-	 * LDAP.
-	 * @throws ExcepcionParametros Se lanza cuando se llama al método con algún parámetro
-	 * a null que no puede ser nulo.
+	 * @throws SCStackException 
 	 */
 	public ArrayList<String> getListadoNombresUsuarios(String uid, String pass)
-			throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionParametros {
+			throws SCStackException {
 
 		// Comprobación de los parámetros de invocación del parámetro
 		Object[] paramsRequeridos = {uid,pass};
@@ -496,18 +408,10 @@ public class API_Segura {
 	 * @param uid UID de quien invoca el método
 	 * @param pass Contraseña de quien invoca el método
 	 * @return Lista de emails de todos los usuarios que hay en la Forja
-	 * @throws ExcepcionLogin Se produce cuando el login suministrado no es correcto
-	 * o no existe el usuario cuyo login se facilita o este no puede consultar
-	 * dicha información.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando el recurso buscado no existe
-	 * en la Forja
-	 * @throws ExcepcionGestorLDAP Cuando no se puede conectar con el directorio
-	 * LDAP.
-	 * @throws ExcepcionParametros Se lanza cuando se llama al método con algún parámetro
-	 * a null que no puede ser nulo.
+	 * @throws SCStackException 
 	 */
 	public ArrayList<String> getListadoEmailsUsuarios(String uid, String pass)
-			throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionParametros {
+			throws SCStackException {
 
 		// Comprobación de los parámetros de invocación del parámetro
 		Object[] paramsRequeridos = {uid,pass};
@@ -531,18 +435,10 @@ public class API_Segura {
 	 * @param cnProyecto Nombre del proyecto donde añadir al administrador
 	 * @param uid UID de quien invoca el método
 	 * @param pass Contraseña de quien invoca el método
-	 * @throws ExcepcionLogin Se produce cuando el login suministrado no es correcto
-	 * o no existe el usuario cuyo login se facilita o este no puede consultar
-	 * dicha información.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando el recurso buscado no existe
-	 * en la Forja
-	 * @throws ExcepcionGestorLDAP Cuando no se puede conectar con el directorio
-	 * LDAP.
-	 * @throws ExcepcionParametros Se lanza cuando se llama al método con algún parámetro
-	 * a null que no puede ser nulo.
+	 * @throws SCStackException 
 	 */
 	public void addAdminAProyecto(String uidAdmin, String cnProyecto, String uid, String pass) 
-			throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionParametros, ExcepcionGestorRedmine {
+			throws SCStackException {
 
 		// Comprobación de los parámetros de invocación del parámetro
 		Object[] paramsRequeridos = {uidAdmin,cnProyecto,uid,pass};
@@ -564,26 +460,20 @@ public class API_Segura {
 	 * @param cnProyecto Nombre del proyecto donde añadir al usuario
 	 * @param uid UID de quien invoca el método
 	 * @param pass Contraseña de quien invoca el método
-	 * @throws ExcepcionLogin Se produce cuando el login suministrado no es correcto
-	 * o no existe el usuario cuyo login se facilita o este no puede consultar
-	 * dicha información.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando el recurso buscado no existe
-	 * en la Forja
-	 * @throws ExcepcionGestorLDAP Cuando no se puede conectar con el directorio
-	 * LDAP.
-	 * @throws ExcepcionParametros Se lanza cuando se llama al método con algún parámetro
-	 * a null que no puede ser nulo.
+	 * @throws SCStackException 
 	 */
 	public void addUsuarioAProyecto(String uidUsuario, String cnProyecto, String uid, String pass)
-			throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionParametros, ExcepcionGestorRedmine {
+			throws SCStackException {
 
 		// Comprobación de los parámetros de invocación del parámetro
 		Object[] paramsRequeridos = {uidUsuario,cnProyecto,uid,pass};
-		if (!this.checkParamsOk(paramsRequeridos))
+		if (!this.checkParamsOk(paramsRequeridos)) {
 			throw new ExcepcionParametros("Faltan los parámetros necesarios para poder invocar este método: {uidUsuario,cnProyecto,uid,pass}");
+		}
 
-		if (this.checkCredentialsProyecto(cnProyecto, uid, pass, NivelSeguridad.ADMIN))
+		if (this.checkCredentialsProyecto(cnProyecto, uid, pass, NivelSeguridad.ADMIN)) {
 			api.addUsuarioAProyecto(uidUsuario, cnProyecto);
+		}
 	}
 
 
@@ -600,24 +490,10 @@ public class API_Segura {
 	 * @param cnProyecto Nombre del proyecto
 	 * @param uid UID de quien invoca el método
 	 * @param pass Contraseña de quien invoca el método
-	 * @throws ExcepcionLogin Se produce cuando el login suministrado no es correcto
-	 * o no existe el usuario cuyo login se facilita o este no puede consultar
-	 * dicha información.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando el recurso buscado no existe
-	 * en la Forja
-	 * @throws ExcepcionGestorLDAP Cuando no se puede conectar con el directorio
-	 * LDAP.
-	 * @throws ExcepcionRepositorio Cuando se intenta crear un repositorio con
-	 * parámetros incorrectos.
-	 * @throws ExcepcionGeneradorFicherosApache Cuando no se ha podido regenerar
-	 * la configuración de Apache para el proyecto.
-	 * @throws ExcepcionConsola Cuando se produce un error durante la configuración
-	 * de Apache por consola.
-	 * @throws ExcepcionParametros Se lanza cuando se llama al método con algún parámetro
-	 * a null que no puede ser nulo.
+	 * @throws SCStackException 
 	 */
 	public void addRepositorioAProyecto(String tipoRepo, boolean esPublico, String rutaRepo, String cnProyecto, String uid, String pass)
-			throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionRepositorio, ExcepcionGeneradorFicherosApache, ExcepcionConsola, ExcepcionParametros {
+			throws SCStackException {
 
 		// Comprobación de los parámetros de invocación del parámetro
 		Object[] paramsRequeridos = {tipoRepo,esPublico,cnProyecto,uid,pass};
@@ -640,18 +516,10 @@ public class API_Segura {
 	 * @param uid UID de quien invoca el método
 	 * @param pass Contraseña de quien invoca el método
 	 * @return Lista de los nombres de todos los proyectos que hay en la Forja
-	 * @throws ExcepcionLogin Se produce cuando el login suministrado no es correcto
-	 * o no existe el usuario cuyo login se facilita o este no puede consultar
-	 * dicha información.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando el recurso buscado no existe
-	 * en la Forja
-	 * @throws ExcepcionGestorLDAP Cuando no se puede conectar con el directorio
-	 * LDAP.
-	 * @throws ExcepcionParametros Se lanza cuando se llama al método con algún parámetro
-	 * a null que no puede ser nulo.
+	 * @throws SCStackException 
 	 */
 	public ArrayList<String> getListadoProyectos(String uid, String pass)
-			throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionParametros {
+			throws SCStackException {
 
 		// Comprobación de los parámetros de invocación del parámetro
 		Object[] paramsRequeridos = {uid,pass};
@@ -673,20 +541,10 @@ public class API_Segura {
 	 * @param proyecto Objeto estructurado Proyecto con los datos del mismo
 	 * @param uid UID de quien invoca el método
 	 * @param pass Contraseña de quien invoca el método
-	 * @throws ExcepcionGestorRedmine Cuando se produce algún error durante la
-	 * modificación de los datos del proyecto guardados en Redmine.
-	 * @throws ExcepcionLogin Se produce cuando el login suministrado no es correcto
-	 * o no existe el usuario cuyo login se facilita o este no puede consultar
-	 * dicha información.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando el recurso buscado no existe
-	 * en la Forja
-	 * @throws ExcepcionGestorLDAP Cuando no se puede conectar con el directorio
-	 * LDAP.
-	 * @throws ExcepcionParametros Se lanza cuando se llama al método con algún parámetro
-	 * a null que no puede ser nulo.
+	 * @throws SCStackException 
 	 */
 	public void editarDatosProyecto(Proyecto proyecto, String uid, String pass)
-			throws ExcepcionLogin, ExcepcionGestorRedmine, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionParametros {
+			throws SCStackException {
 
 		// Comprobación de los parámetros de invocación del parámetro
 		Object[] paramsRequeridos = {proyecto,uid,pass};
@@ -714,24 +572,11 @@ public class API_Segura {
 	 * @param cnProyecto Nombre del proyecto
 	 * @param uid UID de quien invoca el método
 	 * @param pass Contraseña de quien invoca el método
-	 * @throws ExcepcionGestorRedmine Cuando se produce algún error durante la
-	 * modificación de los datos del proyecto guardados en Redmine.
-	 * @throws ExcepcionLogin Se produce cuando el login suministrado no es correcto
-	 * o no existe el usuario cuyo login se facilita o este no puede consultar
-	 * dicha información.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando el recurso buscado no existe
-	 * en la Forja
-	 * @throws ExcepcionGestorLDAP Cuando no se puede conectar con el directorio
-	 * LDAP.
-	 * @throws ExcepcionGeneradorFicherosApache Cuando al reconfigurar Apache, no
-	 * se pudo regenerar sus ficheros de configuración
-	 * @throws ExcepcionConsola Cuando no se pueden realizar determinadas órdenes
-	 * de consola de Apache.
-	 * @throws ExcepcionParametros Se lanza cuando se llama al método con algún parámetro
-	 * a null que no puede ser nulo.
+	 * @throws SCStackException 
+	 * @throws GerritException 
 	 */
 	public void eliminarUsuarioDeProyecto(String uidUsuario, String cnProyecto, String uid, String pass)
-			throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGeneradorFicherosApache, ExcepcionConsola, ExcepcionLDAPAdministradorUnico, ExcepcionGestorLDAP, ExcepcionParametros, ExcepcionGestorRedmine {
+			throws SCStackException {
 
 		// Comprobación de los parámetros de invocación del parámetro
 		Object[] paramsRequeridos = {uidUsuario,cnProyecto,uid,pass};
@@ -752,25 +597,11 @@ public class API_Segura {
 	 * @param cnProyecto Nombre del proyecto
 	 * @param uid UID de quien invoca el método
 	 * @param pass Contraseña de quien invoca el método
-	 * @throws ExcepcionGestorRedmine Cuando se produce algún error durante la
-	 * modificación de los datos del proyecto guardados en Redmine.
-	 * @throws ExcepcionLogin Se produce cuando el login suministrado no es correcto
-	 * o no existe el usuario cuyo login se facilita o este no puede consultar
-	 * dicha información.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando el recurso buscado no existe
-	 * en la Forja
-	 * @throws ExcepcionGestorLDAP Cuando no se puede conectar con el directorio
-	 * LDAP.
-	 * @throws ExcepcionGeneradorFicherosApache Cuando al reconfigurar Apache, no
-	 * se pudo regenerar sus ficheros de configuración
-	 * @throws ExcepcionConsola Cuando no se pueden realizar determinadas órdenes
-	 * de consola de Apache.
-	 * @throws ExcepcionParametros Se lanza cuando se llama al método con algún parámetro
-	 * a null que no puede ser nulo.
+	 * @throws SCStackException 
+	 * @throws GerritException 
 	 */
 	public void eliminarAdminDeProyecto(String uidAdmin, String cnProyecto, String uid, String pass)
-			throws ExcepcionLDAPNoExisteRegistro, ExcepcionLDAPAdministradorUnico, ExcepcionConsola,
-			ExcepcionGeneradorFicherosApache, ExcepcionGestorLDAP, ExcepcionLogin, ExcepcionParametros, ExcepcionGestorRedmine {
+			throws SCStackException {
 
 		// Comprobación de los parámetros de invocación del parámetro
 		Object[] paramsRequeridos = {uidAdmin,cnProyecto,uid,pass};
@@ -791,24 +622,12 @@ public class API_Segura {
 	 * @param cnProyecto Nombre del proyecto
 	 * @param uid UID de quien invoca el método
 	 * @param pass Contraseña de quien invoca el método
+	 * @throws SCStackException 
 	 * @throws ExcepcionGestorRedmine Cuando se produce algún error durante la
 	 * modificación de los datos del proyecto guardados en Redmine.
-	 * @throws ExcepcionLogin Se produce cuando el login suministrado no es correcto
-	 * o no existe el usuario cuyo login se facilita o este no puede consultar
-	 * dicha información.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando el recurso buscado no existe
-	 * en la Forja
-	 * @throws ExcepcionGestorLDAP Cuando no se puede conectar con el directorio
-	 * LDAP.
-	 * @throws ExcepcionGeneradorFicherosApache Cuando al reconfigurar Apache, no
-	 * se pudo regenerar sus ficheros de configuración
-	 * @throws ExcepcionConsola Cuando no se pueden realizar determinadas órdenes
-	 * de consola de Apache.
-	 * @throws ExcepcionParametros Se lanza cuando se llama al método con algún parámetro
-	 * a null que no puede ser nulo.
 	 */
 	public void eliminarRepositorioDeProyecto(String tipoRepo, String cnProyecto, String uid, String pass)
-			throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionGeneradorFicherosApache, ExcepcionConsola, ExcepcionParametros {
+			throws SCStackException {
 
 		// Comprobación de los parámetros de invocación del parámetro
 		Object[] paramsRequeridos = {tipoRepo,cnProyecto,uid,pass};
@@ -844,20 +663,10 @@ public class API_Segura {
 	 * @param passUser Contraseña en claro del nuevo usuario
 	 * @param uid UID de quien invoca el método
 	 * @param pass Contraseña de quien invoca el método
-	 * @throws ExcepcionUsuario Cuando el uid del usuario no cumple las condiciones
-	 * de la expresión regular: [a-zA-z0-9]+
-	 * @throws ExcepcionLogin Se produce cuando el login suministrado no es correcto
-	 * o no existe el usuario cuyo login se facilita o este no puede consultar
-	 * dicha información.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando el recurso buscado no existe
-	 * en la Forja
-	 * @throws ExcepcionGestorLDAP Cuando no se puede conectar con el directorio
-	 * LDAP.
-	 * @throws ExcepcionParametros Se lanza cuando se llama al método con algún parámetro
-	 * a null que no puede ser nulo.
+	 * @throws SCStackException 
 	 */
 	public void crearUsuario(String uidUsuario, String nombre, String apellidos, String email, String passUser, String uid, String pass)
-			throws ExcepcionUsuario, ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, NoSuchAlgorithmException, ExcepcionParametros, ExcepcionGestorRedmine {
+			throws SCStackException {
 
 		// Comprobación de los parámetros de invocación del parámetro
 		Object[] paramsRequeridos = {uidUsuario, nombre, apellidos, email, passUser, uid,pass};
@@ -881,18 +690,10 @@ public class API_Segura {
 	 * @param uidUsuario UID del usuario que queremos bloquear
 	 * @param uid UID de quien invoca el método
 	 * @param pass Contraseña de quien invoca el método
-	 * @throws ExcepcionLogin Se produce cuando el login suministrado no es correcto
-	 * o no existe el usuario cuyo login se facilita o este no puede consultar
-	 * dicha información.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando el recurso buscado no existe
-	 * en la Forja
-	 * @throws ExcepcionGestorLDAP Cuando no se puede conectar con el directorio
-	 * LDAP.
-	 * @throws ExcepcionParametros Se lanza cuando se llama al método con algún parámetro
-	 * a null que no puede ser nulo.
+	 * @throws SCStackException 
 	 */
 	public void bloquearUsuario(String uidUsuario, String uid, String pass)
-			throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionParametros {
+			throws SCStackException {
 
 		// Comprobación de los parámetros de invocación del parámetro
 		Object[] paramsRequeridos = {uidUsuario,uid,pass};
@@ -914,18 +715,10 @@ public class API_Segura {
 	 * @param nuevaPass Nueva contraseña del usuario en claro
 	 * @param uid UID de quien invoca el método
 	 * @param pass Contraseña de quien invoca el método
-	 * @throws ExcepcionLogin Se produce cuando el login suministrado no es correcto
-	 * o no existe el usuario cuyo login se facilita o este no puede consultar
-	 * dicha información.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando el recurso buscado no existe
-	 * en la Forja
-	 * @throws ExcepcionGestorLDAP Cuando no se puede conectar con el directorio
-	 * LDAP.
-	 * @throws ExcepcionParametros Se lanza cuando se llama al método con algún parámetro
-	 * a null que no puede ser nulo.
+	 * @throws SCStackException 
 	 */
 	public void desbloquearUsuario(String uidUsuario, String nuevaPass, String uid, String pass)
-			throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, NoSuchAlgorithmException, ExcepcionParametros {
+			throws SCStackException {
 
 		// Comprobación de los parámetros de invocación del parámetro
 		Object[] paramsRequeridos = {uidUsuario, nuevaPass, uid,pass};
@@ -945,25 +738,11 @@ public class API_Segura {
 	 * @param uidUsuario UID del usuario que queremos borrar de la Forja
 	 * @param uid UID de quien invoca el método
 	 * @param pass Contraseña de quien invoca el método
-	 * @throws ExcepcionLogin Se produce cuando el login suministrado no es correcto
-	 * o no existe el usuario cuyo login se facilita o este no puede consultar
-	 * dicha información.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando el recurso buscado no existe
-	 * en la Forja
-	 * @throws ExcepcionGestorLDAP Cuando no se puede conectar con el directorio
-	 * LDAP.
-	 * @throws ExcepcionLDAPAdministradorUnico Cuando estamos intentando borrar
-	 * a un usuario que es administrador único de algún proyecto de la Forja
-	 * @throws ExcepcionConsola Tras eliminar al usuario hay que reconfigurar
-	 * Apache si este usuario era administrador de algún proyecto de la Forja.
-	 * @throws ExcepcionGeneradorFicherosApache Tras eliminar al usuario hay que
-	 * reconfigurar Apache si este usuario era administrador de algún proyecto
-	 * de la Forja.
-	 * @throws ExcepcionParametros Se lanza cuando se llama al método con algún parámetro
-	 * a null que no puede ser nulo.
+	 * @throws SCStackException 
+	 * @throws GerritException 
 	 */
 	public void eliminarUsuario(String uidUsuario, String uid, String pass)
-			throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP, ExcepcionLDAPAdministradorUnico, ExcepcionConsola, ExcepcionGeneradorFicherosApache, ExcepcionParametros, ExcepcionGestorRedmine {
+			throws SCStackException {
 
 		// Comprobación de los parámetros de invocación del parámetro
 		Object[] paramsRequeridos = {uidUsuario,uid,pass};
@@ -998,27 +777,10 @@ public class API_Segura {
 	 * la ruta por defecto lo dejamos a null.
 	 * @param uid UID de quien invoca el método
 	 * @param pass Contraseña de quien invoca el método
-	 * @throws ExcepcionLogin Se produce cuando el login suministrado no es correcto
-	 * o no existe el usuario cuyo login se facilita o este no puede consultar
-	 * dicha información.
-	 * @throws ExcepcionProyecto Cuando alguno de los parámetros del proyecto es
-	 * incorrecto (el nombre no sigue la sintaxis, falta el primerAdmin, etc...)
-	 * @throws ExcepcionGestorLDAP Cuando se produce algún error de acceso al
-	 * directorio LDAP, cuando el proyecto ya existe en el directorio o cuando
-	 * alguno de los parámetros del Proyecto presenta una sintaxis incorrecta.
-	 * @throws ExcepcionGeneradorFicherosApache Cuando ha habido algún error
-	 * durante la generación de los ficheros de configuración de Apache
-	 * @throws ExcepcionConsola Cuando durante la generación de los ficheros de
-	 * Apache, Linux nos ha devuelto algún tipo de error al escribir en su consola.
-	 * @throws ExcepcionRepositorio Cuando el Repositorio que estamos creando
-	 * tiene parámetros incorrectos.
-	 * @throws ExcepcionGestorRedmine Cuando se produce algún error durante la
-	 * creación del proyecto en Redmine.
-	 * @throws ExcepcionParametros Se lanza cuando se llama al método con algún parámetro
-	 * a null que no puede ser nulo.
+	 * @throws SCStackException 
 	 */
 	public void crearProyecto(String cn, String description, String primerAdmin, TipoRepositorio tipoRepositorio, boolean esRepoPublico, String rutaRepo, String uid, String pass)
-			throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionProyecto, ExcepcionGeneradorFicherosApache, ExcepcionConsola, ExcepcionRepositorio, ExcepcionGestorRedmine, ExcepcionGestorLDAP, ExcepcionParametros {
+			throws SCStackException {
 
 		// Comprobación de los parámetros de invocación del parámetro
 		Object[] paramsRequeridos = {cn,description,primerAdmin,uid,pass};
@@ -1037,23 +799,10 @@ public class API_Segura {
 	 * @param cnProyecto Nombre del proyecto a eliminar
 	 * @param uid UID de quien invoca el método
 	 * @param pass Contraseña de quien invoca el método
-	 * @throws ExcepcionLogin Se produce cuando el login suministrado no es correcto
-	 * o no existe el usuario cuyo login se facilita o este no puede consultar
-	 * dicha información.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando el recurso buscado no existe
-	 * en la Forja
-	 * @throws ExcepcionGestorLDAP Cuando no se puede conectar con el directorio
-	 * LDAP.
-	 * @throws ExcepcionGeneradorFicherosApache Cuando no se pudieron regenerar
-	 * correctamente los ficheros de configuración de Apache
-	 * @throws ExcepcionConsola Cuando no se pudo reconfigurar Apache
-	 * @throws ExcepcionGestorRedmine Cuando no se pudo eliminar el proyecto de
-	 * la base de datos de Redmine.
-	 * @throws ExcepcionParametros Se lanza cuando se llama al método con algún parámetro
-	 * a null que no puede ser nulo.
+	 * @throws SCStackException 
 	 */
 	public void eliminarProyecto(String cnProyecto, String uid, String pass)
-			throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGeneradorFicherosApache, ExcepcionConsola, ExcepcionGestorRedmine, ExcepcionGestorLDAP, ExcepcionParametros {
+			throws SCStackException {
 
 		// Comprobación de los parámetros de invocación del parámetro
 		Object[] paramsRequeridos = {cnProyecto,uid,pass};
@@ -1103,14 +852,10 @@ public class API_Segura {
 	 * @param nivel NivelSeguridad que queremos comprobar. Depende del método que
 	 * lo esté invocando.
 	 * @return true si el usuario dispone de los privilegios necesarios
-	 * @throws ExcepcionLogin Cuando la contraseña suministrada no es correcta,
-	 * no existe el usuario solicitante o sus privilegios son insuficientes.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando no existe alguno de los usuarios
-	 * involucrados
-	 * @throws ExcepcionGestorLDAP Cuando hay problemas con la conexión a LDAP
+	 * @throws SCStackException 
 	 */
 	private boolean checkCredentialsUsuario(String uidConsulta, String uid, String pass, NivelSeguridad nivel)
-			throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP {
+			throws SCStackException {
 		// Primero comprueba los datos del solicitante
 		checkLogin(uid,pass);
 
@@ -1144,14 +889,10 @@ public class API_Segura {
 	 * @param nivel NivelSeguridad que queremos comprobar. Depende del método que
 	 * lo esté invocando.
 	 * @return true si el usuario dispone de los privilegios necesarios
-	 * @throws ExcepcionLogin Cuando la contraseña suministrada no es correcta,
-	 * no existe el usuario solicitante o sus privilegios son insuficientes.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando no existe alguno de los usuarios
-	 * involucrados
-	 * @throws ExcepcionGestorLDAP Cuando hay problemas con la conexión a LDAP
+	 * @throws SCStackException 
 	 */
 	private boolean checkCredentialsProyecto(String cnProyecto, String uid, String pass, NivelSeguridad nivel)
-			throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP {
+			throws SCStackException {
 		// Primero comprueba los datos del solicitante
 		checkLogin(uid,pass);
 
@@ -1185,14 +926,10 @@ public class API_Segura {
 	 * @param nivel NivelSeguridad que queremos comprobar. Depende del método que
 	 * lo esté invocando.
 	 * @return true si el usuario dispone de los privilegios necesarios
-	 * @throws ExcepcionLogin Cuando la contraseña suministrada no es correcta,
-	 * no existe el usuario solicitante o sus privilegios son insuficientes.
-	 * @throws ExcepcionLDAPNoExisteRegistro Cuando no existe alguno de los usuarios
-	 * involucrados
-	 * @throws ExcepcionGestorLDAP Cuando hay problemas con la conexión a LDAP
+	 * @throws SCStackException 
 	 */
 	private boolean checkCredentialsGeneral(String uid, String pass, NivelSeguridad nivel)
-			throws ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP {
+			throws SCStackException {
 		// Primero comprueba los datos del solicitante
 		checkLogin(uid,pass);
 
@@ -1220,10 +957,9 @@ public class API_Segura {
 	 * @param pass Contraseña en claro del usuario
 	 * @return true si la contraseña es correcta, sino lanza una excepción indicando
 	 * que es incorrecta.
-	 * @throws ExcepcionLogin Cuando se produce algún error durante el login de
-	 * usuario.
+	 * @throws SCStackException 
 	 */
-	private boolean checkLogin(String uid, String pass) throws ExcepcionLogin {
+	private boolean checkLogin(String uid, String pass) throws SCStackException {
 		try {
 			String passAlmacenada = api.getUsuario(uid).getPassMD5();
 			String passSuministrada = Utilidades.toMD5(pass);
@@ -1248,7 +984,7 @@ public class API_Segura {
 		return uidUser.equals(uidConsulta);
 	}
 
-	private boolean esAdminDeUser(String uidAdmin, String uidUser) throws ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP {
+	private boolean esAdminDeUser(String uidAdmin, String uidUser) throws SCStackException {
 		ArrayList<String> proyectosAdmin = api.getListaProyectosAdministrados(uidAdmin);
 		ArrayList<String> proyectosParticipados = api.getListaProyectosParticipados(uidUser);
 
@@ -1259,28 +995,28 @@ public class API_Segura {
 		return false;
 	}
 
-	private boolean esSuperAdmin(String uid) throws ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP {
+	private boolean esSuperAdmin(String uid) throws SCStackException {
 		if (api.getListaProyectosParticipados(uid).contains(ConfiguracionForja.groupSuperadmin))
 			return true;
 		else
 			return false;
 	}
 
-	private boolean perteneceAProyecto(String cnProyecto, String uid) throws ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP {
+	private boolean perteneceAProyecto(String cnProyecto, String uid) throws SCStackException {
 		if (api.getListaProyectosParticipados(uid).contains(cnProyecto))
 			return true;
 		else
 			return false;
 	}
 
-	private boolean esAdminDeProyecto(String cnProyecto, String uid) throws ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP {
+	private boolean esAdminDeProyecto(String cnProyecto, String uid) throws SCStackException {
 		if (api.getListaProyectosAdministrados(uid).contains(cnProyecto))
 			return true;
 		else
 			return false;
 	}
 
-	private boolean esAdminDeAlgunProyecto(String uid) throws ExcepcionLDAPNoExisteRegistro, ExcepcionGestorLDAP {
+	private boolean esAdminDeAlgunProyecto(String uid) throws SCStackException {
 		if (api.getListaProyectosAdministrados(uid).isEmpty())
 			return false;
 		else

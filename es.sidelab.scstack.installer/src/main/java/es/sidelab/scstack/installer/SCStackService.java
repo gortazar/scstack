@@ -9,7 +9,7 @@ import es.sidelab.commons.commandline.ExecutionCommandException;
 import es.sidelab.scstack.crawler.CrawlerException;
 import es.sidelab.scstack.crawler.CrawlerInfo;
 import es.sidelab.scstack.crawler.RedmineCrawler;
-import es.sidelab.scstack.lib.exceptions.ExcepcionForja;
+import es.sidelab.scstack.lib.exceptions.SCStackException;
 
 /**
  * Provides a method to install the REST service and web console of 
@@ -37,11 +37,11 @@ public class SCStackService {
 	 * retrieves the REST API key.
 	 * Then it installs the REST service and web console as a daemon. 
 	 * @throws CrawlerException
-	 * @throws ExcepcionForja 
+	 * @throws SCStackException 
 	 * @throws IOException 
 	 * @throws ExecutionCommandException 
 	 */
-	public void install() throws CrawlerException, ExcepcionForja, ExecutionCommandException, IOException {
+	public void install() throws CrawlerException, SCStackException, ExecutionCommandException, IOException {
 		System.out.println("\n*** CONFIGURING REDMINE PAGE (using WebCrawling tech)***\n");
 		RedmineCrawler rcJSEnabled;
 		rcJSEnabled = new RedmineCrawler(true, new CrawlerInfo("redmine", "http://localhost/login"));
@@ -70,34 +70,34 @@ public class SCStackService {
 		//   their corresponding system folders.
 		String currentDirPath = System.getProperty("user.dir");
 		if (currentDirPath == null)
-			throw new ExcepcionForja("Unable to establish current workind directory!");
+			throw new SCStackException("Unable to establish current workind directory!");
 		File curDir = new File(currentDirPath);
 		File scservDir = new File(curDir, SERVICE_DIR);
 		if (! scservDir.isDirectory())
-			throw new ExcepcionForja("Unable to find the service's unzipped directory!");
+			throw new SCStackException("Unable to find the service's unzipped directory!");
 		File scservJar = new File(scservDir, SERVICE_JAR);
 		if (! scservJar.exists())
-			throw new ExcepcionForja("Unable to find the service's JAR file!");
+			throw new SCStackException("Unable to find the service's JAR file!");
 		String tempDaemonExe = generateDaemonExeFile(curDir, scservJar.getAbsolutePath());
 		String tempDaemonConf = generateDaemonConfigFile(curDir, scservDir.getAbsolutePath());
 		
 		File daemonConf = new File("/etc/init/" + DAEMON_CONF);
 		Instalacion.ejecutar("cp " + tempDaemonConf + " " + daemonConf.getAbsolutePath());
 		if (! daemonConf.exists())
-			throw new ExcepcionForja("Unable to copy daemon config file to '/etc/init/' !");
+			throw new SCStackException("Unable to copy daemon config file to '/etc/init/' !");
 		Instalacion.ejecutar("chown root:root " + daemonConf.getAbsolutePath());
 		Instalacion.ejecutar("chmod 644 " + daemonConf.getAbsolutePath());
 		if (! daemonConf.canRead())
-			throw new ExcepcionForja("Daemon config file from '/etc/init/' is not readable!");
+			throw new SCStackException("Daemon config file from '/etc/init/' is not readable!");
 		
 		File daemonExe = new File("/etc/init.d/" + DAEMON);
 		Instalacion.ejecutar("cp " + tempDaemonExe + " " + daemonExe.getAbsolutePath());
 		if (! daemonExe.exists())
-			throw new ExcepcionForja("Unable to copy daemon exe file to '/etc/init.d/' !");
+			throw new SCStackException("Unable to copy daemon exe file to '/etc/init.d/' !");
 		Instalacion.ejecutar("chown root:root " + daemonExe.getAbsolutePath());
 		Instalacion.ejecutar("chmod 755 " + daemonExe.getAbsolutePath());
 		if (! daemonExe.canExecute())
-			throw new ExcepcionForja("Daemon exe file from '/etc/init.d/' is not executable!");
+			throw new SCStackException("Daemon exe file from '/etc/init.d/' is not executable!");
 
 		Instalacion.ejecutar("start " + DAEMON);
 		//waiting 3 sec before obtaining the daemon's status

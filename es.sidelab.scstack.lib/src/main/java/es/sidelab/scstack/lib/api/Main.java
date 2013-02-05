@@ -1,6 +1,6 @@
 package es.sidelab.scstack.lib.api;
 
-import es.sidelab.scstack.lib.exceptions.ExcepcionForja;
+import es.sidelab.scstack.lib.exceptions.SCStackException;
 import es.sidelab.scstack.lib.exceptions.apache.ExcepcionConsola;
 import es.sidelab.scstack.lib.exceptions.apache.ExcepcionGeneradorFicherosApache;
 import es.sidelab.scstack.lib.exceptions.api.ExcepcionLogin;
@@ -17,7 +17,7 @@ public class Main {
     public static void main(String[] args)
             throws ExcepcionGeneradorFicherosApache, ExcepcionConsola, ExcepcionProyecto,
             ExcepcionGestorLDAP, ExcepcionUsuario, ExcepcionRepositorio, ExcepcionGestorRedmine,
-            ExcepcionForja, ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, NoSuchAlgorithmException {
+            SCStackException, ExcepcionLogin, ExcepcionLDAPNoExisteRegistro, NoSuchAlgorithmException {
 
         // Lo primerísimo de todo es crear la API de la Forja
         API_Segura api = new API_Segura();

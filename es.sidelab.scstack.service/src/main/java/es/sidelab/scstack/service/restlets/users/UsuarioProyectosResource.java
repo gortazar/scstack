@@ -9,11 +9,16 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 package es.sidelab.scstack.service.restlets.users;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import es.sidelab.scstack.lib.exceptions.SCStackException;
 import es.sidelab.scstack.lib.exceptions.api.ExcepcionLogin;
 import es.sidelab.scstack.lib.exceptions.api.ExcepcionParametros;
 import es.sidelab.scstack.lib.exceptions.ldap.ExcepcionGestorLDAP;
 import es.sidelab.scstack.lib.exceptions.ldap.ExcepcionLDAPNoExisteRegistro;
 import es.sidelab.scstack.service.data.Proyectos;
+import es.sidelab.scstack.service.restlets.BaseProyectosResource;
 import es.sidelab.scstack.service.restlets.BaseUsuariosResource;
 
 import org.restlet.Context;
@@ -35,6 +40,8 @@ import org.restlet.resource.ResourceException;
  */
 public class UsuarioProyectosResource extends BaseUsuariosResource {
 
+	private static final Logger LOGGER = Logger.getLogger(BaseProyectosResource.class.getName());
+	
     public UsuarioProyectosResource(Context context, Request request, Response response) throws ResourceException {
         super(context, request, response);
     }
@@ -91,7 +98,10 @@ public class UsuarioProyectosResource extends BaseUsuariosResource {
             throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND , ex.getMessage());
         } catch (ExcepcionGestorLDAP ex) {
             throw new ResourceException(Status.SERVER_ERROR_INTERNAL , ex.getMessage());
-        }
+        } catch (SCStackException e) {
+        	LOGGER.log(Level.SEVERE,"Exception",e);
+            throw new ResourceException(Status.SERVER_ERROR_INTERNAL, e.getMessage());
+		}
         return rep;
     }
 }

@@ -10,7 +10,7 @@
 package es.sidelab.scstack.installer;
 
 import es.sidelab.commons.commandline.ExecutionCommandException;
-import es.sidelab.scstack.lib.exceptions.ExcepcionForja;
+import es.sidelab.scstack.lib.exceptions.SCStackException;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -28,7 +28,7 @@ import java.security.NoSuchAlgorithmException;
  */
 public class ServidorApache {
 
-	public void instalar() throws ExecutionCommandException, IOException, NoSuchAlgorithmException, ExcepcionForja {
+	public void instalar() throws ExecutionCommandException, IOException, NoSuchAlgorithmException, SCStackException {
 		System.out.println("\n*** INSTALACIÓN SERVIDOR WEB APACHE ***\n");
 		Instalacion.ejecutar("apt-get -y install apache2-mpm-prefork apache2-utils apache2.2-bin apache2.2-common libapache2-mod-php5 libapr1 libaprutil1 libaprutil1-dbd-sqlite3 libaprutil1-ldap php5-common php5");
 		Instalacion.ejecutar("a2enmod ssl");
@@ -56,13 +56,13 @@ public class ServidorApache {
 		conn.connect();
 		int rcode = conn.getResponseCode();
 		if (rcode == -1)
-			throw new ExcepcionForja("Sanity check error for Apache: response code not established, should be 4XX but is -1.");
+			throw new SCStackException("Sanity check error for Apache: response code not established, should be 4XX but is -1.");
 		System.out.println("Response code from http://localhost is: " + rcode);
 		if (4 == (rcode / 100)) {
 			StringBuffer sb = new StringBuffer();
 			InputStream err = conn.getErrorStream();
 			if (null == err)
-				throw new ExcepcionForja("Sanity check error for Apache: " + 
+				throw new SCStackException("Sanity check error for Apache: " + 
 						"no error stream to read from, cannot establish if Apache is alive");
 			int c;
 			while ((c = err.read()) != -1) {
@@ -70,7 +70,7 @@ public class ServidorApache {
 			}
 			err.close();
 			if (null == sb || sb.length() == 0 || ! sb.toString().toLowerCase().contains("apache")) {
-				throw new ExcepcionForja("Sanity check error for Apache: expected error content not found.");
+				throw new SCStackException("Sanity check error for Apache: expected error content not found.");
 			} else {
 				System.out.println("Apache is working.");
 			}
@@ -84,7 +84,7 @@ public class ServidorApache {
 				}
 				input.close();
 			}
-			throw new ExcepcionForja("Sanity check error for Apache: response code not 4XX, but " + rcode);
+			throw new SCStackException("Sanity check error for Apache: response code not 4XX, but " + rcode);
 		}
 		System.out.println("**************************************************\n");
 	}
