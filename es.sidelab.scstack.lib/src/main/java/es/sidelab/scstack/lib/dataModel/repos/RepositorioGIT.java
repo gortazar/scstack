@@ -252,7 +252,7 @@ public class RepositorioGIT extends Repositorio {
 //			log.info("git clone: " + getCommandOutput(co));
 			log.info("git clone: " + outputHandler.getOut());
 		} catch (Exception e) {
-			throw new ExcepcionConsola("Problem cloning repository: " + e.getMessage(), e);
+			throw new ExcepcionConsola("Problem cloning repository: " + e.getMessage());
 		}
 
 //		cl = new CommandLine(new File("/opt", cnProyecto));
