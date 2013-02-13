@@ -165,6 +165,9 @@ public final class ConfiguracionForja {
     
     /** Nombre host del servidor ssh interno de Gerrit */
     public static String hostGerrit;
+    
+    /** Nombre del administrador de Gerrit */
+    public static String sadminGerrit;
 
 
     
@@ -242,6 +245,7 @@ public final class ConfiguracionForja {
         ConfiguracionForja.schemaRedmine = props.getProperty("schemaRedmine", "redmine");
         ConfiguracionForja.schemaGerrit = props.getProperty("schemaGerrit", "gerrit");
         ConfiguracionForja.hostGerrit = props.getProperty("hostGerrit");
+        ConfiguracionForja.sadminGerrit = props.getProperty("gerritadmin", "gerritadmin");
     }
 
 
@@ -291,6 +295,9 @@ public final class ConfiguracionForja {
         props.setProperty("protocoloRest", "HTTPS");
         props.setProperty("carpetaHtml", "SidelabCode_WebInterface");
         props.setProperty("rootServicio", "");
+        props.setProperty("schemaGerrit", ConfiguracionForja.schemaGerrit);
+        props.setProperty("hostGerrit", ConfiguracionForja.hostGerrit);
+        props.setProperty("sadminGerrit", ConfiguracionForja.sadminGerrit);
 
         return props;
     }
