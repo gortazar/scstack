@@ -10,6 +10,7 @@ package es.sidelab.scstack.lib.gerrit;
  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+import java.io.File;
 import java.util.logging.Logger;
 
 import org.junit.Assert;
@@ -19,8 +20,11 @@ import org.junit.Test;
 import com.xebialabs.overthere.CmdLine;
 import com.xebialabs.overthere.ConnectionOptions;
 import com.xebialabs.overthere.OperatingSystemFamily;
+import com.xebialabs.overthere.Overthere;
 import com.xebialabs.overthere.OverthereConnection;
+import com.xebialabs.overthere.OverthereFile;
 
+import es.sidelab.commons.commandline.CommandLine;
 import es.sidelab.scstack.lib.exceptions.apache.ExcepcionConsola;
 
 /**
@@ -99,65 +103,65 @@ public class GerritManagerTest {
      * 
      * @throws Exception
      */
-    // @Test
+    @Test
     public void testUpdateRepositoryProperties() throws Exception {
-        //
-        // /*
-        // * Configure project gittest
-        // */
-        // String cnProyecto = "gittest";
-        //
-        // // sshAgentPrefix
-        // String sshAgentPrefix = "ssh-agent bash -c '" + sshDirectory + " ; ";
-        //
-        // CommandLine cl = new CommandLine(new File("/usr/bin/"));
-        //
-        // OverthereConnection connection = Overthere.getConnection("local",
-        // options);
-        //
-        // OverthereFile workingDirectory = connection
-        // .getFile("/home/ricardo/tmp/" + cnProyecto);
-        // connection.setWorkingDirectory(workingDirectory);
-        //
-        // /*
-        // * Clone repository
-        // */
-        // cloneGerritRepositoryCm(cnProyecto, sshAgentPrefix, cl);
-        //
-        // /*
-        // * "/home/ricardo/tmp" Working Directory
-        // */
-        // cl.setWorkDir(new File("/home/ricardo/tmp/" + cnProyecto));
-        //
-        // /*
-        // * Fetch meta/config
-        // */
-        // fetchMetaConfigGerritCm(cl);
-        //
-        // /*
-        // * Checkout meta/config
-        // */
-        // checkoutMetaConfigGerritCm(cl);
-        //
-        // /*
-        // * Update git config file
-        // */
-        // udpateGitConfig(cnProyecto);
-        //
-        // /*
-        // * Add changes to git
-        // */
-        // addProjectConfigToGerrit(cl);
-        //
-        // /*
-        // * Commit changes
-        // */
-        // commitToGerrit(cl);
-        //
-        // /*
-        // * Push to repository
-        // */
-        // pushToGerrit(cl);
+        
+         /*
+         * Configure project gittest
+         */
+         String cnProyecto = "gittest";
+        
+         // sshAgentPrefix
+         String sshAgentPrefix = "ssh-agent bash -c '" + sshDirectory + " ; ";
+        
+         CommandLine cl = new CommandLine(new File("/usr/bin/"));
+        
+         OverthereConnection connection = Overthere.getConnection("local",
+         options);
+        
+         OverthereFile workingDirectory = connection
+         .getFile("/home/ricardo/tmp/" + cnProyecto);
+         connection.setWorkingDirectory(workingDirectory);
+        
+         /*
+         * Clone repository
+         */
+         gerritManager.cloneGerritRepositoryCm(cnProyecto, sadminGerrit, hostGerrit, cl);
+
+         /*
+         * "/home/ricardo/tmp" Working Directory
+         */
+         cl.setWorkDir(new File("/home/ricardo/tmp/" + cnProyecto));
+        
+         /*
+         * Fetch meta/config
+         */
+         gerritManager.fetchMetaConfigGerritCm(cl);
+        
+         /*
+         * Checkout meta/config
+         */
+         gerritManager.checkoutMetaConfigGerritCm(cl);
+        
+         /*
+         * Update git config file
+         */
+         gerritManager.udpateGitConfig("/home/ricardo/tmp/", cnProyecto);
+        
+         /*
+         * Add changes to git
+         */
+         gerritManager.addProjectConfigToGerrit(cl);
+        
+         /*
+         * Commit changes
+         */
+         gerritManager.commitToGerrit(cl);
+        
+         /*
+         * Push to repository
+         */
+         gerritManager.pushToGerrit(cl);
     }
 
     @Deprecated
