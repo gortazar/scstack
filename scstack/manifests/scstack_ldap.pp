@@ -109,7 +109,8 @@ class scstack::scstack_ldap (
   
   exec { "rm sadminpass sadminpass.md5":
     cwd => "/tmp",
-    command => "/bin/rm sadminpass sadminpass.md5"
+    command => "/bin/rm sadminpass sadminpass.md5",
+    require => Exec["ldapadd sadmin"],
   }
   
 #  exec { 'ldapadd sc-stack-projects.ldif':
