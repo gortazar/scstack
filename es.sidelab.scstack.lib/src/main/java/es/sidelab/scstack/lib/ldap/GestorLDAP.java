@@ -26,6 +26,7 @@ import es.sidelab.scstack.lib.dataModel.Proyecto;
 import es.sidelab.scstack.lib.dataModel.Usuario;
 import es.sidelab.scstack.lib.dataModel.repos.FactoriaRepositorios;
 import es.sidelab.scstack.lib.dataModel.repos.Repositorio;
+import es.sidelab.scstack.lib.exceptions.SCStackException;
 import es.sidelab.scstack.lib.exceptions.dataModel.ExcepcionRepositorio;
 import es.sidelab.scstack.lib.exceptions.dataModel.ExcepcionUsuario;
 import es.sidelab.scstack.lib.exceptions.ldap.ExcepcionGestorLDAP;
@@ -593,8 +594,13 @@ public class GestorLDAP {
 
         ArrayList lista = new ArrayList<Repositorio>();
         for (String cadena : listaAplanada) {
-            Repositorio repo = FactoriaRepositorios.crearRepositorio(cadena);
-            lista.add(repo);
+            Repositorio repo;
+            try {
+                repo = FactoriaRepositorios.crearRepositorio(cadena);
+                lista.add(repo);
+            } catch (SCStackException e) {
+                throw new ExcepcionGestorLDAP(e);
+            }
         }
         return lista;
     }

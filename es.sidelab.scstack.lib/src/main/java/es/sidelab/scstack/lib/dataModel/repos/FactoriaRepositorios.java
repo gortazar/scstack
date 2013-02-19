@@ -10,6 +10,7 @@
 package es.sidelab.scstack.lib.dataModel.repos;
 
 import es.sidelab.scstack.lib.config.ConfiguracionForja;
+import es.sidelab.scstack.lib.exceptions.SCStackException;
 import es.sidelab.scstack.lib.exceptions.dataModel.ExcepcionRepositorio;
 
 /**
@@ -22,7 +23,7 @@ public class FactoriaRepositorios {
         SVN, GIT
     }
 
-    public static Repositorio crearRepositorio(TipoRepositorio tipoRepositorio, boolean esRepoPublico, String rutaRepo) throws ExcepcionRepositorio {
+    public static Repositorio crearRepositorio(TipoRepositorio tipoRepositorio, boolean esRepoPublico, String rutaRepo) throws SCStackException {
         if (tipoRepositorio == null)
             return null;
         switch (tipoRepositorio) {
@@ -38,7 +39,7 @@ public class FactoriaRepositorios {
         }
     }
 
-    public static Repositorio crearRepositorio(String cadena) {
+    public static Repositorio crearRepositorio(String cadena) throws SCStackException {
         String[] estructura = new String[3];
         estructura = cadena.split("###");
         boolean esPublico = false;

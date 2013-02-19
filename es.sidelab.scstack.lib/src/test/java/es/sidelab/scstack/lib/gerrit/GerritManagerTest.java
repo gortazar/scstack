@@ -79,6 +79,7 @@ public class GerritManagerTest {
         Assert.assertTrue(
                 "[Error]: receiving group not found in list from Gerrit",
                 exists);
+
     }
 
     /**
@@ -99,69 +100,101 @@ public class GerritManagerTest {
     }
 
     /**
+     * Test to check existing update project.config git file.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testGitConfigProject() {
+
+        String cnProyecto = "gittest";
+        String reference = "refs/*";
+        String permission = "read";
+
+        /*
+         * Command to launch in test:
+         * 
+         * git config -f project.config --add access.refs/*.Read
+         * "group someproject-admin"
+         */
+        try {
+            gerritManager.gitConfigProject(options, reference, permission,
+                    cnProyecto);
+        } catch (ExcepcionConsola e) {
+            Assert.assertTrue(
+                    "[Error]: Exception updatign permission in project:\t"
+                            + e.getStackTrace(), true);
+        }
+        Assert.assertTrue(true);
+    }
+    
+    /**
      * Configuration for a new project. Update repository properties.
      * 
      * @throws Exception
      */
     @Test
     public void testUpdateRepositoryProperties() throws Exception {
-        
-         /*
+
+        /*
          * Configure project gittest
          */
-         String cnProyecto = "gittest";
-        
-         // sshAgentPrefix
-         String sshAgentPrefix = "ssh-agent bash -c '" + sshDirectory + " ; ";
-        
-         CommandLine cl = new CommandLine(new File("/usr/bin/"));
-        
-         OverthereConnection connection = Overthere.getConnection("local",
-         options);
-        
-         OverthereFile workingDirectory = connection
-         .getFile("/home/ricardo/tmp/" + cnProyecto);
-         connection.setWorkingDirectory(workingDirectory);
-        
-         /*
+        String cnProyecto = "gittest";
+
+        String projectDirectory = "/tmp/";
+
+        // sshAgentPrefix
+        String sshAgentPrefix = "ssh-agent bash -c '" + sshDirectory + " ; ";
+
+        CommandLine cl = new CommandLine(new File("/usr/bin/"));
+
+        OverthereConnection connection = Overthere.getConnection("local",
+                options);
+
+        OverthereFile workingDirectory = connection
+                .getFile(projectDirectory + cnProyecto);
+        connection.setWorkingDirectory(workingDirectory);
+
+        /*
          * Clone repository
          */
-         gerritManager.cloneGerritRepositoryCm(cnProyecto, sadminGerrit, hostGerrit, cl);
+        gerritManager.cloneGerritRepositoryCm(cnProyecto, sadminGerrit,
+                hostGerrit, cl);
 
-         /*
+        /*
          * "/home/ricardo/tmp" Working Directory
          */
-         cl.setWorkDir(new File("/home/ricardo/tmp/" + cnProyecto));
-        
-         /*
+        cl.setWorkDir(new File(projectDirectory + cnProyecto));
+
+        /*
          * Fetch meta/config
          */
-         gerritManager.fetchMetaConfigGerritCm(cl);
-        
-         /*
+        gerritManager.fetchMetaConfigGerritCm(cl);
+
+        /*
          * Checkout meta/config
          */
-         gerritManager.checkoutMetaConfigGerritCm(cl);
-        
-         /*
+        gerritManager.checkoutMetaConfigGerritCm(cl);
+
+        /*
          * Update git config file
          */
-         gerritManager.udpateGitConfig("/home/ricardo/tmp/", cnProyecto);
-        
-         /*
+        gerritManager.udpateGitConfig(projectDirectory, cnProyecto);
+
+        /*
          * Add changes to git
          */
-         gerritManager.addProjectConfigToGerrit(cl);
-        
-         /*
+        gerritManager.addProjectConfigToGerrit(cl);
+
+        /*
          * Commit changes
          */
-         gerritManager.commitToGerrit(cl);
-        
-         /*
+        gerritManager.commitToGerrit(cl);
+
+        /*
          * Push to repository
          */
-         gerritManager.pushToGerrit(cl);
+        gerritManager.pushToGerrit(cl);
     }
 
     @Deprecated

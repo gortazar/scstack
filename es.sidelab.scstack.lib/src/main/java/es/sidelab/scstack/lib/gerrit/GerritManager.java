@@ -18,6 +18,7 @@ import com.xebialabs.overthere.CmdLine;
 import com.xebialabs.overthere.ConnectionOptions;
 import com.xebialabs.overthere.Overthere;
 import com.xebialabs.overthere.OverthereConnection;
+import com.xebialabs.overthere.OverthereFile;
 
 import es.sidelab.commons.commandline.CommandLine;
 import es.sidelab.commons.commandline.CommandOutput;
@@ -278,7 +279,7 @@ public class GerritManager {
                 + sadminGerrit + " ssh://"
                 + sadminGerrit + "@"
                 + hostGerrit + ":29418/" + cnProyecto
-                + " /home/ricardo/tmp/" + cnProyecto;
+                + " /tmp/" + cnProyecto;
         log.info("[Gerrit] " + cmd);
 
         CommandOutput co;
@@ -346,19 +347,25 @@ public class GerritManager {
 	 * @param co Command executed
 	 * @return
 	 */
-	private String getCommandOutput(CommandOutput co) {
+	public String getCommandOutput(CommandOutput co) {
 		return "[stdout:" + co.getStandardOutput() + ";stderr:"
 				+ co.getErrorOutput() + "]";
 	}
 
-	/**
+    /**
      * <p>
-	 * Update configuration file from selected project.
+     * Update configuration file from selected project.
      * </p>
-	 * 
-	 * @param cnProyecto project to update.
-	 * @throws ExcepcionConsola
-	 */
+     * 
+     * <p>
+     * TODO: Update using git config command, see
+     * {@link #gitConfigProject(ConnectionOptions, String, String, String)}.
+     * </p>
+     * 
+     * @param cnProyecto
+     *            project to update.
+     * @throws ExcepcionConsola
+     */
 	public void udpateGitConfig(String projectDirectory, String cnProyecto) throws ExcepcionConsola {
 		try {
 
@@ -386,6 +393,81 @@ public class GerritManager {
 					+ e.getMessage());
 		}
 	}
+
+    /**
+     * <p>
+     * Git project configuration updates project.config file usgin git config
+     * command.
+     * </p>
+     * 
+     * @param cl
+     *            Run the command.
+     * @param reference
+     *            Reference to update permissions.
+     * @param permission
+     *            Type of permission assigned.
+     * @param cnProyecto
+     *            Project group to add permissions.
+     * @throws ExcepcionConsola
+     */
+    public void gitConfigProject(ConnectionOptions options, String reference,
+            String permission, String cnProyecto) throws ExcepcionConsola {
+
+        CommandLine cl = new CommandLine(new File("/usr/bin/"));
+        cl.setWorkDir(new File("/home/ricardo/tmp/" + cnProyecto));
+
+        CommandOutput co;
+
+        /*
+         * git config -f project.config --add access.refs/*.Read
+         * "group someproject-admin"
+         */
+        String cmd = "git config --file project.config --add access.";
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(cmd);
+        stringBuilder.append(reference);
+        stringBuilder.append(".");
+        stringBuilder.append(permission);
+        stringBuilder.append(" \"group ");
+        stringBuilder.append(cnProyecto);
+        stringBuilder.append("\"");
+
+        log.info("[Gerrit] " + stringBuilder.toString());
+        try {
+            
+            co = cl.syncExec(stringBuilder.toString());
+            log.info("git add: " + getCommandOutput(co));
+        } catch (Exception e) {
+            throw new ExcepcionConsola("Problem with git config: "
+                    + e.getMessage());
+        }
+
+        // log.info("[Gerrit] " + stringBuilder.toString());
+        try {
+
+            OverthereConnection conn = Overthere
+                    .getConnection("local", options);
+            OverthereFile workingDirectory = conn
+                    .getFile("/home/ricardo/tmp/" + cnProyecto);
+            conn.setWorkingDirectory(workingDirectory);
+
+            StringBuilder groupBuilder = new StringBuilder();
+            groupBuilder.append("group ");
+            groupBuilder.append(cnProyecto);
+            conn.execute(outputHandler, CmdLine.build("git", "config",
+                    "-f", "project.config", "--add", "access."+reference+"."+permission,
+                    groupBuilder.toString()));
+
+            // co = cl.syncExec(stringBuilder.toString());
+            // log.info("git add: " + getCommandOutput(co));
+            log.info("[Gerrit] [stdout] " + outputHandler.getOut());
+            log.info("[Gerrit] [err] " + outputHandler.getErr());
+
+        } catch (Exception e) {
+            throw new ExcepcionConsola("Problem with git config: "
+                    + e.getMessage());
+        }
+    }
 
 	/**
      * <p>
@@ -439,8 +521,9 @@ public class GerritManager {
 	 * @throws ExcepcionConsola
 	 */
 	public void pushToGerrit(CommandLine cl) throws ExcepcionConsola {
-		CommandOutput co;
-		String cmd = "git push origin meta/config:meta/config";
+
+	    CommandOutput co;
+		String cmd = "git push origin HEAD:refs/meta/config";
 		try {
 			log.info("[Gerrit] " + cmd);
 			co = cl.syncExec(cmd);
@@ -454,8 +537,12 @@ public class GerritManager {
 
     /**
      * <p>
-     * Check existing Gerrit group using Gerrit jargon ssh commands and
-     * {@link OverthereConnection}.
+     * Check existing Gerrit group using Gerrit jargon ssh commands.
+     * </p>
+     * 
+     * <p>
+     * Use {@link CommandLine} instead of {@link Overthere} because Overthere
+     * retrieve groups wrong.
      * </p>
      * 
      * @param hostGerrit
@@ -475,9 +562,33 @@ public class GerritManager {
             String hostGerrit, String sadminGerrit, String sshDirectory,
             ConnectionOptions options) throws ExcepcionConsola {
 
-        boolean groupExists = checkExistingGerritConfiguration(cnProyecto,
-                hostGerrit, sadminGerrit, sshDirectory, gerritListGroups,
-                options);
+        boolean groupExists = false;
+
+        String sshPrefix = "ssh -i " + sshDirectory + " -l " + sadminGerrit
+                + " -p 29418 " + hostGerrit;
+
+        CommandLine cl = new CommandLine(new File("/usr/bin/"));
+        CommandOutput co;
+
+        try {
+
+            String cmd = sshPrefix + " gerrit ls-groups";
+            log.info("[Gerrit] " + cmd);
+            co = cl.syncExec(cmd);
+            log.info(getCommandOutput(co));
+        } catch (Exception e) {
+            throw new ExcepcionConsola("Problem creating Gerrit group: "
+                    + e.getMessage());
+        }
+
+        StringTokenizer st = new StringTokenizer(
+                getCommandOutput(co), "\n");
+        while (!groupExists && st.hasMoreTokens()) {
+            String name = st.nextToken();
+            if (name.equals(cnProyecto)) {
+                groupExists = true;
+            }
+        }
 
         return groupExists;
     }
@@ -579,8 +690,31 @@ public class GerritManager {
         return exists;
     }
 
+    /**
+     * <p>
+     * Create git project in gerrit jargon.
+     * </p>
+     * 
+     * @param cnProyecto
+     *            Project name to check with existing groups.
+     * @param cl
+     *            Run the command
+     * @param sshDirectory
+     *            ssh key directory prefix to run Gerrit command.
+     * @param sadminGerrit
+     *            Gerrit super administrator user.
+     * @param hostGerrit
+     *            url where is Gerrit.
+     * 
+     * @throws ExcepcionConsola
+     */
     public void createGerritProject(String cnProyecto, CommandLine cl,
-            String sshPrefix) throws ExcepcionConsola {
+            String sshDirectory, String sadminGerrit, String hostGerrit)
+            throws ExcepcionConsola {
+
+        String sshPrefix = "ssh -i " + sshDirectory + " -l " + sadminGerrit
+                + " -p 29418 " + hostGerrit;
+
         // Now we are ready to create the repo (a project in Gerry jargon)
         try {
             String cmd = sshPrefix + " gerrit create-project --owner "
@@ -596,4 +730,38 @@ public class GerritManager {
         }
     }
 
+    /**
+     * <p>
+     * Create git group in gerrit jargon.
+     * </p>
+     * 
+     * <p>
+     * TODO: Create multiple users for group.
+     * </P>
+     * 
+     * @param cnProyecto
+     *            Project name.
+     * @param uidAdminProyecto
+     *            Project adminstrator.
+     * @param cl
+     *            Run the command.
+     * @param sshPrefix
+     *            SSH configuration for admin user.
+     * @throws ExcepcionConsola
+     */
+    public void createGerritGroup(String cnProyecto, String uidAdminProyecto,
+            CommandLine cl, String sshPrefix) throws ExcepcionConsola {
+        // We need to create the group. uidAdminProyecto should already be a
+        // member of Gerrit
+        try {
+            String cmd = sshPrefix + " gerrit create-group --member "
+                    + uidAdminProyecto + " " + cnProyecto;
+            log.info("[Gerrit] " + cmd);
+            CommandOutput co = cl.syncExec(cmd);
+            log.info(getCommandOutput(co));
+        } catch (Exception e) {
+            throw new ExcepcionConsola("Problem creating Gerrit group: "
+                    + e.getMessage());
+        }
+    }
 }
