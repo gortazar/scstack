@@ -29,9 +29,12 @@ public class RepositorioGITTest {
 	private String uidSuperAdmin = "sadmin";
 	private String passSuperAdmin = "sadmin";
 
+	private RepositorioGIT repositorioGIT;
+
 	@Before
 	public void setUp() throws Exception {
 
+	    repositorioGIT = new RepositorioGIT(true, null);
 	}
 
 	/**
@@ -41,6 +44,7 @@ public class RepositorioGITTest {
 	 */
 	@Test
 	public void tesCrearRepositorio() throws Exception {
+	    
 	    
 	}
 	

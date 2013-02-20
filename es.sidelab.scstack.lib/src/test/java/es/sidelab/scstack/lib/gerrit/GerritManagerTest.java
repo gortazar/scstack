@@ -1,15 +1,5 @@
 package es.sidelab.scstack.lib.gerrit;
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *
- * Fichero: GerritManagerTest.java
- * Autor: -
- * Fecha: -
- * Revisión: -
- * Versión: -
- *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
 import java.io.File;
 import java.util.logging.Logger;
 
@@ -28,10 +18,8 @@ import es.sidelab.commons.commandline.CommandLine;
 import es.sidelab.scstack.lib.exceptions.apache.ExcepcionConsola;
 
 /**
- * Esta clase de pruebas es la encargada de probar el correcto funcionamiento de
- * los distintos métodos ofrecidos por la API de la Forja.
+ * Test class for GerritManager methods.
  * 
- * @author Arek Klauza
  */
 public class GerritManagerTest {
 
@@ -61,6 +49,8 @@ public class GerritManagerTest {
         sshDirectory = "/home/ricardo/.ssh/gerritadmin_rsa";
 
         gerritManager = new GerritManager(this.log);
+        // ssh directory for test.
+        gerritManager.setSshDirectory(sshDirectory);
     }
 
     /**
@@ -74,7 +64,7 @@ public class GerritManagerTest {
         String cnProyecto = "gittest";
 
         boolean exists = gerritManager.checkExistingGerritGroup(cnProyecto,
-                hostGerrit, sadminGerrit, sshDirectory, options);
+                hostGerrit, sadminGerrit, options);
 
         Assert.assertTrue(
                 "[Error]: receiving group not found in list from Gerrit",
@@ -93,41 +83,12 @@ public class GerritManagerTest {
         String cnProyecto = "gittest";
 
         boolean exists = gerritManager.checkExistingGerritProject(cnProyecto,
-                hostGerrit, sadminGerrit, sshDirectory, options);
+                hostGerrit, sadminGerrit, options);
 
         Assert.assertTrue("[Error]: project not found in list from Gerrit",
                 exists);
     }
 
-    /**
-     * Test to check existing update project.config git file.
-     * 
-     * @throws Exception
-     */
-    @Test
-    public void testGitConfigProject() {
-
-        String cnProyecto = "gittest";
-        String reference = "refs/*";
-        String permission = "read";
-
-        /*
-         * Command to launch in test:
-         * 
-         * git config -f project.config --add access.refs/*.Read
-         * "group someproject-admin"
-         */
-        try {
-            gerritManager.gitConfigProject(options, reference, permission,
-                    cnProyecto);
-        } catch (ExcepcionConsola e) {
-            Assert.assertTrue(
-                    "[Error]: Exception updatign permission in project:\t"
-                            + e.getStackTrace(), true);
-        }
-        Assert.assertTrue(true);
-    }
-    
     /**
      * Configuration for a new project. Update repository properties.
      * 
@@ -143,16 +104,13 @@ public class GerritManagerTest {
 
         String projectDirectory = "/tmp/";
 
-        // sshAgentPrefix
-        String sshAgentPrefix = "ssh-agent bash -c '" + sshDirectory + " ; ";
-
         CommandLine cl = new CommandLine(new File("/usr/bin/"));
 
         OverthereConnection connection = Overthere.getConnection("local",
                 options);
 
-        OverthereFile workingDirectory = connection
-                .getFile(projectDirectory + cnProyecto);
+        OverthereFile workingDirectory = connection.getFile(projectDirectory
+                + cnProyecto);
         connection.setWorkingDirectory(workingDirectory);
 
         /*
@@ -195,6 +153,35 @@ public class GerritManagerTest {
          * Push to repository
          */
         gerritManager.pushToGerrit(cl);
+    }
+
+    /**
+     * Test to check existing update project.config git file.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testGitConfigProject() {
+
+        String cnProyecto = "gittest";
+        String reference = "refs/*";
+        String permission = "read";
+
+        /*
+         * Command to launch in test:
+         * 
+         * git config -f project.config --add access.refs/*.Read
+         * "group someproject-admin"
+         */
+        try {
+            gerritManager.gitConfigProject(options, reference, permission,
+                    cnProyecto);
+        } catch (ExcepcionConsola e) {
+            Assert.assertTrue(
+                    "[Error]: Exception updatign permission in project:\t"
+                            + e.getStackTrace(), true);
+        }
+        Assert.assertTrue(true);
     }
 
     @Deprecated

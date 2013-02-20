@@ -133,28 +133,22 @@ public class RepositorioGIT extends Repositorio {
 
         CommandLine cl = new CommandLine(new File("/opt"));
 
-        String sshDirectory = "/opt/ssh-keys/gerritadmin_rsa";
-
-        String sshPrefix = "ssh -i "+sshDirectory+" -l "
-                + apiAbierta.getConfiguration().sadminGerrit + " -p 29418 "
-                + apiAbierta.getConfiguration().hostGerrit;
-
         String hostGerrit = apiAbierta.getConfiguration().hostGerrit;
-        
-        // Check if the group exists. 
+        String sadminGerrit = apiAbierta.getConfiguration().sadminGerrit;
+
+        // Check if the group exists.
         boolean exists = gerritManager.checkExistingGerritGroup(hostGerrit,
-                apiAbierta.getConfiguration().sadminGerrit, cnProyecto,
-                sshDirectory, options);
+                sadminGerrit, cnProyecto, options);
 
         // Create gerrit group if not exists.
         if (!exists) {
-            gerritManager.createGerritGroup(cnProyecto, uidAdminProyecto, cl, sshPrefix);
+            gerritManager.createGerritGroup(cnProyecto, uidAdminProyecto, cl,
+                    sadminGerrit, hostGerrit);
         }
 
         // Check if project exists.
         boolean projectExists = gerritManager.checkExistingGerritProject(
-                cnProyecto, hostGerrit,
-                apiAbierta.getConfiguration().sadminGerrit, sshDirectory, options);
+                cnProyecto, hostGerrit, sadminGerrit, options);
 
         if (projectExists) {
             throw new ExcepcionConsola("Repository name already exists: "
@@ -162,12 +156,12 @@ public class RepositorioGIT extends Repositorio {
         }
 
         // Create git project using gerrit.
-        gerritManager.createGerritProject(cnProyecto, cl, sshDirectory,
-                apiAbierta.getConfiguration().sadminGerrit, hostGerrit);
+        gerritManager.createGerritProject(cnProyecto, cl, sadminGerrit,
+                hostGerrit);
 
         // We need to set several permissions for refs/heads/*, refs/tags/*,
         // refs/* to the group
-        configureRepository(cnProyecto, apiAbierta.getConfiguration().sadminGerrit, cl, hostGerrit);
+        configureRepository(cnProyecto, sadminGerrit, cl, hostGerrit);
     }
 
     /**
