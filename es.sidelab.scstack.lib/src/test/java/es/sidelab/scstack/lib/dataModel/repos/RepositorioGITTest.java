@@ -1,51 +1,59 @@
 package es.sidelab.scstack.lib.dataModel.repos;
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- *
- * Fichero: GerritManagerTest.java
- * Autor: -
- * Fecha: -
- * Revisión: -
- * Versión: -
- *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
 import org.junit.Before;
 import org.junit.Test;
 
+import es.sidelab.scstack.lib.api.API_Abierta;
+import es.sidelab.scstack.lib.config.ConfiguracionForja;
+
 import java.util.logging.Logger;
 
+import junit.framework.Assert;
+
 /**
- * Esta clase de pruebas es la encargada de probar el correcto funcionamiento de
- * los distintos métodos ofrecidos por la API de la Forja.
- * 
- * @author Arek Klauza
+ * Test class for RepositorioGit methods.
  */
 public class RepositorioGITTest {
 
-	private Logger log;
+    private Logger log;
 
-	/* PARÁMETROS DE CONFIGURACIÓN */
-	private String uidSuperAdmin = "sadmin";
-	private String passSuperAdmin = "sadmin";
+    private RepositorioGIT repositorioGIT;
 
-	private RepositorioGIT repositorioGIT;
+    @Before
+    public void setUp() throws Exception {
 
-	@Before
-	public void setUp() throws Exception {
+        repositorioGIT = new RepositorioGIT(true,
+                ConfiguracionForja.pathGITApache);
+    }
 
-	    repositorioGIT = new RepositorioGIT(true, null);
-	}
+    /**
+     * Test para Crear repositorios Git.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void tesCrearRepositorio() throws Exception {
 
-	/**
-	 * Test para Crear repositorios Git.
-	 * 
-	 * @throws Exception
-	 */
-	@Test
-	public void tesCrearRepositorio() throws Exception {
-	    
-	    
-	}
-	
+        API_Abierta apiAbierta = new API_Abierta(
+                "src/test/resources/scstack.conf");
+        String cnProyecto;
+        String uidAdminProyecto;
+
+        /*
+         * Test 1 - create repository
+         */
+        cnProyecto = "javaconsole";
+        uidAdminProyecto = "test";
+
+        try {
+            repositorioGIT.crearRepositorio(cnProyecto, uidAdminProyecto,
+                    apiAbierta);
+            Assert.assertTrue("[Success] - Project '" + cnProyecto
+                    + "' created and configurated.", true);
+        } catch (Exception e) {
+            Assert.assertFalse("[Error] - error creating the project:\t"
+                    + cnProyecto + "\n" + e.getStackTrace(), false);
+        }
+    }
+
 }
