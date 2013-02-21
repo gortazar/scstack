@@ -31,6 +31,8 @@ public class Servicios extends BaseEntity {
     private String pathReposPublicos;
     /** Path web del proyecto en Redmine */
     private String pathProyectoRedmine;
+    /** Base Host **/
+    private String baseHost;
     
 
 
@@ -41,6 +43,7 @@ public class Servicios extends BaseEntity {
         pathGIT = ConfiguracionForja.pathGITWeb;
         pathReposPublicos = ConfiguracionForja.pathReposPublicosWeb;
         pathProyectoRedmine = "/projects/";
+        baseHost = ConfiguracionForja.protocolRedmine + ConfiguracionForja.dominio;
     }
 
 
@@ -81,7 +84,10 @@ public class Servicios extends BaseEntity {
     public String getPathSVN() {
         return pathSVN;
     }
-
+    @XmlElement
+    public String getBaseHost() {
+        return baseHost;
+    }
 
 
     /* SETTERS de la Clase */
@@ -104,6 +110,10 @@ public class Servicios extends BaseEntity {
 
     public void setPathSVN(String pathSVN) {
         this.pathSVN = pathSVN;
+    }
+
+    public void setBaseHost(String baseHost) {
+        this.baseHost = baseHost;
     }
 
 }

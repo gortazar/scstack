@@ -117,7 +117,7 @@ jQuery.printTablaRepositorios = function(listaRepos, tagHtml) {
     var i;
     for (i = 0; i < listaRepos.length; i++) {
         var tipoRepo = listaRepos[i].tipo;
-        var enlace = servicios.hostRedmine;
+        var enlace = servicios.baseHost;
         if (tipoRepo == "GIT")
             enlace += servicios.pathGIT + "/" + cn;
         else
@@ -129,7 +129,7 @@ jQuery.printTablaRepositorios = function(listaRepos, tagHtml) {
 
         var enlacePublico = "No";
         if (listaRepos[i].esPublico == true)
-            enlacePublico = '<a href="' + servicios.hostRedmine + servicios.pathReposPublicos + '/' + cn + '" target="_blank">URL</a>';
+            enlacePublico = '<a href="' + servicios.baseHost + servicios.pathReposPublicos + '/' + cn + '" target="_blank">URL</a>';
         $(tr + '<td>' + tipoRepo + '</td><td><a href="'+ enlace +'" target="_blank">'+enlace +'</a></td><td>' + listaRepos[i].ruta + '</td><td>' + enlacePublico + '</td></tr>').appendTo(tagHtml);
         
     }
