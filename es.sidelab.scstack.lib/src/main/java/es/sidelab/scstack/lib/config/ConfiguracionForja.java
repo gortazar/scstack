@@ -169,8 +169,8 @@ public final class ConfiguracionForja {
     /** Nombre del administrador de Gerrit */
     public static String sadminGerrit;
 
-
-    
+    /** Domain **/
+    public static String dominio;
 
     /**
      * <p>Carga todos los parámetros de configuración de la Forja en memoria para
@@ -246,6 +246,7 @@ public final class ConfiguracionForja {
         ConfiguracionForja.schemaGerrit = props.getProperty("schemaGerrit", "gerrit");
         ConfiguracionForja.hostGerrit = props.getProperty("hostGerrit");
         ConfiguracionForja.sadminGerrit = props.getProperty("gerritadmin", "sadmin");
+        ConfiguracionForja.dominio = props.getProperty("dominio");
     }
 
 
@@ -298,7 +299,7 @@ public final class ConfiguracionForja {
         props.setProperty("schemaGerrit", ConfiguracionForja.schemaGerrit);
         props.setProperty("hostGerrit", ConfiguracionForja.hostGerrit);
         props.setProperty("sadminGerrit", ConfiguracionForja.sadminGerrit);
-
+        props.setProperty("dominio", ConfiguracionForja.dominio);
         return props;
     }
 
