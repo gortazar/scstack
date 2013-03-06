@@ -91,7 +91,7 @@ class scstack::scstack_ldap (
   
   exec {"add md5 pass":
     cwd => "/etc/ldap",
-    command => "/bin/echo /tmp/sadminpass.md5 >> superadmin.ldif",
+    command => "/bin/cat /tmp/sadminpass.md5 >> superadmin.ldif",
     require => [File["/etc/ldap/superadmin.ldif"], Exec["to md5 sadmin pass"]],
   }
   
