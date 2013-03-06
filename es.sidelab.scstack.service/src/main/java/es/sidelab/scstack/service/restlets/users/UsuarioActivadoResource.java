@@ -101,11 +101,6 @@ public class UsuarioActivadoResource extends BaseUsuariosResource {
         return true;
     }
 
-
-
-
-
-
     /**
      * <p>DELETE</p>
      * <p>Bloquea/Desactiva un usuario determinado de la Forja. Lo hace mediante
