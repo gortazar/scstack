@@ -245,7 +245,7 @@ public final class ConfiguracionForja {
         ConfiguracionForja.schemaRedmine = props.getProperty("schemaRedmine", "redmine");
         ConfiguracionForja.schemaGerrit = props.getProperty("schemaGerrit", "gerrit");
         ConfiguracionForja.hostGerrit = props.getProperty("hostGerrit");
-        ConfiguracionForja.sadminGerrit = props.getProperty("gerritadmin", "sadmin");
+        ConfiguracionForja.sadminGerrit = props.getProperty("gerritadmin", "gerritadmin");
         ConfiguracionForja.dominio = props.getProperty("dominio");
     }
 

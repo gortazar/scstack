@@ -403,8 +403,8 @@ public class GerritManager {
 
     /**
      * <p>
-     * Git project configuration updates project.config file usgin git config
-     * command.
+     * Git project configuration updates project.config file using <b>git
+     * config</b> command.
      * </p>
      * 
      * @param cl

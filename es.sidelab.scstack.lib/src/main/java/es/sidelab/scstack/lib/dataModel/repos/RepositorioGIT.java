@@ -18,6 +18,7 @@ import com.xebialabs.overthere.OperatingSystemFamily;
 
 import es.sidelab.commons.commandline.CommandLine;
 import es.sidelab.scstack.lib.api.API_Abierta;
+import es.sidelab.scstack.lib.config.ConfiguracionForja;
 import es.sidelab.scstack.lib.exceptions.SCStackException;
 import es.sidelab.scstack.lib.exceptions.apache.ExcepcionConsola;
 import es.sidelab.scstack.lib.gerrit.GerritException;
@@ -133,8 +134,8 @@ public class RepositorioGIT extends Repositorio {
 
         CommandLine cl = new CommandLine(new File("/opt"));
 
-        String hostGerrit = apiAbierta.getConfiguration().hostGerrit;
-        String sadminGerrit = apiAbierta.getConfiguration().sadminGerrit;
+        String hostGerrit = ConfiguracionForja.hostGerrit;
+        String sadminGerrit = ConfiguracionForja.sadminGerrit;
 
         // Check if the group exists.
         boolean exists = gerritManager.checkExistingGerritGroup(cnProyecto,
