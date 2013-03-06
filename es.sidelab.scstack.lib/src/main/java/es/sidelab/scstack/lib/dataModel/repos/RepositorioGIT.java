@@ -137,8 +137,8 @@ public class RepositorioGIT extends Repositorio {
         String sadminGerrit = apiAbierta.getConfiguration().sadminGerrit;
 
         // Check if the group exists.
-        boolean exists = gerritManager.checkExistingGerritGroup(hostGerrit,
-                sadminGerrit, cnProyecto, options);
+        boolean exists = gerritManager.checkExistingGerritGroup(cnProyecto,
+                hostGerrit, sadminGerrit, options);
 
         // Create gerrit group if not exists.
         if (!exists) {
