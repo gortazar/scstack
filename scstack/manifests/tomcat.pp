@@ -340,7 +340,7 @@ class scstack::tomcat (
   
   exec {"add ssh key":
     cwd => "$installFolder",
-    command => "/bin/cat /opt/ssh-keys/gerritadmin_rsa.pub >> gerrit-db-admin-setup.sql ; echo -n  \"','Y', 1, 1');\" >> gerrit-db-admin-setup.sql",
+    command => "/bin/cat /opt/ssh-keys/gerritadmin_rsa.pub >> gerrit-db-admin-setup.sql ; echo -n  \"','Y', 1, 1);\" >> gerrit-db-admin-setup.sql",
     require => [File["/opt/ssh-keys/"], File["$installFolder/gerrit-db-admin-setup.sql"], Exec["exec gerritadmin-ssh-key"]],
   }
   
