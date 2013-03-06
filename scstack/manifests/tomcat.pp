@@ -188,12 +188,6 @@ class scstack::tomcat (
     require => File["$installFolder/tomcat"],
   }
 
-    file { "$installFolder/$archiva":
-      source => "puppet:///modules/scstack/tomcat/$archiva",
-      owner   => "tomcat",
-      group   => "tomcat",
-    }
-
   exec { "rename-archiva":
     cwd     => "$installFolder",
     command => "/bin/mv $archiva $archivashort",
@@ -346,7 +340,7 @@ class scstack::tomcat (
   
   exec {"add ssh key":
     cwd => "$installFolder",
-    command => "/bin/echo -n /opt/ssh-keys/gerritadmin_rsa.pub >> gerrit-db-admin-setup.sql ; echo -n  \"');\" >> gerrit-db-admin-setup.sql",
+    command => "/bin/cat -n /opt/ssh-keys/gerritadmin_rsa.pub >> gerrit-db-admin-setup.sql ; echo -n  \"','Y', 1, 1');\" >> gerrit-db-admin-setup.sql",
     require => [File["/opt/ssh-keys/"], File["$installFolder/gerrit-db-admin-setup.sql"], Exec["exec gerritadmin-ssh-key"]],
   }
   
