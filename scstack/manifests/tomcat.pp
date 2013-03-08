@@ -335,19 +335,16 @@ class scstack::tomcat (
     command => "/usr/bin/ssh-keygen -t rsa -C 'gerritadmin@$domain' -N '' -f /opt/ssh-keys/gerritadmin_rsa",
     creates => ["/opt/ssh-keys/gerritadmin_rsa", "/opt/ssh-keys/gerritadmin_rsa.pub"],
   }
-  
-  file { "$installFolder/gerrit-db-admin-setup.sql": content => template('scstack/tomcat/gerrit-db-admin-setup.sql.erb'), }
-  
-  exec {"add ssh key":
-    cwd => "$installFolder",
-    command => "/bin/cat /opt/ssh-keys/gerritadmin_rsa.pub >> gerrit-db-admin-setup.sql ; echo -n  \"','Y', 1, 1);\" >> gerrit-db-admin-setup.sql",
-    require => [File["/opt/ssh-keys/"], File["$installFolder/gerrit-db-admin-setup.sql"], Exec["exec gerritadmin-ssh-key"]],
+   
+  file {"$installFolder/gerrit-db-admin-setup.sql": 
+    content => template('scstack/tomcat/gerrit-db-admin-setup.sql.erb'),
+    require => [File["/opt/ssh-keys/"], Exec["exec gerritadmin-ssh-key"]],
   }
   
   exec { "mysql-gerrit-admin-setup":
     cwd => "$installFolder",
     command => "/usr/bin/mysql -u root -p$mysqlrootpass < gerrit-db-admin-setup.sql",
-    require => [Exec["mysql-gerrit-setup"],Exec["exec gerritadmin-ssh-key"], Exec["add ssh key"]],
+    require => [Exec["mysql-gerrit-setup"],Exec["exec gerritadmin-ssh-key"]],
   }
 
   file { "$installFolder/gerrit": 
