@@ -72,17 +72,11 @@ class scstack::scstack_ldap (
     command => "/usr/bin/ldapadd -x -D ${bindDN} -w ${passBindDN} -f /etc/ldap/construir.ldif",
   }
   
-  exec {"sadminpass to file":
-    cwd => "/tmp",
-    command => "/bin/echo $sadminpass > sadminpass",
-    require => Class["ldap"],
-  }
-  
   exec { "to md5 sadmin pass":
     cwd => "/tmp",
-    command => "/usr/sbin/slappasswd -h {MD5}  -T /tmp/sadminpass > sadminpass.md5",
+    command => "/usr/sbin/slappasswd -h {MD5}  -s $sadminpass > sadminpass.md5",
     logoutput => true,
-    require => Exec["sadminpass to file"],
+    require => Class["ldap"],
   }
   
   file { "/etc/ldap/superadmin.ldif":
