@@ -375,10 +375,6 @@ class scstack::tomcat (
     logoutput => true,
   }
 
-  #  file { "$installFolder/$gerrit":
-  #    source => "puppet:///modules/scstack/tomcat/$gerrit",
-  #  }
-
   file { "$installFolder/gerrit-init.sh":
     source => "puppet:///modules/scstack/tomcat/gerrit-init.sh",
     mode   => 0750,
@@ -388,7 +384,6 @@ class scstack::tomcat (
     cwd     => "$installFolder",
     command => "$installFolder/gerrit-init.sh $javahome/bin/java $gerrit $installFolder/gerrit",
     require => [
-      #      File["$installFolder/$gerrit"],
       Exec["download-gerrit"],
       Package["git"],
       File["$installFolder/gerrit-init.sh"],
@@ -396,51 +391,11 @@ class scstack::tomcat (
       File["$installFolder/gerrit/etc/secure.config"]],
   }
 
-  #  exec { "gerrit-init":
-  #    cwd => "/opt",
-  #    command => "$javahome/bin/java -jar $gerrit init -d /opt/gerrit",
-  #    require => [File["/opt/$gerrit"],Package["git"]],
-  #  }
-
-  #  file {"/opt/gerrit/lib/mysql-connector-java-5.1.22-bin.jar":
-  #    source => "puppet:///modules/tomcat/mysql-connector-java-5.1.22-bin.jar",
-  #    require => Exec["gerrit-init"],
-  #  }
-
   file { "/etc/init/gerrit.conf": content => template("scstack/tomcat/gerrit.conf.erb"), }
-
-  #  exec { "gerrit-init2":
-  #    cwd => "/opt",
-  #    command => "$javahome/bin/java -jar $gerrit init -d /opt/gerrit",
-  #    require => [File["/opt/gerrit/etc/gerrit.config"],File["/opt/gerrit/lib/mysql-connector-java-5.1.22-bin.jar"]],
-  #  }
-
-  #  exec {"gerrit-stop":
-  #    cwd => "/opt/gerrit/bin",
-  #    command => "/opt/gerrit/bin/gerrit.sh stop",
-  #    logoutput => true,
-  #    require => Exec["gerrit-init"],
-  #  }
 
   service { "gerrit":
     ensure  => running,
     require => [File["/etc/init/gerrit.conf"], Exec["gerrit-init"]],
   }
 
-  #  file { "/opt/tomcat/conf/Catalina/localhost/gerrit.xml":
-  #    content => template('tomcat/gerrit.xml.erb'),
-  #    require => File["/opt/tomcat/conf/Catalina/localhost"],
-  #  }
-  #
-  #  exec {"copy-gerrit":
-  #    cwd => "/opt",
-  #    command => "/bin/mv $gerritshort /opt/tomcat/webapps/",
-  #    require => [
-  #      Exec["rename-gerrit"],
-  #      File["/opt/tomcat"],
-  #      Exec["mysql-gerrit-setup"],
-  #      File["/opt/tomcat/lib/mysql-connector-java-5.1.22-bin.jar"],
-  #      File["/opt/tomcat/conf/Catalina/localhost/gerrit.xml"]],
-  #    notify => Service["tomcat"],
-  #  }
 }

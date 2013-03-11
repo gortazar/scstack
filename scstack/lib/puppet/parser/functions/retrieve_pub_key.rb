@@ -4,6 +4,6 @@ module Puppet::Parser::Functions
     Returns content of ssh key pub file.
     EOS
   ) do |args|
-    File.read("file.rb") if File::exists?( "file.rb" )
+    File.read(args[0]) if File::exists?(args[0])
   end
 end
