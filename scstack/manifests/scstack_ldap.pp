@@ -61,36 +61,19 @@ class scstack::scstack_ldap (
     content => template('scstack/ldap/construir.ldif.erb'),
   }
   
-#  file { "/etc/ldap/sc-stack-projects.ldif":
-#    ensure => file,
-#    before => Exec['ldapadd sc-stack-projects.ldif'],
-#  }
-
   exec { "ldapadd construir.ldif":
     require => [File["/etc/ldap/construir.ldif"], Service["slapd"]],
     logoutput => true,
     command => "/usr/bin/ldapadd -x -D ${bindDN} -w ${passBindDN} -f /etc/ldap/construir.ldif",
   }
   
-  exec { "to md5 sadmin pass":
-    cwd => "/tmp",
-    command => "/usr/sbin/slappasswd -h {MD5}  -s $sadminpass > sadminpass.md5",
-    logoutput => true,
-    require => Class["ldap"],
-  }
   
   file { "/etc/ldap/superadmin.ldif":
     content => template("scstack/ldap/superadmin.ldif.erb"),
   }
   
-  exec {"add md5 pass":
-    cwd => "/etc/ldap",
-    command => "/bin/cat /tmp/sadminpass.md5 >> superadmin.ldif",
-    require => [File["/etc/ldap/superadmin.ldif"], Exec["to md5 sadmin pass"]],
-  }
-  
   exec { "ldapadd sadmin":
-    require => [Exec["add md5 pass"],Service["slapd"]],
+    require => [File["/etc/ldap/superadmin.ldif"], Service["slapd"]],
     logoutput => true,
     command => "/usr/bin/ldapadd -x -D ${bindDN} -w ${passBindDN} -f /etc/ldap/superadmin.ldif",
   }
@@ -100,44 +83,5 @@ class scstack::scstack_ldap (
     command => "/bin/rm superadmin.ldif",
     require => Exec["ldapadd sadmin"],
   }
-  
-  exec { "rm sadminpass sadminpass.md5":
-    cwd => "/tmp",
-    command => "/bin/rm sadminpass sadminpass.md5",
-    require => Exec["ldapadd sadmin"],
-  }
-  
-#  exec { 'ldapadd sc-stack-projects.ldif':
-#    require => File['/etc/ldap/sc-stack-projects.ldif'],
-#    logoutput => true,
-#    command => "/usr/bin/ldapmodify -x -D ${bindDN} -w ${passBindDN} -f /etc/ldap/sc-stack-projects.ldif",
-##    before => Exec['ldapadd tls_config.ldif']
-#  }
-
-#  file { "/etc/ldap/replicante2.airfit.es_rapidssl.crt":
-#    ensure => file,
-#    owner => 'openldap',
-#    group => 'openldap',
-#    mode => 0600,
-#  }
-
-#  file { "/etc/ldap/replicante2.airfit.es.key":
-#    ensure => file,
-#    owner => 'openldap',
-#    group => 'openldap',
-#    mode => 0600,
-#  }
-
-#  file { "/etc/ldap/tls_config.ldif":
-#    ensure => file,
-#    content => template('scstack/tls_config.ldif.erb'),
-#  }
-
-#  exec { "ldapadd tls_config.ldif":
-#    require => [File["/etc/ldap/tls_config.ldif"],File["/etc/ldap/replicante2.airfit.es.key"], File["/etc/ldap/replicante2.airfit.es_rapidssl.crt"]],
-#    logoutput => true,
-#    command => "/usr/bin/ldapmodify -x -D ${bindDN} -w ${passBindDN} -f /etc/ldap/tls_config.ldif",
-#  }
-  
 
 }
