@@ -1,11 +1,9 @@
-<% Puppet::Parser::Functions.autoloader.loadall %>
 use gerrit;
 INSERT INTO accounts (registered_on, full_name, preferred_email, contact_filed_on, maximum_page_size, show_site_header, use_flash_clipboard, download_url, download_command, copy_self_on_email, date_format, time_format, reverse_patch_set_order, show_username_in_review_category, inactive, account_id)
-	VALUES ('2013-01-09 10:59:10', 'Gerrit Admin', 'gerritadmin@<%= domain %>', NULL, 25, 'Y', 'Y', NULL, NULL, 'N', NULL, NULL, 'N', 'N', 'N', 1);
+    VALUES ('2013-01-09 10:59:10', 'Gerrit Admin', 'gerritadmin@<%= domain %>', NULL, 25, 'Y', 'Y', NULL, NULL, 'N', NULL, NULL, 'N', 'N', 'N', 1);
 INSERT INTO account_id (s) VALUES (1);
 INSERT INTO account_external_ids (account_id, email_address, password, external_id) VALUES (1, 'gerritadmin@<%= domain %>', NULL, 'gerrit:gerritadmin');
 INSERT INTO account_external_ids (account_id, email_address, password, external_id) VALUES (1, NULL, NULL, 'username:gerritadmin');
 INSERT INTO account_group_members (account_id, group_id) VALUES (1,1);
 INSERT INTO account_group_members_audit (added_by, removed_by, removed_on, account_id, group_id, added_on) 
-	VALUES (1, NULL, NULL, 1, 1, '2013-01-09 10:59:10');
-INSERT INTO account_ssh_keys (ssh_public_key, valid, account_id, seq) VALUES ('<%= scope.function_retrive_pub_key(["/opt/ssh-keys/gerritadmin_rsa.pub"]) %>','Y', 1, 1);
+    VALUES (1, NULL, NULL, 1, 1, '2013-01-09 10:59:10');
