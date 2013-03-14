@@ -106,7 +106,7 @@ class scstack::redmine (
 
   package { "bundler":
     provider => "gem",
-    ensure => installed,
+    ensure => "1.2.3",
     before => Exec["redmine-install"],
     require => Package["rubygems"],
   }
