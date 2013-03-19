@@ -282,7 +282,7 @@ public class GerritManager {
 
         String cmd = "git clone --config user.email=" + sadminGerrit + "@"
                 + hostGerrit + " --config user.name=" + sadminGerrit
-                + " ssh://" + sadminGerrit + "@" + hostGerrit + ":29418/"
+                + " ssh://" + sadminGerrit + "@" + sadminGerrit + ":29418/"
                 + cnProyecto + " /tmp/" + cnProyecto;
         log.info("[Gerrit] " + cmd);
 

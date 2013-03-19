@@ -336,15 +336,30 @@ class scstack::tomcat (
     creates => ["/opt/ssh-keys/gerritadmin_rsa", "/opt/ssh-keys/gerritadmin_rsa.pub"],
   }
    
+  # SSH Config parameters 
+  $gerritadmin = 'gerritadmin'
+  $gerritadminssh = '/opt/ssh-keys/gerritadmin_rsa'
+  
+  file { "/root/.ssh/": 
+    ensure => directory,
+    owner  => "root",
+    group  => "root",
+  }
+
+  file {"/root/.ssh/config": 
+    content => template('scstack/ssh/config.erb'),
+    require => [File["/opt/ssh-keys/"], Exec["exec gerritadmin-ssh-key"], File["/root/.ssh/"]],
+  }
+
   file {"$installFolder/gerrit-db-admin-setup.sql": 
     content => template('scstack/tomcat/gerrit-db-admin-setup.sql.erb'),
-    require => [File["/opt/ssh-keys/"], Exec["exec gerritadmin-ssh-key"]],
+    require => [File["/opt/ssh-keys/"], File["/root/.ssh/config"]],
   }
   
   exec { "mysql-gerrit-admin-setup":
     cwd => "$installFolder",
     command => "/usr/bin/mysql -u root -p$mysqlrootpass < gerrit-db-admin-setup.sql",
-    require => [Exec["mysql-gerrit-setup"],Exec["exec gerritadmin-ssh-key"]],
+    require => [Exec["mysql-gerrit-setup"],File["$installFolder/gerrit-db-admin-setup.sql"]],
   }
 
   file { "$installFolder/gerrit": 
