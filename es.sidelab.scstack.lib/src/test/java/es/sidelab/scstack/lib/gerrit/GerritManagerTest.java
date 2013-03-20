@@ -1,6 +1,9 @@
 package es.sidelab.scstack.lib.gerrit;
 
 import java.io.File;
+import java.sql.Timestamp;
+import java.util.Date;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.junit.Assert;
@@ -15,6 +18,8 @@ import com.xebialabs.overthere.OverthereConnection;
 import com.xebialabs.overthere.OverthereFile;
 
 import es.sidelab.commons.commandline.CommandLine;
+import es.sidelab.scstack.lib.config.ConfiguracionForja;
+import es.sidelab.scstack.lib.dataModel.Usuario;
 import es.sidelab.scstack.lib.exceptions.apache.ExcepcionConsola;
 
 /**
@@ -182,6 +187,57 @@ public class GerritManagerTest {
                             + e.getStackTrace(), true);
         }
         Assert.assertTrue(true);
+    }
+
+    /**
+     * Test add user to gerrit database.
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void testAddUser() throws Exception {
+
+        String uid;
+        String nombre;
+        String apellidos;
+        String email;
+        String passMD5;
+        Usuario usuario;
+        int accountId = 1;
+
+        /*
+         * Test 1
+         */
+        uid = "forja000";
+        nombre = "forja000";
+        apellidos = "forja000";
+        email = "forja000@forja.com";
+        passMD5 = "";
+
+        usuario = new Usuario(uid, nombre, apellidos, email, passMD5);
+
+        Date now = new Date();
+        Timestamp timestamp = new Timestamp(now.getTime());
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("INSERT INTO " + ConfiguracionForja.schemaGerrit
+                + ".accounts VALUES(");
+        sb.append("'");
+        sb.append(timestamp);
+        sb.append("','");
+        sb.append(usuario.getNombre() + " " + usuario.getApellidos());
+        sb.append("','");
+        sb.append(usuario.getEmail());
+        sb.append("',");
+        sb.append("NULL, 25, 'Y', 'Y', NULL, NULL, 'N', NULL, NULL, 'N', 'N', 'N'");
+        sb.append(",");
+        sb.append(accountId);
+        sb.append(")");
+
+        log.log(Level.INFO, "Inserted new user in Gerrit\n" + sb.toString());
+
+        Assert.assertTrue(true);
+
     }
 
     @Deprecated

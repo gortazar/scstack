@@ -10,8 +10,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.xebialabs.overthere.CmdLine;
@@ -124,18 +126,25 @@ public class GerritManager {
         try {
             Statement stmt = conection.createStatement();
             Date now = new Date();
-            java.sql.Date sqlDate = new java.sql.Date(now.getTime());
+            Timestamp timestamp = new Timestamp(now.getTime());
+
             StringBuilder sb = new StringBuilder();
             sb.append("INSERT INTO " + ConfiguracionForja.schemaGerrit
                     + ".accounts VALUES(");
-            sb.append(sqlDate.getTime());
-            sb.append(",");
+            sb.append("'");
+            sb.append(timestamp);
+            sb.append("','");
             sb.append(user.getNombre() + " " + user.getApellidos());
-            sb.append(",");
+            sb.append("','");
             sb.append(user.getEmail());
-            sb.append(",");
+            sb.append("',");
             sb.append("NULL, 25, 'Y', 'Y', NULL, NULL, 'N', NULL, NULL, 'N', 'N', 'N'");
+            sb.append(",");
             sb.append(accountId);
+            sb.append(")");
+
+            log.log(Level.INFO,
+                    "[Gerrit]: Query add new user:\t" + sb.toString());
 
             stmt.execute(sb.toString());
 
