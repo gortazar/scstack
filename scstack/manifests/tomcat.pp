@@ -359,7 +359,7 @@ class scstack::tomcat (
   exec { "mysql-gerrit-admin-setup":
     cwd => "$installFolder",
     command => "/usr/bin/mysql -u root -p$mysqlrootpass < gerrit-db-admin-setup.sql",
-    require => [Exec["mysql-gerrit-setup"],File["$installFolder/gerrit-db-admin-setup.sql"]],
+    require => [Exec["mysql-gerrit-setup"],File["$installFolder/gerrit-db-admin-setup.sql"], Exec["gerrit-init"]],
   }
 
   file { "$installFolder/gerrit": 
@@ -410,7 +410,7 @@ class scstack::tomcat (
 
   service { "gerrit":
     ensure  => running,
-    require => [File["/etc/init/gerrit.conf"], Exec["gerrit-init"]],
+    require => [File["/etc/init/gerrit.conf"], Exec["gerrit-init"], Exec["mysql-gerrit-admin-setup"]],
   }
 
 }
