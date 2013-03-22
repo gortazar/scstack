@@ -285,15 +285,17 @@ public class GerritManager {
      *            project to clone.
      * @param sadminGerrit
      *            Gerrit super administrator user.
+     * @param hostGerrit
+     *            Gerrit host.
      * @param cl
      *            Run the command
      * @throws ExcepcionConsola
      */
     public void cloneGerritRepositoryCm(String cnProyecto, String sadminGerrit,
-            CommandLine cl) throws ExcepcionConsola {
+            String hostGerrit, CommandLine cl) throws ExcepcionConsola {
 
         String cmd = "git clone --config user.email=" + sadminGerrit + "@"
-                + sadminGerrit + " --config user.name=" + sadminGerrit
+                + hostGerrit + " --config user.name=" + sadminGerrit
                 + " ssh://" + sadminGerrit + "@" + sadminGerrit + ":29418/"
                 + cnProyecto + " /tmp/" + cnProyecto;
         log.info("[Gerrit] " + cmd);

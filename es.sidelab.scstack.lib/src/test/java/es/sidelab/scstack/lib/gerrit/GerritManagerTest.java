@@ -131,7 +131,7 @@ public class GerritManagerTest {
         /*
          * Clone repository
          */
-        gerritManager.cloneGerritRepositoryCm(cnProyecto, sadminGerrit, cl);
+        gerritManager.cloneGerritRepositoryCm(cnProyecto, sadminGerrit, hostGerrit, cl);
 
         /*
          * "/home/ricardo/tmp" Working Directory

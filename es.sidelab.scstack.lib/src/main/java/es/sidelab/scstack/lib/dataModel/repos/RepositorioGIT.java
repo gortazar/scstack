@@ -186,7 +186,7 @@ public class RepositorioGIT extends Repositorio {
          * Clone repository
          */
         gerritManager.cloneGerritRepositoryCm(cnProyecto, sadminGerrit,
-                cl);
+                hostGerrit, cl);
 
         /*
          * "/tmp" Working Directory
