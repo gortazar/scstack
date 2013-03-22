@@ -1,0 +1,1 @@
+kill -INT `cat /var/run/slapd/slapd.pid`

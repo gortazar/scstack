@@ -1,0 +1,346 @@
+ <!--
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+ *
+ * Fichero: proyecto.html - Panel de un Proyecto concreto
+ * Autor: Arek Klauza
+ * Fecha: Abril 2011
+ * Revisión: -
+ * Versión: 1.0
+ *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+    <head>
+        <title>SidelabCode WebInterface</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />   
+
+        <link rel="shortcut icon" type="image/x-icon" href="/images/favicon.ico" />
+        <link href="../styles/main.css" rel="stylesheet" type="text/css" />
+        <link href="../themes/blue/styles.css" rel="stylesheet" type="text/css" />
+        <link href="../styles/ui-darkness/jquery-ui-1.8.11.custom.css" rel="stylesheet" type="text/css" />
+
+        <script type="text/javascript"  src="/scripts/jquery-1.5.1.js"></script>
+        <script type='text/javascript' src='/scripts/jquery-ui.min.js'></script>
+        <script type='text/javascript' src='/scripts/jquery.cookies.js'></script>
+        <script type='application/javascript' src='/scripts/presentacion.js'></script>
+        <script type="text/javascript" src="/scripts/logica.js"></script>
+        <script type="text/javascript" src="/scripts/comunicacionREST.js"></script>
+
+        <script type="text/javascript">
+            /* Redirección si no está autenticado o tiene rol de usuario */
+            $(document).ready(function(){
+                if ($.cookie("uid") == "" || $.cookie("uid") == null ||
+                    $.cookie("pass") == "" || $.cookie("pass") == null ||
+                    $.cookie("rol") == "" || $.cookie("rol") == null) {
+
+                    window.location = "/";
+                } else {
+                    $.inicializacionComun();
+                    $.inicializacionEspecifica();
+                }
+            });
+
+
+
+            /* VARS GLOBALES DE LA PÁGINA */
+            var proyecto;
+            var listaAdminsProy = [];
+            var listaMiembrosProy = [];
+            var listaRepos = [];
+            var servicios;
+
+            /* UID del usuario cuya página estamos visitando */
+            var cn = window.location.pathname.substring(window.location.pathname.lastIndexOf('/') + 1);
+
+
+            
+            /**
+             * Función encargada de inicializar todos los elementos y componentes
+             * específicos de esta página web
+             */
+            jQuery.inicializacionEspecifica = function() {
+                $.getLista("/proyectos/" + cn + "/miembros", "listaUsuarios", listaMiembrosProy);
+                $.getLista("/proyectos/" + cn + "/admins", "listaUsuarios", listaAdminsProy);
+
+                /* Imprime en el HTML la lista de proyectos administrados y participados */
+                if ($.cookie("rol") != "usuario") {
+                    $.printLista(listaMiembrosProy, "ul#proyectosParticip", "/usuarios");
+                    $.printLista(listaAdminsProy, "ul#proyectosAdmin", "/usuarios");
+                }
+
+                /* Recuperar los datos del usuario de la página y rellenar el formulario */
+                $.getProyecto(cn);
+                $.getServicios();
+                $.printProyecto(proyecto, "form#editarProyecto");
+                listaRepos = proyecto.repositorios;
+                $.printTablaRepositorios(listaRepos, "table#tablaRepositorios");
+                $.printListaSelectRepos(listaRepos, "form#eliminarRepo select");
+                $.printListaSelect(listaUsuarios, "form#addAdmin > div > select, form#addMiembro > div > select");
+                $.printListaSelect(listaMiembrosProy, "form#delMiembro > div > select");
+                $.printListaSelect(listaAdminsProy, "form#delAdmin > div > select");
+                
+                /* Expandir fondo de la página acorde al tamaño de las listas */
+                $('#content').css('min-height', '700px');
+                if ((listaMiembrosProy.length + listaAdminsProy.length) > 9) {
+                    var pixels = 700 + (37 * (listaMiembrosProy.length + listaAdminsProy.length -9));
+                    $('#content').css('min-height', pixels + 'px');
+                }
+
+                /* Breadcrumb */
+                $('#breadcrumb > ul > li.current').append(cn);
+
+                /* Botón Redmine */
+                $('a#redmine').attr('href', servicios.hostRedmine + servicios.pathProyectoRedmine + cn);
+
+                /* Gestión del menú de usuario */
+                if ($.cookie("rol") != "superadmin") {
+                    $('li > a#crearProyecto').hide();
+                    $('li > a#eliminarProyecto').hide();
+                    if ($.cookie("rol") == "usuario") {
+                        $('div#repositorios > div > ul.menu > li > a').hide();
+                        $('#topbtns').hide();
+                        $('#usuarios > div > ul.menu > li > a').hide();
+                        $('form#editarProyecto input.btnalt').hide();
+                        $.printLista(listaMiembrosProy, "ul#proyectosParticip", null);
+                        $.printLista(listaAdminsProy, "ul#proyectosAdmin", null);
+                        $('#breadcrumb > ul > li#root > a').remove();
+                        $('<p>Proyectos<p>').appendTo("#breadcrumb > ul > li#root");
+                    }
+                }
+            }
+
+        </script>
+    </head>
+    <body>
+
+        <!-- HEADER DE LA PÁGINA -->
+        <div id="header">
+            <a href="/" title="Ir al Home de SidelabCode" ><img src="../images/logo.png" alt="SidelabCode" class="logo" /></a>
+            <div id="searchbox">
+                <form method="GET" action="">
+                    <input type="text" name="hola" id="caja_busqueda" class="searchinput" />
+                    <input type="submit" id="boton_busqueda" class="searchbtn" value="" />
+                </form>
+            </div>
+        </div>
+
+
+        <!-- PANEL IZQUIERDO -->
+        <div id="left">
+            <div id="openCloseIdentifier"></div>
+            <div id="slider">
+                <ul id="sliderContent">
+                    <li><a href="#" class="miPanel" title="">Ver mis proyectos</a></li>
+                    <li class="alt"><a href="#" title="" class="miPanel">Ir a mi panel</a></li>
+                    <li><a href="#" title="" class="miPanel">Editar mis datos</a></li>
+                    <li class="alt"><a href="#" title="" class="miPanel">Cambiar mi contraseña</a></li>
+                    <li><a href="/logout" title="">Log Out</a></li>
+                </ul>
+                <div id="openCloseWrap">
+                    <div id="toolbox">
+                        <a href="#" title="Perfil de usuario" class="toolboxdrop">Perfil Usuario<img src="../images/icon_expand_grey.png" alt="Expandir" /></a>
+                    </div>
+                </div>
+            </div>
+            <div id="userbox">
+                <p id="welcome"></p>
+                <p><span>Estás dentro de SidelabCode</span></p>
+                <ul>
+                    <li><a href="#" title="Contacto" id="contacto"><img src="../images/icons/icon_mail.png" alt="Contacto" /></a></li>
+                    <li><a href="#" class="miPanel" title="Gestión de mi cuenta"><img src="../images/icons/icon_cog.png" alt="Configure" /></a></li>
+                    <li><a href="/logout" title="Logout"><img src="../images/icons/icon_unlock.png" alt="Logout" /></a></li>
+                </ul>
+            </div>
+            <ul id="nav">
+                <li>
+                    <a class="heading collapsed">Mis Usuarios</a>
+                    <ul class="navigation" id="listaUsuarios">
+                        <li/>
+                    </ul>
+                </li>
+                <li>
+                    <a class="heading expanded">Mis Proyectos</a>
+                    <ul class="navigation" id="listaProyectos">
+                        <li/>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+
+
+        <!-- PANEL DERECHO -->
+        <div id="right">
+            <div id="breadcrumb">
+                <ul>
+                    <li><img src="../images/icon_breadcrumb.png" alt="Location" /></li>
+                    <li id="root"><a href="/proyectos" title="">Proyectos</a></li>
+                    <li>/</li>
+                    <li class="current"></li>
+                </ul>
+            </div>
+            <ul id="topbtns">
+                <li class="desc"><strong>Menú General</strong><br />Selecciona una opción</li>
+                <li><a href="/usuarios" id="usuarios"><img src="../images/icons/usuarios.png" alt="Usuarios" title="Panel de usuarios" /><br />Usuarios</a></li>
+                <li><a href="/proyectos" id="proyectos"><img src="../images/icons/proyectos.png" alt="Proyectos" title="Panel de proyectos" /><br />Proyectos</a></li>
+                <li class="desc"><strong>Menú de Proyecto</strong><br />Selecciona una opción</li>
+                <li><a href="/proyectos" id="crearProyecto"><img src="../images/icons/folder_add.png" title="Crear nuevo Proyecto" alt="Crear Nuevo" /><br />Nuevo</a></li>
+                <li><a href="#" id="editarProyecto"><img src="../images/icons/folder_edit.png" title="Editar Proyecto" alt="Editar" /><br />Editar</a></li>
+                <li><a href="#" id="eliminarProyecto"><img src="../images/icons/folder_delete.png" title="Eliminar Proyecto" alt="Eliminar" /><br />Eliminar</a></li>
+                <li><a href="#" id="redmine" target="_blank"><img src="../images/icons/redmine.png" title="Abrir Proyecto en Redmine" alt="Redmine" /><br />Redmine</a></li>
+            </ul>
+
+            <!-- Contenido de la página -->
+            <div id="content">
+                <div class="container half left">
+                    <div class="conthead">
+                        <h2>Datos del proyecto</h2>
+                    </div>
+                    <div class="contentbox"><form action="" method="POST" id="editarProyecto">
+                            <div class="inputboxes">
+                                <label for="regular">Nombre: </label>
+                                <input type="text" id="cnfijo" class="inputbox" name="cn" maxlength="20" disabled />
+                            </div>
+                            <div class="inputboxes">
+                                <label for="regular">Descripción: </label>
+                                <textarea rows="2" name="descripcion" cols="50" class="inputbox" id="descripcion" disabled></textarea>
+                                <label class="explicacion">Máx 200 caracteres.</label>
+                            </div>
+                            <div class="inputboxes">
+                                <label for="dropdown">Repositorio principal: </label>
+                                <select name="defaultRepositorio" id="defaultRepositorio" disabled>
+                                </select>
+                            </div>
+
+                            <input type="submit" id="submitEditarProyecto" value="Guardar cambios" class="btnalt" />
+                            <input type="button" id="borrarCamposProyecto" value="Borrar campos" class="btnalt" />
+                            <input type="button" id="reestablecerCamposProyecto" value="Reestablecer campos" class="btnalt" />
+                        </form>
+                    </div>
+                </div>
+
+                <div class="container half right" id="usuarios">
+                    <div class="conthead">
+                        <ul class="menu">
+                            <li style="float:left;"><h2>Usuarios del proyecto</h2></li>
+                            <li><a href="#" id="delMiembro"><img src="../images/icons/user_delete_sml.png" alt="Borrar Miembro" title="Borrar Miembro" /></a></li>
+                            <li><a href="#" id="addMiembro"><img src="../images/icons/user_add_sml.png" alt="Añadir Miembro" title="Añadir Miembro" /></a></li>
+                            <li><a href="#" id="delAdmin"><img src="../images/icons/admin_user_delete" alt="Borrar Admin" title="Borrar Admin" /></a></li>
+                            <li><a href="#" id="addAdmin"><img src="../images/icons/admin_user_add.png" alt="Añadir Admin" title="Añadir Admin" /></a></li>
+                        </ul>
+                    </div>
+                    <div class="contentbox">
+                        <ul class="summarystats">
+                            <li><p class="statcount">Admins</p><p class="statview"><a href="#" id="expandirAdmin" title="Expandir/Colapsar">+/-</a></p></li>
+                            <li style="background:none; border:0;"><ul id="proyectosAdmin"></ul></li>
+                            <li><p class="statcount">Miembros</p><p class="statview"><a href="#" id ="expandirParticip" title="Expandir/Colapsar">+/-</a></p></li>
+                            <li style="background:none; border:0;"><ul id="proyectosParticip"></ul></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="clear: left"></div>
+
+                <div class="container half left" id="repositorios">
+                    <div class="conthead">
+                        <ul class="menu">
+                            <li style="float:left;"><h2>Repositorios del Proyecto</h2></li>
+                            <li><a href="#" id="eliminarRepositorio"><img src="../images/icons/repo_delete.png" alt="Eliminar" title="Eliminar repositorio" /></a></li>
+                            <li><a href="#" id="crearRepositorio"><img src="../images/icons/repo_add.png" alt="Crear Nuevo" title="Nuevo repositorio" /></a></li>
+                        </ul>
+                    </div>
+                    <div class="contentbox">
+                        <table width="100%" id="tablaRepositorios">
+                            <thead>
+                                <tr>
+                                    <th>Tipo</th>
+                                    <th>URL Privada</th>
+                                    <th>Ruta Apache</th>
+                                    <th>URL Pública</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr />
+                            </tbody>
+                        </table>
+                    </div>                    
+                </div>
+
+            </div>
+
+            <!-- Footer start -->
+            <p id="footer">&copy; Sidelab.es</p>
+            <!-- Footer end -->
+
+        </div>
+        <!-- Right side end -->
+
+
+        <form id="eliminarRepo" class="oculto">
+            <h3>Selecciona qué repositorio quieres eliminar</h3>
+            <select name="tipo" id="tipo"></select>
+        </form>
+
+        <form id="crearRepo" class="oculto">
+            <h3>Creación de un nuevo repositorio</h3>
+            <div class="inputboxes">
+                <label for="dropdown">Tipo Repositorio: </label>
+                <select name="tipo" id="tipoRepositorio">
+                    <option selected>SVN</option>
+                    <option>GIT</option>
+                </select>
+            </div>
+            <div class="inputboxes">
+                <input name="esPublico" type="checkbox" value="true" id="esRepoPublico" />
+                <label style="padding-left:0" class="explicacion">Repositorio público </label>
+            </div>
+            <div class="inputboxes">
+                <label for="regular">Ruta del repositorio: </label>
+                <input type="text" id="rutaRepo" class="inputbox" name="ruta" maxlength="50" disabled />
+                <label class="explicacion">Ruta por defecto</label>
+                <input type="checkbox" value="" id="checkRutaDefault" checked />
+            </div>
+        </form>
+
+        <form id="addAdmin" class="oculto">
+            <h3>Añadir Administrador al proyecto</h3>
+            <p>Selecciona el UID del usuario de SidelabCode al cual quieres hacer administrador de este proyecto.</p>
+            <div class="inputboxes">
+                <label for="dropdown">UID admin: </label>
+                <select name="uid" id="uid">
+                </select>
+            </div>
+        </form>
+
+        <form id="addMiembro" class="oculto">
+            <h3>Añadir Miembro al proyecto</h3>
+            <p>Selecciona el UID del usuario de SidelabCode al cual quieres añadir como miembro a este proyecto.</p>
+            <div class="inputboxes">
+                <label for="dropdown">UID miembro: </label>
+                <select name="uid" id="uid">
+                </select>
+            </div>
+        </form>
+
+        <form id="delAdmin" class="oculto">
+            <h3>Borrar Administrador del proyecto</h3>
+            <p>Selecciona el UID del administrador del proyecto al cual quieres borrar del mismo.</p>
+            <div class="inputboxes">
+                <label for="dropdown">UID admin: </label>
+                <select name="uid" id="uid">
+                </select>
+            </div>
+        </form>
+
+        <form id="delMiembro" class="oculto">
+            <h3>Borrar Miembro del proyecto</h3>
+            <p>Selecciona el UID del miembro del proyecto al cual quieres borrar del mismo.</p>
+            <div class="inputboxes">
+                <label for="dropdown">UID miembro: </label>
+                <select name="uid" id="uid">
+                </select>
+            </div>
+        </form>
+
+    </body>
+</html>

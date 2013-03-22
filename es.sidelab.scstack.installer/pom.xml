@@ -1,0 +1,162 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>es.sidelab.scstack</groupId>
+		<artifactId>parent</artifactId>
+		<version>0.2-SNAPSHOT</version>
+		<relativePath>../es.sidelab.scstack.parent</relativePath>
+	</parent>
+	<artifactId>installer</artifactId>
+	<packaging>jar</packaging>
+
+	<name>SidelabCode Stack - Installer</name>
+	<description>SidelabCode Stack is the Sidelab's forge and 
+		this is the installer of all the software programs needed by the forge
+		(e.g. Apache, LDAP, etc.).</description>
+
+	<url>${scstack-url}</url>
+	<issueManagement>
+		<system>Redmine</system>
+		<url>http://code.sidelab.es/projects/sidelabcodestack/issues</url>
+	</issueManagement>
+
+	<scm>
+		<!-- requires (at least) read access -->
+		<connection>scm:svn:http://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.scstack.installer</connection>
+		<!-- this type requires write access -->
+		<developerConnection>scm:svn:https://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.scstack.installer</developerConnection>
+		<!-- publicly browsable repository -->
+		<!-- <url>http://code.sidelab.es/projects/sidelabcodestack/repository/show/scstack</url> -->
+	</scm>
+
+	<build>
+		<finalName>scstack-installer</finalName>
+		<plugins>
+			<plugin>
+				<artifactId>maven-release-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+				<!-- The configuration of the plugin -->
+				<configuration>
+					<!-- Configuration of the archiver -->
+					<archive>
+						<!-- Manifest specific configuration -->
+						<manifest>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+							<!-- Classpath is added to the manifest of the created jar file. -->
+							<addClasspath>true</addClasspath>
+							<!-- Configures the classpath prefix. This configuration option is 
+								used to specify that all needed libraries are found under lib/ directory. -->
+							<classpathPrefix>lib/</classpathPrefix>
+							<!-- Specifies the main class of the application -->
+							<mainClass>es.sidelab.scstack.installer.Instalacion</mainClass>
+						</manifest>
+						<manifestEntries>
+							<Implementation-URL>${scstack-url}</Implementation-URL>
+						</manifestEntries>
+					</archive>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<descriptors>
+						<descriptor>src/main/assembly/assembly.xml</descriptor>
+					</descriptors>
+					<archive>
+						<manifest>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+							<!-- Classpath is added to the manifest of the created jar file. -->
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>
+							<mainClass>es.sidelab.scstack.installer.Instalacion</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id> <!-- this is used for inheritance merges -->
+						<phase>package</phase> <!-- bind to the packaging phase -->
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+	<profiles>
+		<profile> <!-- to release the sources together with the binaries -->
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-source-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<goals>
+									<goal>jar-no-fork</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+	<dependencies>
+ 		<dependency>
+			<groupId>es.sidelab.scstack</groupId>
+			<artifactId>lib</artifactId>
+			<version>0.2-SNAPSHOT</version>
+			<exclusions><!-- Excluded b/c conflicts with dependencies from Selenium -->
+				<exclusion>
+					<groupId>org.apache.httpcomponents</groupId>
+					<artifactId>httpclient</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.httpcomponents</groupId>
+					<artifactId>httpcore</artifactId>
+				</exclusion>
+			</exclusions>
+			<scope>compile,test</scope>
+		</dependency>
+		<dependency>
+			<groupId>es.sidelab.commons</groupId>
+			<artifactId>commandline</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>es.sidelab.vbman</groupId>
+			<artifactId>virtualbox</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+ 		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-htmlunit-driver</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-support</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.xebialabs.overthere</groupId>
+			<artifactId>overthere</artifactId>
+			<version>2.1.0</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+</project>

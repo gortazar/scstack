@@ -1,0 +1,29 @@
+# Construye los distintos OU
+dn: ou=projects,<%=baseDN%>
+objectClass: organizationalUnit
+objectClass: top
+ou: projects
+
+# dn: ou=people,<%=baseDN%>
+# objectClass: organizationalUnit
+# objectClass: top
+# ou: people
+
+dn: ou=configuration,<%=baseDN%>
+objectClass: organizationalUnit
+objectClass: top
+ou: configuration
+
+# Crea la entrada de configuración para el marcador de UID y GID Number
+dn: uid=marcadorIDNumber,ou=configuration,<%=baseDN%>
+objectClass: inetOrgPerson
+objectClass: organizationalPerson
+objectClass: person
+objectClass: posixAccount
+objectClass: top
+uid: marcadorIDNumber
+cn: Marcador que lleva la cuenta del GID y UID number actuales
+homeDirectory: .
+sn: Contador del gid y uid Number para la siguiente entrada a crear
+gidNumber: 5000
+uidNumber: 5000

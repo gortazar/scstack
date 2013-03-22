@@ -1,0 +1,24 @@
+version: 1
+
+dn: cn=gerritadmin,ou=projects,<%= baseDN %>
+objectClass: posixGroup
+objectClass: top
+objectClass: proyectoForja
+adminUid: gerritadmin
+description: Gerritadmin group
+gidNumber: 21000
+
+dn: uid=gerritadmin,ou=people,<%= baseDN %>
+objectClass: posixAccount
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Gerritadmin
+gidNumber: 21999
+homeDirectory: /home/gerritadmin
+sn: Gerritadmin
+uid: gerritadmin
+uidNumber: 21999
+mail: gerritadmin@<%= domain %>
+userPassword: <%= gerritAdminPass %>

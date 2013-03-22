@@ -1,0 +1,77 @@
+#########################
+# Configuration for LDAP directory service
+#########################
+dominio=<%= domain %>
+
+hostLDAP=localhost
+puertoLDAP=389
+
+baseDN=<%= baseDN %>
+bindDN=<%= bindDN %>
+passBindDN=<%= passBindDN %>
+
+ouProyectos=<%= ouProjects %>
+ouUsuarios=<%= ouPeople %>
+ouConfiguracion=configuration
+groupSuperadmin=<%=sadmin%>
+
+#########################
+# Apache config
+#########################
+pathsitesAvailableApache=/etc/apache2/sites-available
+ficheroConfigSSH=/etc/ssh/sshd_config
+ficheroProyectosSSL=configProjects-ssl
+ficheroProyectos=configProjects
+
+pathCarpetas=<%= filesPath %>
+pathCarpetaPrivadaApache=<%= privateFolder %>
+pathCarpetaPublicaApache=<%= publicFolder %>
+pathGITApache=<%=installFolder%>/git
+pathSVNApache=<%= svnFolder %>
+pathSVNWeb=<%= svnSubURI %>
+pathGITWeb=/git
+
+pathCarpetaPublicaWeb=/public
+pathReposPublicosWeb=/public/repos
+pathCarpetaPrivadaWeb=/private
+
+marcadorJaulaSSH=\#\#\#\#\# Don't delete or modify this line. SCStack specific configuration options below this line. \#\#\#\#\#
+
+#########################
+# Redmine configuration
+#########################
+ip=<%= ip %>
+hostRedmine=<%= domain %>/redmine
+protocolRedmine=https\://
+# get it from Redmine's admin account
+keyRedmineAPI=<%= redminekey %>
+
+#########################
+# MySQL access
+#########################
+hostMysql=127.0.0.1
+puertoMysql=3306
+usernameMysql=root
+passMysql=<%= mysqlpass %>
+schemaRedmine=<%= redminedb %>
+schemaGerrit=gerrit
+
+#########################
+# SCStack's web console
+#########################
+hostGerrit=<%= domain %>
+hostRest=<%= domain %>
+puertoRest=5555
+protocoloRest=HTTPS
+# URI root for the web service
+rootServicio=
+#########################
+# Superadmin's uid and password
+#########################
+sadminUID=<%= sadmin %>
+sadminPass=<%= sadminpass %>
+
+#########################
+# Folder that stores the HTML static files (jQuery, etc.) for the web console 
+#########################
+carpetaHtml=www

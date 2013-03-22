@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Change this path to your own value
+serviceJarPath=/home/laforge/scstack-installer/scstack-service/scstack-service.jar
+
+# Don't change the following lines
+cmd="java -Dfile.encoding=UTF-8 -jar $serviceJarPath"
+exec $cmd
