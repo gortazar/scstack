@@ -596,7 +596,7 @@ public class GerritManager {
             co = cl.syncExec(cmd);
             log.info(getCommandOutput(co));
         } catch (Exception e) {
-            throw new ExcepcionConsola("Problem creating Gerrit group: "
+            throw new ExcepcionConsola("Problem checking Gerrit group: "
                     + e.getMessage());
         }
 
