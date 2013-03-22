@@ -139,17 +139,17 @@ public class RepositorioGIT extends Repositorio {
 
         // Check if the group exists.
         boolean exists = gerritManager.checkExistingGerritGroup(cnProyecto,
-                hostGerrit, sadminGerrit, options);
+                sadminGerrit, options);
 
         // Create gerrit group if not exists.
         if (!exists) {
             gerritManager.createGerritGroup(cnProyecto, uidAdminProyecto, cl,
-                    sadminGerrit, hostGerrit);
+                    sadminGerrit);
         }
 
         // Check if project exists.
         boolean projectExists = gerritManager.checkExistingGerritProject(
-                cnProyecto, hostGerrit, sadminGerrit, options);
+                cnProyecto, sadminGerrit, options);
 
         if (projectExists) {
             throw new ExcepcionConsola("Repository name already exists: "
@@ -157,8 +157,7 @@ public class RepositorioGIT extends Repositorio {
         }
 
         // Create git project using gerrit.
-        gerritManager.createGerritProject(cnProyecto, cl, sadminGerrit,
-                hostGerrit);
+        gerritManager.createGerritProject(cnProyecto, cl, sadminGerrit);
 
         // We need to set several permissions for refs/heads/*, refs/tags/*,
         // refs/* to the group
@@ -187,7 +186,7 @@ public class RepositorioGIT extends Repositorio {
          * Clone repository
          */
         gerritManager.cloneGerritRepositoryCm(cnProyecto, sadminGerrit,
-                hostGerrit, cl);
+                cl);
 
         /*
          * "/tmp" Working Directory

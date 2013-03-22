@@ -46,6 +46,11 @@ public class GerritManager {
     public GerritManager(Logger log) throws GerritException {
         this.log = log;
 
+        /*
+         * No se utiliza el sshDirectory ya que se a configurado en el servidor
+         * el host para utilizar la clave pública en el fichero de configuración
+         * ssh del usuario root.
+         */
         sshDirectory = "/opt/ssh-keys/gerritadmin_rsa";
 
         outputHandler = new OverthereOutputHandler();
@@ -280,17 +285,15 @@ public class GerritManager {
      *            project to clone.
      * @param sadminGerrit
      *            Gerrit super administrator user.
-     * @param hostGerrit
-     *            Gerrit host.
      * @param cl
      *            Run the command
      * @throws ExcepcionConsola
      */
     public void cloneGerritRepositoryCm(String cnProyecto, String sadminGerrit,
-            String hostGerrit, CommandLine cl) throws ExcepcionConsola {
+            CommandLine cl) throws ExcepcionConsola {
 
         String cmd = "git clone --config user.email=" + sadminGerrit + "@"
-                + hostGerrit + " --config user.name=" + sadminGerrit
+                + sadminGerrit + " --config user.name=" + sadminGerrit
                 + " ssh://" + sadminGerrit + "@" + sadminGerrit + ":29418/"
                 + cnProyecto + " /tmp/" + cnProyecto;
         log.info("[Gerrit] " + cmd);
@@ -565,24 +568,21 @@ public class GerritManager {
      * 
      * @param cnProyecto
      *            Project name to check with existing groups.
-     * @param hostGerrit
-     *            url where is Gerrit.
      * @param sadminGerrit
      *            Gerrit super administrator user.
      * @param options
      *            Options to execute Gerrit command.
-     * 
      * @return
      * @throws ExcepcionConsola
      */
     public boolean checkExistingGerritGroup(String cnProyecto,
-            String hostGerrit, String sadminGerrit, ConnectionOptions options)
+            String sadminGerrit, ConnectionOptions options)
             throws ExcepcionConsola {
 
         boolean groupExists = false;
 
-        String sshPrefix = "ssh -i " + sshDirectory + " -l " + sadminGerrit
-                + " -p 29418 " + hostGerrit;
+        String sshPrefix = "ssh -l " + sadminGerrit + " -p 29418 "
+                + sadminGerrit;
 
         CommandLine cl = new CommandLine(new File("/usr/bin/"));
         CommandOutput co;
@@ -617,22 +617,19 @@ public class GerritManager {
      * 
      * @param cnProyecto
      *            Project name to check with existing groups.
-     * @param hostGerrit
-     *            url where is Gerrit.
      * @param sadminGerrit
      *            Gerrit super administrator user.
      * @param options
      *            Options to execute Gerrit command.
-     * 
      * @return
      * @throws ExcepcionConsola
      */
     public boolean checkExistingGerritProject(String cnProyecto,
-            String hostGerrit, String sadminGerrit, ConnectionOptions options)
+            String sadminGerrit, ConnectionOptions options)
             throws ExcepcionConsola {
 
         boolean projectExists = checkExistingGerritConfiguration(cnProyecto,
-                hostGerrit, sadminGerrit, gerritListProjects, options);
+                sadminGerrit, gerritListProjects, options);
 
         return projectExists;
     }
@@ -649,8 +646,6 @@ public class GerritManager {
      * 
      * @param cnProyecto
      *            Project name to check with existing groups.
-     * @param hostGerrit
-     *            url where is Gerrit.
      * @param sadminGerrit
      *            Gerrit super administrator user.
      * @param gerritCommand
@@ -665,22 +660,22 @@ public class GerritManager {
      * @throws ExcepcionConsola
      */
     public boolean checkExistingGerritConfiguration(String cnProyecto,
-            String hostGerrit, String sadminGerrit, String gerritCommand,
-            ConnectionOptions options) throws ExcepcionConsola {
+            String sadminGerrit, String gerritCommand, ConnectionOptions options)
+            throws ExcepcionConsola {
 
         try {
 
-            String sshPrefix = "ssh -i " + sshDirectory + " -l " + sadminGerrit
-                    + " -p 29418 " + hostGerrit;
+            String sshPrefix = "ssh -l " + sadminGerrit + " -p 29418 "
+                    + sadminGerrit;
             String cmd = sshPrefix + " gerrit ls-projects";
             log.info("[Gerrit] " + cmd);
 
             OverthereConnection conn = Overthere
                     .getConnection("local", options);
 
-            conn.execute(outputHandler, CmdLine.build("ssh", "-i",
-                    sshDirectory, "-l", sadminGerrit, "-p", "29418",
-                    hostGerrit, "gerrit", gerritCommand));
+            conn.execute(outputHandler, CmdLine.build("ssh", "-l",
+                    sadminGerrit, "-p", "29418", sadminGerrit, "gerrit",
+                    gerritCommand));
 
             log.info("[Gerrit] [stdout] " + outputHandler.getOut());
             log.info("[Gerrit] [err] " + outputHandler.getErr());
@@ -712,15 +707,13 @@ public class GerritManager {
      *            Run the command
      * @param sadminGerrit
      *            Gerrit super administrator user.
-     * @param hostGerrit
-     *            url where is Gerrit.
      * @throws ExcepcionConsola
      */
     public void createGerritProject(String cnProyecto, CommandLine cl,
-            String sadminGerrit, String hostGerrit) throws ExcepcionConsola {
+            String sadminGerrit) throws ExcepcionConsola {
 
-        String sshPrefix = "ssh -i " + sshDirectory + " -l " + sadminGerrit
-                + " -p 29418 " + hostGerrit;
+        String sshPrefix = "ssh -l " + sadminGerrit + " -p 29418 "
+                + sadminGerrit;
 
         // Now we are ready to create the repo (a project in Gerry jargon)
         try {
@@ -755,16 +748,13 @@ public class GerritManager {
      *            Run the command.
      * @param sadminGerrit
      *            Gerrit super administrator user.
-     * @param hostGerrit
-     *            url where is Gerrit.
      * @throws ExcepcionConsola
      */
     public void createGerritGroup(String cnProyecto, String uidAdminProyecto,
-            CommandLine cl, String sadminGerrit, String hostGerrit)
-            throws ExcepcionConsola {
+            CommandLine cl, String sadminGerrit) throws ExcepcionConsola {
 
-        String sshPrefix = "ssh -i " + sshDirectory + " -l " + sadminGerrit
-                + " -p 29418 " + hostGerrit;
+        String sshPrefix = "ssh -l " + sadminGerrit + " -p 29418 "
+                + sadminGerrit;
 
         try {
             String cmd = sshPrefix + " gerrit create-group --member "

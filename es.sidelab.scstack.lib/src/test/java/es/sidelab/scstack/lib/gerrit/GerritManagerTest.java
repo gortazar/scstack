@@ -25,6 +25,16 @@ import es.sidelab.scstack.lib.exceptions.apache.ExcepcionConsola;
 /**
  * Test class for GerritManager methods.
  * 
+ * <p>
+ * No se utiliza el sshDirectory ya que se a configurado en el servidor el host
+ * para utilizar la clave pública en el fichero de configuración ssh del usuario
+ * root.
+ * </p>
+ * 
+ * <p>
+ * TODO: Refactorizar los tests
+ * </p>
+ * 
  */
 public class GerritManagerTest {
 
@@ -69,7 +79,7 @@ public class GerritManagerTest {
         String cnProyecto = "gittest";
 
         boolean exists = gerritManager.checkExistingGerritGroup(cnProyecto,
-                hostGerrit, sadminGerrit, options);
+                sadminGerrit, options);
 
         Assert.assertTrue(
                 "[Error]: receiving group not found in list from Gerrit",
@@ -88,7 +98,7 @@ public class GerritManagerTest {
         String cnProyecto = "gittest";
 
         boolean exists = gerritManager.checkExistingGerritProject(cnProyecto,
-                hostGerrit, sadminGerrit, options);
+                sadminGerrit, options);
 
         Assert.assertTrue("[Error]: project not found in list from Gerrit",
                 exists);
@@ -121,8 +131,7 @@ public class GerritManagerTest {
         /*
          * Clone repository
          */
-        gerritManager.cloneGerritRepositoryCm(cnProyecto, sadminGerrit,
-                hostGerrit, cl);
+        gerritManager.cloneGerritRepositoryCm(cnProyecto, sadminGerrit, cl);
 
         /*
          * "/home/ricardo/tmp" Working Directory
