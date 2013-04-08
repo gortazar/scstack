@@ -5,7 +5,6 @@ Documentación del Proceso de Desarrollo de SidelabCode Stack.
 ## Requerimientos
 
 * Maven 3.0.x
-* Ant 1.7.x
 
 ## Estructura
 
