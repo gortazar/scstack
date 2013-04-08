@@ -1,0 +1,42 @@
+h1. Visión general del proceso de desarrollo con Git
+
+El proceso de Desarrollo se basa en canales. Aprovechando las facilidades que aporta un repositorio distribuido podemos gestionar diferentes ramas e intercambio de información entre las mismas de forma eficiente.
+
+h2. Desarrollo en canales
+
+Partiendo de 2 ramas de forma continua:
+
+* **master:** Desarrollo limpio. Sólo versiones estables.
+* **develop:** El desarrollo inicial de la versión actual tiene lugar aquí.
+
+Gestión de las ramas para estabilización de las versiones:
+
+* **release-0.1**,**release-0.2**; una rama de estabilización cada vez
+
+h3. Proceso de estabilización
+
+El proceso de estabilización se gestiona a través de las _ramas de estabilización_:
+
+* Estabilización del código (_RC release candidates_)
+* Arreglar bugs (hotfixes)
+* Cuando la versión se considera estable se procede al siguiente paso:
+** Tag
+** Mezclar (merge) con development
+** Mezclar (merge) con master
+* Si surgen nuevos bugs se vuelve a repetir el **proceso de estabilización**:
+** Se arreglan en la misma rama (release-0.1)
+** Nuevo tag y mezcla
+
+h3. Releasing
+
+Para crear una Release se define un proceso de gestión a través las ramas:
+ 
+* Checkout del tag
+* Build (Jenkins)
+* Deploy (Jenkins)
+
+h3. Diagrama de desarrollo
+
+El flujo de trabajo a través de las ramas se representa en este diagrama:
+
+!images/flujo-desarrollo-git-000.png!

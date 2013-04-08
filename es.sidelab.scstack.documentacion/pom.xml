@@ -1,0 +1,112 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>es.sidelab.scstack</groupId>
+		<artifactId>parent</artifactId>
+		<version>0.4-SNAPSHOT</version>
+		<relativePath>../es.sidelab.scstack.parent</relativePath>
+	</parent>
+
+	<groupId>es.sidelab.scstack</groupId>
+	<artifactId>documentation</artifactId>
+	<packaging>jar</packaging>
+
+	<name>SidelabCode Stack - Documentation</name>
+	<description>SidelabCode Stack is the Sidelab's forge and this is the administration module, which exports an API.</description>
+	<url>${scstack-url}</url>
+
+	<scm>
+		<!-- requires (at least) read access -->
+		<connection>scm:svn:http://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.scstack.documentation</connection>
+		<!-- this type requires write access -->
+		<developerConnection>scm:svn:https://code.sidelab.es/svn/sidelabcodestack/scstack/trunk/es.sidelab.scstack.documentation</developerConnection>
+		<!-- publicly browsable repository -->
+		<!-- <url>http://code.sidelab.es/projects/sidelabcodestack/repository/show/scstack</url> -->
+	</scm>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.6</version>
+				<executions>
+					<execution>
+						<id>generate-documentation</id>
+						<phase>generate-sources</phase>
+						<configuration>
+							<echo>Generating documentation</echo>
+							<tasks>
+								<property name="compile_classpath" refid="maven.compile.classpath" />
+								<ant inheritRefs="true" antfile="build-doc.xml">
+									<target name="generate-index-html" />
+								</ant>
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.ant</groupId>
+						<artifactId>ant</artifactId>
+						<version>1.8.1</version>
+					</dependency>
+					<dependency>
+						<groupId>org.apache.ant</groupId>
+						<artifactId>ant-launcher</artifactId>
+						<version>1.8.1</version>
+					</dependency>
+					<dependency>
+						<groupId>org.apache.ant</groupId>
+						<artifactId>ant-nodeps</artifactId>
+						<version>1.8.1</version>
+					</dependency>
+					<dependency>
+						<groupId>xalan</groupId>
+						<artifactId>xalan</artifactId>
+						<version>2.7.1</version>
+					</dependency>
+					<dependency>
+						<groupId>org.fusesource.wikitext</groupId>
+						<artifactId>wikitext-core</artifactId>
+						<version>1.4</version>
+					</dependency>
+					<dependency>
+						<groupId>org.fusesource.wikitext</groupId>
+						<artifactId>textile-core</artifactId>
+						<version>1.4</version>
+					</dependency>
+				</dependencies>
+			</plugin>
+		</plugins>
+	</build>
+
+	<!-- TODO crear un build para empaquetar los archivos html generados -->
+	<profiles>
+		<profile>
+			<!-- to release the sources together with the binaries -->
+			<id>release</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-source-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<goals>
+									<goal>jar-no-fork</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+</project>

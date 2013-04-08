@@ -1,0 +1,104 @@
+h1. Git
+
+!images/git-logo.png!
+
+**Git** es un SCM distribuido (DSCM) en donde cada desarrollador tiene una copia del repositorio.
+
+p. No hay concepto de repositorio centralizado pero al final suele haberlo.
+
+h2. Características
+
+h3. Snapshots
+
+En el repositorio **Git** no se guardan diferencias se guardan snapshots en comparación con Subversion.
+
+!images/svn-git-comparison.png!
+
+h3. Integridad
+
+Los commits se identifican por un @hash sha1@
+
+* @Svn@: _rev 33_
+* @Git@: _d025a7b3217f05110ebbf48065b8d02a0ad22ae3_
+
+O más amigablemente: _d025a7b_
+
+Los ficheros también se identifican por su sha1 de esta forma si un fichero se corrompe durante la transmisión por la red se detecta inmediatamente
+
+h3. Los 3 estados
+
+Los ficheros en git pueden estar en tres estados:
+
+* @Modificado@: el fichero ha cambiado desde el último checkout
+* @Staged@: un fichero modificado ha sido marcado para ser añadido en el próximo commit
+* @Committed@: el fichero se encuentra en la base de datos de git
+
+Hay un 4º estado: **untracked**.
+
+h3. Las 3 áreas de un proyecto git
+
+# El directorio git (git directory):
+** Contiene los metadatos y la base de datos de git
+** Es lo que se copia cuando se clona un repositorio
+** Normalmente es una carpeta .git en algún directorio
+# La carpeta de trabajo (working directory):
+** Es un checkout de una versión específica del proyecto
+** Se extrae del directorio git
+** Es el espacio donde modificamos los ficheros
+# Staging area:
+** Fichero en el directorio git que indica qué cambios van en el próximo commit
+
+!(center)images/git-3-areas.png!
+
+h3. La identidad
+
+Git necesita conocer algunos datos del desarrollador (aparecen en los commits para identificar al autor)
+
+* Nombre
+* Email
+
+Si no están correctamente configurados pueden aparecer varios problemas:
+
+* Los commits **fallan** porque el usuario no está autorizado
+* Commits del mismo usuario _"físico"_ **no son considerados como del mismo usuario** porque el nombre _"lógico"_ cambia.
+
+Por lo que se ha de tener muy en cuenta este apartado y configurar correctamente en el archivo @~/.gitconfig@.
+<pre>
+<code class="shell">
+$ patxi@patxi-PORTEGE-R830:~$ cat .gitconfig 
+[user]
+    name = patxigortazar
+    email = patxi.gortazar@gmail.com
+$ git config --global user.name “patxigortazar”
+$ git config --global user.email “patxi.gortazar@gmail.com”
+$ cd [path-to-gitrepo]
+[path-to-gitrepo]$ git config user.name “patxigortazar”
+[path-to-gitrepo]$ git config user.email “patxi.gortazar@gmail.com”
+</code>
+</pre>
+
+"Follow The Yellow Brick Road":http://git-scm.com/book/en/Customizing-Git-Git-Configuration
+
+h4. Comprobar la identidad
+
+Who am I?
+<pre>
+<code class="shell">
+$ git config --list
+user.name=patxigortazar
+user.email=patxi.gortazar@gmail.com
+</code>
+</pre>
+
+h3. Clientes git
+
+* En Eclipse
+** Egit (viene por defecto en las últimas versiones)
+* CLI Linux client
+** sudo apt-get install git
+* Windows
+** Msysgit: http://code.google.com/p/msysgit/downloads/
+** Tortoise Git (requiere msysgit): http://code.google.com/p/tortoisegit/wiki/Download
+* Mac
+** SourceTree: http://www.sourcetreeapp.com/
+** Gitbox (simple): http://www.gitboxapp.com/

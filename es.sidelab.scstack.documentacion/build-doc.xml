@@ -1,0 +1,57 @@
+<project name="es.sidelab.scstack.documentacion" default="generate-html">
+
+	<path id="wikitext.tasks.classpath">
+		<pathelement path="${compile_classpath}" />
+	</path>
+	<taskdef classpathref="wikitext.tasks.classpath" resource="org/eclipse/mylyn/wikitext/core/util/anttask/tasks.properties" />
+
+	<!-- WikiTextile to HTML -->
+	<target name="generate-html" description="Generate HTML from textile source">
+		<wikitext-to-html markupLanguage="Textile" multipleOutputFiles="false" navigationImages="true">
+			<fileset dir="${basedir}/documentation/" includes="**/*.textile" />
+			<markuplanguageconfiguration wikiwordlinking="true" />
+			<stylesheet url="styles/main.css" />
+		</wikitext-to-html>
+	</target>
+
+	<!-- WikiTextile to Eclipse -->
+	<target name="generate-eclipse-help" description="Generate Eclipse help">
+		<wikitext-to-eclipse-help markupLanguage="org.eclipse.mylyn.wikitext.textile.core.TextileLanguage" multipleOutputFiles="true" navigationImages="true" helpPrefix="help">
+			<fileset dir="${basedir}/documentation/" includes="**/*.textile" />
+			<markuplanguageconfiguration wikiwordlinking="true" />
+			<stylesheet url="styles/main.css" />
+		</wikitext-to-eclipse-help>
+	</target>
+
+	<property name="doc.source.dir" value="${basedir}/documentation" />
+	<property name="doc.build.dir" value="${basedir}/target/documentation" />
+
+	<!-- Generar un único fichero textile -->
+	<target name="assemble">
+		<loadfile srcfile="${doc.source.dir}/index.txt" property="inputfiles">
+			<filterchain>
+				<tokenfilter>
+					<replacestring from="\n" to="," />
+				</tokenfilter>
+			</filterchain>
+		</loadfile>
+		<concat destfile="${doc.build.dir}/index.textile" append="false" fixlastline="yes">
+			<filelist dir="${doc.source.dir}" files="${inputfiles}" />
+		</concat>
+		<copy todir="${doc.build.dir}/images">
+			<fileset dir="${doc.source.dir}/images" />
+		</copy>
+	</target>
+
+	<!-- WikiTextile to HTML el fichero index.textile contenido continuo -->
+	<!-- WikiTextile to HTML -->
+	<target name="generate-index-html" depends="assemble" description="Generate complete HTML from textile source">
+		<wikitext-to-html markupLanguage="Textile" multipleOutputFiles="false" navigationImages="true">
+            <fileset dir="${doc.build.dir}">
+                <include name="index.textile" />
+            </fileset>
+			<markuplanguageconfiguration wikiwordlinking="true" />
+			<stylesheet url="styles/main.css" />
+		</wikitext-to-html>
+	</target>
+</project>

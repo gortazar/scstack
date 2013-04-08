@@ -1,0 +1,10 @@
+{toc:style=disc|maxLevel=3}
+
+h1. Proceso de Desarrollo
+
+Proceso de desarollo integrado en la forja **SidelabCodeStack**.
+
+* "Introducción":git-introduccion.html: @Git@
+* Visión general del "proceso de desarrollo con @Git@":proceso-git.html
+* Proceso de desarrollo con "@Eclipse IDE@":eclipse.html
+* "Integración continua":jenkins.html @Jenkins@

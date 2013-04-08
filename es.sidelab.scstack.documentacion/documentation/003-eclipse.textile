@@ -1,0 +1,84 @@
+
+h1. Proceso de desarrollo con Eclipse
+
+Prerequisitos:
+
+Se recomienda utilizar la versión de Eclipse **Spring Tools Suite 3.1** de Spring:
+
+* http://www.springsource.org/downloads/sts-ggts
+
+Se ha de escoger la opción basada en **Eclipse 3.8.1** ya que incluye la instalación de las herramientas relacionadas con @Git@ como es el caso del plugin "Egit":http://www.eclipse.org/egit/.
+
+Para usar los ejemplos de la línea de comandos se han de instalar los clientes especificados para cada plataforma que se definieron en el apartado [Clientes git]
+
+h2. Paso 1 - Generación de claves
+
+Se han de generar las claves para el acceso al repositorio remoto
+
+**Ubuntu:**
+<pre>
+<code class="shell">
+$ ssh-keygen -t rsa
+</code>
+</pre>
+* Copiar el contenido del fichero @~/.ssh/id_rsa.pub@ en el depósito de claves de la cuenta personal de **Gerrit**.
+
+**Windows:**
+<pre>
+<code class="shell">
+Git bash
+ssh-keygen.exe
+</code>
+</pre>
+* Copiar el contenido del fichero @c:/documents and settings/<usuario>/.ssh/id_rsa.pub@ en el depósito de claves de la cuenta personal de **Gerrit**.
+
+"Generating SSH Keys":https://help.github.com/articles/generating-ssh-keys
+
+h2. Paso 2 - Clonar el repositorio
+
+El administrador del proyecto ha creado un repositorio en **Gerrit** con dos ramas:
+
+* master
+* development
+
+h3. Situación del repositorio
+
+Clonar el repositorio remoto tiene consecuencias:
+
+* El repositorio local guarda localmente información sobre el repositorio remoto (llamado por defecto “origin”)
+* Esto permite _subir/bajar_ cambios _al/desde_ repositorio remoto
+* Las ramas refs/heads/* del repositorio remoto se almacenan en el repositorio local como @refs/remotes/origin/*@.
+* Ver @.git/config@
+
+h3. Eclipse
+
+A través de Eclipse se han seguir los siguiente pasos:
+
+!images/eclipse-clone-repo.png!
+
+* Perspectiva Git repository exploring: @Window -> Open perspective -> Others -> Git Repository Exploring@
+* Añadir la **URI** (la URI es de prueba, se ha de sustituir por valores reales) del repositorio y se autocompletan los demás campos: 
+** ssh://patxigortazar@192.168.33.10:29418/filetransfer
+* Branch selection: dejar ambas seleccionadas
+* Initial branch: seleccionar **development**
+
+!images/eclipse-git-repository-view.png!
+
+h3. Cliente Git
+
+Clonar el repositorio remoto a través de la consola:
+<pre>
+<code class="shell">
+$ git clone ssh://patxigortazar@192.168.33.10:29418/filetransfer
+</code>
+</pre>
+
+**Git** hace @checkout del master@ por defecto (porque es donde se encuentra el _HEAD_ posicionado en el repositorio remoto). Se ha de cambiar a la rama **development** para empezar a desarrollar:
+<pre>
+<code class="shell">
+$ cd filetransfer
+$ git checkout development
+Branch development set up to track remote branch development from origin.
+Switched to a new branch 'development'
+</code>
+</pre>
