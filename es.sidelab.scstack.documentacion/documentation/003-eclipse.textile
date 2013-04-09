@@ -18,7 +18,7 @@ Se han de generar las claves para el acceso al repositorio remoto
 **Ubuntu:**
 <pre>
 <code class="shell">
-$ ssh-keygen -t rsa
+    $ ssh-keygen -t rsa
 </code>
 </pre>
 * Copiar el contenido del fichero @~/.ssh/id_rsa.pub@ en el depósito de claves de la cuenta personal de **Gerrit**.
@@ -26,8 +26,8 @@ $ ssh-keygen -t rsa
 **Windows:**
 <pre>
 <code class="shell">
-Git bash
-ssh-keygen.exe
+    Git bash
+    ssh-keygen.exe
 </code>
 </pre>
 * Copiar el contenido del fichero @c:/documents and settings/<usuario>/.ssh/id_rsa.pub@ en el depósito de claves de la cuenta personal de **Gerrit**.
@@ -54,31 +54,117 @@ h3. Eclipse
 
 A través de Eclipse se han seguir los siguiente pasos:
 
-!images/eclipse-clone-repo.png!
-
 * Perspectiva Git repository exploring: @Window -> Open perspective -> Others -> Git Repository Exploring@
 * Añadir la **URI** (la URI es de prueba, se ha de sustituir por valores reales) del repositorio y se autocompletan los demás campos: 
 ** ssh://patxigortazar@192.168.33.10:29418/filetransfer
 * Branch selection: dejar ambas seleccionadas
 * Initial branch: seleccionar **development**
 
-!images/eclipse-git-repository-view.png!
+!images/eclipse-clone-repo.png!
 
 h3. Cliente Git
 
 Clonar el repositorio remoto a través de la consola:
 <pre>
 <code class="shell">
-$ git clone ssh://patxigortazar@192.168.33.10:29418/filetransfer
+    $ git clone ssh://patxigortazar@192.168.33.10:29418/filetransfer
 </code>
 </pre>
 
 **Git** hace @checkout del master@ por defecto (porque es donde se encuentra el _HEAD_ posicionado en el repositorio remoto). Se ha de cambiar a la rama **development** para empezar a desarrollar:
 <pre>
 <code class="shell">
-$ cd filetransfer
-$ git checkout development
-Branch development set up to track remote branch development from origin.
-Switched to a new branch 'development'
+    $ cd filetransfer
+    $ git checkout development
+    Branch development set up to track remote branch development from origin.
+    Switched to a new branch 'development'
 </code>
 </pre>
+
+h2. Paso 3 - crear el proyecto
+
+# Se ha de crear un proyecto Java:
+** @org.filetransfer@
+# Crear un fichero de versión en la raíz
+** Version.txt <- 0.1
+# Crear un fichero @SFTPTransfer@ en el paquete @org.filetransfer@.
+# Añadir el proyecto al repositorio git del proyecto @org.filetransfer@.
+## Eclipse:
+### @Team > Share project > Git@
+### @Repository: filetransfer@
+### Añadir los ficheros para que Eclipse haga tracking de los mismos
+### @Team > Add to index@
+## Cliente Git:
+*** @$ git status@
+*** @$ git add <file>@
+# **Commit!**
+
+!images/commit-dealer.png!
+
+h3. Commit 
+
+Eclipse:
+
+# Sobre el proyecto > Team > Commit
+# El comentario es obligatorio
+# Chequear
+## Que el autor es el correcto
+## Que están marcados los ficheros adecuados
+## Que *no está marcada* la casilla _"Push the changes to upstream"_.
+
+Cliente Git:
+
+# git commit
+
+h2. Paso 4 - desarrollo de la versión actual
+
+Añadir algún método más a la clase @SFTPTransfer@ y ejecutar el comando @git status@:
+
+<pre>
+<code class="shell">
+    $ git status
+    # On branch develop
+    # Your branch is ahead of 'origin/develop' by 1 commit.
+    #
+    # Changes not staged for commit:
+    #   (use "git add <file>..." to update what will be committed)
+    #   (use "git checkout -- <file>..." to discard changes in working directory)
+    #
+    #   modified:   SFTPTransfer.java
+    #
+    no changes added to commit (use "git add" and/or "git commit -a")
+</code>
+</pre>
+
+Hay ficheros no añadidos al staging area por lo que no se hará commit de ellos.
+
+!images/eclipse-git-console-stage.png!
+
+Añadir algún método más a la clase @SFTPTransfer@ y ejecutar el comando @git status@:
+
+    git status
+
+Hay ficheros no añadidos al staging area no se hará commit de ellos
+
+    git add SFTPTransfer.java
+
+Para añadirlos al staging area y que vayan en el próximo commit
+
+<pre>
+<code class="shell">
+    $ git status
+    # On branch develop
+    # Your branch is ahead of 'origin/develop' by 1 commit.
+    #
+    # Changes to be committed:
+    #   (use "git reset HEAD <file>..." to unstage)
+    #
+    #   modified:   SFTPTransfer.java
+    #
+</code>
+</pre>
+
+En Eclipse este proceso se hace automáticamente al hacer **commit**.
+En consola se puede forzar con el parámetro **-a** al ejecutar:
+
+    git commit -a

@@ -25,6 +25,18 @@ es.sidelab.scstack.documentacion
 └── README.md
 ```
 
+El ficheo `index.txt` es el encargado de gestionar el orden de la concatenación 
+del fichero `index.textile` que se genera para crear un documento `html` de una
+sola página.
+
+```shell
+000-index.textile
+001-git-introduccion.textile
+002-proceso-git.textile
+003-eclipse.textile
+004-jenkins.textile
+```
+
 ## Generar documentación
 
 Ejecutar el comando **Maven** para la fase `generate-sources` que está asociada
