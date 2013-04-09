@@ -213,5 +213,22 @@ Hacer el tag.
 ** @git tag -a 0.1.0-RC1 -m 'Release 0.1.0-RC1‘@
 ** @git push origin 0.1.0-RC1@
 
-**Build/test/deploy...**
+Ejecutar el ciclo de **Build/test/deploy...**
 
+h2. Paso 7 - publicar la versión 0.1.0
+
+Si el desarrollo, las pruebas y los despliegues son correctos en la rama **RCx**:
+
+* Cambiar el nombre de la versión a **0.1.0**.
+** Commit
+** Push to upstream
+Hacer el tag.
+* Eclipse:
+** @Team > Advanced > Tag > 0.1.0@
+** @Team > Remote > Push... > Next > Add all tags spec@
+** Marcar _"Save in origin"_ para añadirlo a la configuración del repositorio
+* Cliente git:
+** @git tag -a 0.1.0 -m 'Version 0.1.0‘@
+** @git push origin 0.1.0@
+
+Volver a ejecutar el ciclo de **Build/test/deploy...**
