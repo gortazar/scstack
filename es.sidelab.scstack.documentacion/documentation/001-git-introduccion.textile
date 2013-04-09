@@ -63,9 +63,8 @@ Si no están correctamente configurados pueden aparecer varios problemas:
 * Commits del mismo usuario _"físico"_ **no son considerados como del mismo usuario** porque el nombre _"lógico"_ cambia.
 
 Por lo que se ha de tener muy en cuenta este apartado y configurar correctamente en el archivo @~/.gitconfig@.
-<pre>
-<code class="shell">
-$ patxi@patxi-PORTEGE-R830:~$ cat .gitconfig 
+
+pre. $ patxi@patxi-PORTEGE-R830:~$ cat .gitconfig 
 [user]
     name = patxigortazar
     email = patxi.gortazar@gmail.com
@@ -74,21 +73,16 @@ $ git config --global user.email “patxi.gortazar@gmail.com”
 $ cd [path-to-gitrepo]
 [path-to-gitrepo]$ git config user.name “patxigortazar”
 [path-to-gitrepo]$ git config user.email “patxi.gortazar@gmail.com”
-</code>
-</pre>
 
 "Follow The Yellow Brick Road":http://git-scm.com/book/en/Customizing-Git-Git-Configuration
 
 h4. Comprobar la identidad
 
 Who am I?
-<pre>
-<code class="shell">
-$ git config --list
+
+pre. $ git config --list
 user.name=patxigortazar
 user.email=patxi.gortazar@gmail.com
-</code>
-</pre>
 
 h3. Clientes git
 
