@@ -140,6 +140,8 @@ Hay ficheros no añadidos al staging area por lo que no se hará commit de ellos
 
 !images/eclipse-git-console-stage.png!
 
+h3. git add
+
 Añadir algún método más a la clase @SFTPTransfer@ y ejecutar el comando @git status@:
 
     git status
@@ -168,3 +170,64 @@ En Eclipse este proceso se hace automáticamente al hacer **commit**.
 En consola se puede forzar con el parámetro **-a** al ejecutar:
 
     git commit -a
+
+h2. Paso 5 - subir cambios al repositorio remoto (push)
+
+En este momento el repositorio local se encuentra “a 2 commits” del repositorio 
+remoto.
+!images/repo-2-commits-ahead.png!
+
+Subir lo que hay a la rama develop de origin (el repositorio remoto)
+
+* Eclipse: @Sobre el proyecto > Team > Push to upstream@
+* Cliente git consola: @git push origin@
+
+h2. Paso 6 - estabilización de la versión 0.1
+
+Se ha de seguir el proceso para unificar los desarrollos del proyecto en una 
+rama estable y crear el respectivo tag.
+
+h3. Rama de Versión
+
+Crear un branch para la versión.
+
+* Eclipse:
+** Sobre el @proyecto > Team > Switch to > New branch@
+*** From: refs/heads/development
+*** Branch name: release-0.1
+*** Asegurarse de que checkout new branch está activado
+* Cliente git:
+** @git checkout -b release-0.1 --track@
+** @git push -u origin release-0.1@
+
+El código del workspace señala ahora la versión **release-0.1**.
+* Hacer algún cambio
+* Commit  
+
+h3. Actualizar desarrollo
+
+* Cambiar en la rama development la **versión a 0.2**.
+* Sobre el @proyecto > Team > Switch to > development@.
+* Modificar el fichero @version.txt@.
+* @Commit@
+* @Push to upstream@
+
+h3. Crear el Tag
+
+Preparar la RC1 (_Release Candidate 1_).
+
+* Sobre el @proyecto > Team > Switch to > release-0.1@
+* Cambiar el nombre de la versión a **0.1.0-RC1**.
+** @Commit@
+** @Push to upstream@
+
+Hacer el tag.
+
+* Eclipse:
+** @Team > Advanced > Tag > 0.1.0-RC1@
+** @Team > Remote > Push... > Next > Add all tags spec@
+* Cliente Git:
+** @git tag -a 0.1.0-RC1 -m 'Release 0.1.0-RC1‘@
+** @git push origin 0.1.0-RC1@
+
+**Build/test/deploy...**
