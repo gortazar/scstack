@@ -16,20 +16,16 @@ h2. Paso 1 - Generación de claves
 Se han de generar las claves para el acceso al repositorio remoto
 
 **Ubuntu:**
-<pre>
-<code class="shell">
-    $ ssh-keygen -t rsa
-</code>
-</pre>
+
+pre. $ ssh-keygen -t rsa
+
 * Copiar el contenido del fichero @~/.ssh/id_rsa.pub@ en el depósito de claves de la cuenta personal de **Gerrit**.
 
 **Windows:**
-<pre>
-<code class="shell">
-    Git bash
-    ssh-keygen.exe
-</code>
-</pre>
+
+pre. Git bash
+ssh-keygen.exe
+
 * Copiar el contenido del fichero @c:/documents and settings/<usuario>/.ssh/id_rsa.pub@ en el depósito de claves de la cuenta personal de **Gerrit**.
 
 "Generating SSH Keys":https://help.github.com/articles/generating-ssh-keys
@@ -65,21 +61,15 @@ A través de Eclipse se han seguir los siguiente pasos:
 h3. Cliente Git
 
 Clonar el repositorio remoto a través de la consola:
-<pre>
-<code class="shell">
-    $ git clone ssh://patxigortazar@192.168.33.10:29418/filetransfer
-</code>
-</pre>
+
+pre. $ git clone ssh://patxigortazar@192.168.33.10:29418/filetransfer
 
 **Git** hace @checkout del master@ por defecto (porque es donde se encuentra el _HEAD_ posicionado en el repositorio remoto). Se ha de cambiar a la rama **development** para empezar a desarrollar:
-<pre>
-<code class="shell">
-    $ cd filetransfer
-    $ git checkout development
-    Branch development set up to track remote branch development from origin.
-    Switched to a new branch 'development'
-</code>
-</pre>
+
+pre. $ cd filetransfer
+$ git checkout development
+Branch development set up to track remote branch development from origin.
+Switched to a new branch 'development'
 
 h2. Paso 3 - crear el proyecto
 
@@ -114,27 +104,23 @@ Eclipse:
 
 Cliente Git:
 
-# git commit
+pre. git commit
 
 h2. Paso 4 - desarrollo de la versión actual
 
 Añadir algún método más a la clase @SFTPTransfer@ y ejecutar el comando @git status@:
 
-<pre>
-<code class="shell">
-    $ git status
-    # On branch develop
-    # Your branch is ahead of 'origin/develop' by 1 commit.
-    #
-    # Changes not staged for commit:
-    #   (use "git add <file>..." to update what will be committed)
-    #   (use "git checkout -- <file>..." to discard changes in working directory)
-    #
-    #   modified:   SFTPTransfer.java
-    #
-    no changes added to commit (use "git add" and/or "git commit -a")
-</code>
-</pre>
+pre. $ git status
+# On branch develop
+# Your branch is ahead of 'origin/develop' by 1 commit.
+#
+# Changes not staged for commit:
+#   (use "git add <file>..." to update what will be committed)
+#   (use "git checkout -- <file>..." to discard changes in working directory)
+#
+#   modified:   SFTPTransfer.java
+#
+no changes added to commit (use "git add" and/or "git commit -a")
 
 Hay ficheros no añadidos al staging area por lo que no se hará commit de ellos.
 
@@ -144,37 +130,34 @@ h3. git add
 
 Añadir algún método más a la clase @SFTPTransfer@ y ejecutar el comando @git status@:
 
-    git status
+pre. git status
 
 Hay ficheros no añadidos al staging area no se hará commit de ellos
 
-    git add SFTPTransfer.java
+pre. git add SFTPTransfer.java
 
 Para añadirlos al staging area y que vayan en el próximo commit
 
-<pre>
-<code class="shell">
-    $ git status
-    # On branch develop
-    # Your branch is ahead of 'origin/develop' by 1 commit.
-    #
-    # Changes to be committed:
-    #   (use "git reset HEAD <file>..." to unstage)
-    #
-    #   modified:   SFTPTransfer.java
-    #
-</code>
-</pre>
+pre. $ git status
+# On branch develop
+# Your branch is ahead of 'origin/develop' by 1 commit.
+#
+# Changes to be committed:
+#   (use "git reset HEAD <file>..." to unstage)
+#
+#   modified:   SFTPTransfer.java
+#
 
 En Eclipse este proceso se hace automáticamente al hacer **commit**.
 En consola se puede forzar con el parámetro **-a** al ejecutar:
 
-    git commit -a
+pre. git commit -a
 
 h2. Paso 5 - subir cambios al repositorio remoto (push)
 
 En este momento el repositorio local se encuentra “a 2 commits” del repositorio 
 remoto.
+
 !images/repo-2-commits-ahead.png!
 
 Subir lo que hay a la rama develop de origin (el repositorio remoto)
@@ -231,3 +214,4 @@ Hacer el tag.
 ** @git push origin 0.1.0-RC1@
 
 **Build/test/deploy...**
+
