@@ -6,7 +6,7 @@
 	<taskdef classpathref="wikitext.tasks.classpath" resource="org/eclipse/mylyn/wikitext/core/util/anttask/tasks.properties" />
 
 	<!-- WikiTextile to HTML -->
-	<target name="generate-html" description="Generate HTML from textile source">
+	<target name="generate-html" depends="assemble-index" description="Generate HTML from textile source">
 		<wikitext-to-html markupLanguage="Textile" multipleOutputFiles="false" navigationImages="true">
 			<fileset dir="${basedir}/documentation/" includes="**/*.textile" />
 			<markuplanguageconfiguration wikiwordlinking="true" />
@@ -15,7 +15,7 @@
 	</target>
 
 	<!-- WikiTextile to Eclipse -->
-	<target name="generate-eclipse-help" description="Generate Eclipse help">
+	<target name="generate-eclipse-help" depends="assemble-index" description="Generate Eclipse help">
 		<wikitext-to-eclipse-help markupLanguage="org.eclipse.mylyn.wikitext.textile.core.TextileLanguage" multipleOutputFiles="true" navigationImages="true" helpPrefix="help">
 			<fileset dir="${basedir}/documentation/" includes="**/*.textile" />
 			<markuplanguageconfiguration wikiwordlinking="true" />
@@ -27,7 +27,7 @@
 	<property name="doc.build.dir" value="${basedir}/target/documentation" />
 
 	<!-- Generar un único fichero textile -->
-	<target name="assemble-index">
+	<target name="assemble-index" depends="assemble-textile">
 		<loadfile srcfile="${doc.source.dir}/index.txt" property="inputfiles">
 			<filterchain>
 				<tokenfilter>
@@ -38,13 +38,16 @@
 		<concat destfile="${doc.build.dir}/index.textile" append="false" fixlastline="yes">
 			<filelist dir="${doc.source.dir}" files="${inputfiles}" />
 		</concat>
+	</target>
+
+	<!-- Mover los ficheros textile al directorio target -->
+	<target name="assemble-textile">
 		<copy todir="${doc.build.dir}">
 			<fileset dir="${doc.source.dir}" />
 		</copy>
 	</target>
 
 	<!-- WikiTextile to HTML el fichero index.textile contenido continuo -->
-	<!-- WikiTextile to HTML -->
 	<target name="generate-index-html" depends="assemble-index" description="Generate complete HTML from textile source">
 		<wikitext-to-html markupLanguage="Textile" multipleOutputFiles="false" navigationImages="true">
 			<fileset dir="${doc.build.dir}">
