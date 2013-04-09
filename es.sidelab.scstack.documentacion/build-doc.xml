@@ -27,7 +27,7 @@
 	<property name="doc.build.dir" value="${basedir}/target/documentation" />
 
 	<!-- Generar un único fichero textile -->
-	<target name="assemble">
+	<target name="assemble-index">
 		<loadfile srcfile="${doc.source.dir}/index.txt" property="inputfiles">
 			<filterchain>
 				<tokenfilter>
@@ -38,18 +38,18 @@
 		<concat destfile="${doc.build.dir}/index.textile" append="false" fixlastline="yes">
 			<filelist dir="${doc.source.dir}" files="${inputfiles}" />
 		</concat>
-		<copy todir="${doc.build.dir}/images">
-			<fileset dir="${doc.source.dir}/images" />
+		<copy todir="${doc.build.dir}">
+			<fileset dir="${doc.source.dir}" />
 		</copy>
 	</target>
 
 	<!-- WikiTextile to HTML el fichero index.textile contenido continuo -->
 	<!-- WikiTextile to HTML -->
-	<target name="generate-index-html" depends="assemble" description="Generate complete HTML from textile source">
+	<target name="generate-index-html" depends="assemble-index" description="Generate complete HTML from textile source">
 		<wikitext-to-html markupLanguage="Textile" multipleOutputFiles="false" navigationImages="true">
-            <fileset dir="${doc.build.dir}">
-                <include name="index.textile" />
-            </fileset>
+			<fileset dir="${doc.build.dir}">
+				<include name="**/*.textile" />
+			</fileset>
 			<markuplanguageconfiguration wikiwordlinking="true" />
 			<stylesheet url="styles/main.css" />
 		</wikitext-to-html>

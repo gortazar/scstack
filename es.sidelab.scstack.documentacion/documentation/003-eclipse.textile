@@ -155,8 +155,7 @@ pre. git commit -a
 
 h2. Paso 5 - subir cambios al repositorio remoto (push)
 
-En este momento el repositorio local se encuentra “a 2 commits” del repositorio 
-remoto.
+En este momento el repositorio local se encuentra “a 2 commits” del repositorio remoto.
 
 !images/repo-2-commits-ahead.png!
 
@@ -167,8 +166,7 @@ Subir lo que hay a la rama develop de origin (el repositorio remoto)
 
 h2. Paso 6 - estabilización de la versión 0.1
 
-Se ha de seguir el proceso para unificar los desarrollos del proyecto en una 
-rama estable y crear el respectivo tag.
+Se ha de seguir el proceso para unificar los desarrollos del proyecto en una rama estable y crear el respectivo tag.
 
 h3. Rama de Versión
 
@@ -232,3 +230,104 @@ Hacer el tag.
 ** @git push origin 0.1.0@
 
 Volver a ejecutar el ciclo de **Build/test/deploy...**
+
+h2. Paso 8 - integrar los cambios en development
+
+Se han de integrar los cambios de la nueva version en la rama de desarrollo
+ **development**. Esta acción se conoce como **merge**.
+
+Eclipse
+* @Team > Switch to > deve lopment@
+* @Team > Merge > Tags > 0.1.0@
+
+**Conflictos en el fichero version.txt!!**
+
+* Abrir el fichero version.txt
+* Dejar la versión 0.2 y quitar todo lo demás
+
+Para indicar que los conflictos han sido resueltos:
+
+* Eclipse: Sobre el fichero > Team > Add to index
+* Cliente git: @git add <fichero>@
+* Commit
+
+h3. Si todo va mal en un merge
+
+Se ha de hacer un **Reset**.
+
+Así se actualiza el índice (base de datos de git), el HEAD y la carpeta de trabajo con la versión que le digamos
+
+* Eclipse: @Team > Reset... > elegir un branch > Marcar HARD@
+* Cliente git: @git reset --hard <branch>@
+
+h2. Paso 9 - bug fixing
+
+El proceso para arreglar **bugs** y **hotfixes** para integrarlo en el desarrollo mediante ramas.
+
+* Eclipse: @Team > Switch to > release-0.1@
+* Cliente git: @$ git checkout development@
+** Cambiar la versión a 0.1.1-RC1
+** Arreglar el bug
+** Mismo proceso que con la 0.1.0-RCx
+** Eclipse: @Team > Merge > Tags > 0.1.1-RC1@
+
+Volver a repetir el cicloe de **Release** y **Tag**:
+
+* Cuando se considere suficientemente estable: release
+* Cambiar versión a 0.1.1
+* Tag 0.1.1
+* Mezclar con development
+* Mezclar con master
+
+h2. Paso 10 - obtener cambios del repositorio remoto (pull)
+
+Representar el escenario de programación en pareja con dos roles y las distintas acciones sobre los ficheros.
+
+* Rol A
+* Rol B
+
+# @A@ modifica el fichero java:
+* Hacer @commit@ de los cambios.
+* @Push to upstream@
+# @B@ obtiene los cambios:
+* Sobre el @proyecto > Team > Fetch from upstream@ para obtener el índice de cambios
+* Sobre el @proyecto > Team > Pull@
+
+h3. Resolución de conflictos
+
+¿Qué pasa si otro desarrollador subió cambios que entran en conflicto con los míos?
+
+* A modifica el constructor
+* B modifica el constructor de otra manera diferente
+* A y B hacen push del repositorio
+
+Obtener los cambios: 
+
+* @Team > Fetch from upstream@
+* @Team > Pull@
+
+Los cambios se mezclan y git marca los conflictos para resolver.
+Se han de corregir _manualmente_ los conflictos y añadir al _upstream_.
+
+* @git add <fichero>@
+* @git commit@
+* @git push origin <rama>@
+
+h2. Comandos útiles
+
+Git ofrece una lista de acciones relacionadas con el repositorio distribuido para el desarrollo basado en ramas ya que hay mucha información y nos ofrece una forma de gestionarla. 
+
+h3. Commit Log
+
+El histórico de _commits_ en git se conoce como log. Debido a que los comentarios asociados a los commits son **obligatorios** tenemos un historial bastante potente.
+
+* Información de los commits: @git log@
+* Información de lo que ha cambiado en los últimos dos commits: @git log -p -2@
+* Información de los commits enlazando la estrucutra de padres e hijos y ramas @git log --graph@
+
+h3. Deshacer acciones
+
+Deshacer commits en git se podría comparar @subversion revert@ pero funcional.
+Nos permite añadir nuevos ficheros, actualizar los comentarios, eliminar ficheros que no deberían entrar en ese commit, es decir rehacer el _último commit_. 
+
+* @git commit --amend@
