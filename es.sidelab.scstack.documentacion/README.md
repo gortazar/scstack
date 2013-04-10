@@ -44,8 +44,25 @@ Ejecutar el comando **Maven** para la fase `generate-sources` que está asociada
 ```shell
 $ mvn clean generate-sources
 ```
-El resultado se puede ver en el directorio @target/documentation/index.html@ 
-para el resultado de una página continua.
+El resultado por defecto es un documento continuo `html` y documentos dividivos por secciones del mismo contenido.
+
+* El documento continuo se puede ver en el directorio @target/documentation/index.html@.
+* Los ficheros `html` separados por temas se encuentran en el directorio `documentation` del target junto a los ficheros `textile`:
+
+```shell
+target/documentation/
+├── 000-index.html
+├── 000-index.textile
+├── 001-git-introduccion.html
+├── 001-git-introduccion.textile
+├── 002-proceso-git.html
+├── 002-proceso-git.textile
+├── 003-eclipse.html
+├── 003-eclipse.textile
+├── 004-jenkins.html
+├── 004-jenkins.textile
+├── images/
+```
 
 ### Otros formatos
 

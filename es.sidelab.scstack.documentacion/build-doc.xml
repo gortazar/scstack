@@ -1,4 +1,4 @@
-<project name="es.sidelab.scstack.documentacion" default="generate-html">
+<project name="es.sidelab.scstack.documentacion" default="generate-index-html">
 
 	<path id="wikitext.tasks.classpath">
 		<pathelement path="${compile_classpath}" />

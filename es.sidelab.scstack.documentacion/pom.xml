@@ -12,7 +12,7 @@
 
 	<groupId>es.sidelab.scstack</groupId>
 	<artifactId>documentation</artifactId>
-	<packaging>jar</packaging>
+	<packaging>pom</packaging>
 
 	<name>SidelabCode Stack - Documentation</name>
 	<description>SidelabCode Stack is the Sidelab's forge and this is the administration module, which exports an API.</description>
@@ -84,29 +84,28 @@
 					</dependency>
 				</dependencies>
 			</plugin>
+
+			<!-- TODO crear un build para empaquetar los archivos html generados -->
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.2-beta-5</version>
+				<executions>
+					<execution>
+						<id>assembly-documentation</id> <!-- this is used for inheritance merges -->
+						<phase>package</phase> <!-- bind to the packaging phase -->
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<descriptors>
+								<descriptor>src/main/assembly/assembly.xml</descriptor>
+							</descriptors>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 	</build>
 
-	<!-- TODO crear un build para empaquetar los archivos html generados -->
-	<profiles>
-		<profile>
-			<!-- to release the sources together with the binaries -->
-			<id>release</id>
-			<build>
-				<plugins>
-					<plugin>
-						<artifactId>maven-source-plugin</artifactId>
-						<executions>
-							<execution>
-								<id>attach-sources</id>
-								<goals>
-									<goal>jar-no-fork</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 </project>
