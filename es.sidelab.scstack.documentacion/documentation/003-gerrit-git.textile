@@ -1,0 +1,79 @@
+
+h1. Gestión de repositorios Git con Gerrit
+
+El primer usuario que se loguea obtiene privilegios de administrador. Esto es importante si el primero que se loguea lo hace desde el ldap. Idealmente, debería hacerlo el usuario gerritadmin (ver pasos previos).
+Gerrit tiene el concepto de grupo, de forma que si asigno permisos a un grupo para un repositorio, todos los miembros del grupo adquieren esos permisos.
+
+Los repositorios en jerga Gerrit se denominan proyectos. Pueden crearse vacíos o con algunas ramas ya preparadas. En nuestro caso todo proyecto "nacerá" por simplicidad con dos ramas:
+
+* @master@
+* @develop@
+ 
+Estos repositorios definen los permisos de acceso en base a referencias (@refs/heads/develop@, por ejempo, es la referencia de la rama *develop*) que se pueden definir con wildcards como @refs/heads/*@ (todas las referencias que cuelguen de @refs/heads@). Hay diferentes tipos de permisos, más abajo se explica cómo crear un proyecto con unos permisos razonables para poder funcionar.
+
+h2. Pasos previos
+
+**COMPROBAR en Version 0.3**
+
+Crear un usuario en la forja Gerrit Admin de id gerritadmin
+Loguearse en Gerrit con este usuario
+Salir y volver a loguearse con el usuario admin
+Añadir a gerritadmin al grupo Administrators
+
+h2. Crear un usuario en la forja
+
+**COMPROBAR en Version 0.3**
+
+Con conexión ldap, basta con que el usuario se loguee por primera vez para que el usuario se cree. Hasta entonces, el usuario no existe en gerrit.
+
+h2. Crear un proyecto
+
+**COMPROBAR en Version 0.3**
+
+En TSCompany hemos definido un proyecto Gerrit especial, denominado tscompany-parent del que deben heredar todos los repositorios creados. Este proyecto se crea de la siguiente forma: 
+
+Crear el proyecto con el nombre tscompany-parent
+Marcar la opción Only serve as parent for other projects
+Asignar los siguientes permisos  al grupo Project Owners en Access:
+Asignar permisos Push y Push merge para refs/heads/*
+Asignar permisos Read y Create Reference (este último para crear branches) para refs/heads/*
+Añadir permiso Push annotated tag para refs/tags/*
+Añadir permiso Push merge commit para refs/* (ver bug http://code.google.com/p/gerrit/issues/detail?id=1072)
+
+A la hora de crear un nuevo repositorio en Gerrit, lo haremos heredar de tscompany-parent:
+
+Crear un grupo para el proyecto y añadir a los usuarios pertinentes
+Crear el proyecto
+Indicar en Rights Inherit From el proyecto tscompany-parent
+Marcar Create empty commit
+Crear una rama develop desde el propio Gerrit, basta dejar el campo Initial revision en blanco
+En Access otorgar los siguientes permisos:
+Asignar permisos Owner para refs/* al grupo asociado al proyecto (definido en el paso 1). Con esto ya se heredan todos los permisos de tscompany-parent, dado que allí definimos los permisos para el owner. 
+Si Jenkins necesita acceso al repositorio, asignar permisos Read para refs/* al grupo build-ro
+
+h3. Crear un grupo programáticamente
+
+ssh -p 29418 jorge@192.168.33.10 gerrit create-group --member jorge grupo1
+
+h3. Crear un proyecto programáticamente
+
+ssh -p 29418 jorge@192.168.33.10 gerrit create-project --owner grupo1 project1.git --description "'Project 1'"
+
+h2. Comenzar a trabajar en un proyecto
+
+Asegurarse del mail que se utiliza para la identificación de la autoría de los commits
+
+git config --global user.email "chris@personal.dev"
+git config --global user.name "chris"
+
+git clone ssh://chris@code.tscompany.es:29418/<pojectname>
+
+cd <projectname>
+echo “hello git” > greetings.txt
+
+git add greetings.txt
+git commit
+vpn
+Hasta aquí hemos hecho un commit en el repo local. Para subir este commit al repo remoto (el que hemos clonado y que se identifica como origin):
+
+git push

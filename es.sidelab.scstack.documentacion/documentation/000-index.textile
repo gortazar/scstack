@@ -6,5 +6,6 @@ Proceso de desarollo integrado en la forja **SidelabCodeStack**.
 
 * "Introducción":001-git-introduccion.html: @Git@
 * Visión general del "proceso de desarrollo con @Git@":002-proceso-git.html
+* Gestión de repositorios "@Git@ con @Gerrit@":003-gerrit-git.html
 * Proceso de desarrollo con "@Eclipse IDE@":003-eclipse.html
 * "Integración continua":004-jenkins.html @Jenkins@

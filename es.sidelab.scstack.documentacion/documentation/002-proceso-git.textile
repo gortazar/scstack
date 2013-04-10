@@ -1,3 +1,4 @@
+
 h1. Visión general del proceso de desarrollo con Git
 
 El proceso de Desarrollo se basa en canales. Aprovechando las facilidades que aporta un repositorio distribuido podemos gestionar diferentes ramas e intercambio de información entre las mismas de forma eficiente.
