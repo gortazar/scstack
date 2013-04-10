@@ -69,4 +69,133 @@ El repositorio remoto debería contener versiones más o menos estables
 
 h2. Configuración de Jenkins
 
+Configurar _Jenkins_ para acceder a múltiples repositorios git. Para esto se han de tener en cuenta los siguientes requerimientos:
+
+* _Jenkins_ construye diferentes proyectos en donde en proyecto puede tener su propio repositorio git.
+* _Jenkins_ debe tener permisos de lectura o lectura/escritura a todos los repositorios de aquellos proyectos que vaya a construir.
+* Por defecto _Jenkins_ usa la clave del usuario en @~/.ssh@ para autenticarse
+* ¿Con qué usuario se ejecuta Jenkins? con el usuario **tomcat**.
+
+h3. Opciones
+
+**Opción I**: Un usuario @jenkinsci@ con acceso de _lectura/escritura_ a **todos** los repositorios.
+* **Pros**:
+** _Simplicidad_: sólo hay que gestionar un usuario.
+** Una **única** clave ssh @/home/tomcat/.ssh/id_rsa.pub@.
+* **Contras**:
+** Un usuario para dominarlos a todos.
+** Cualquier error en un job para el proyecto _X_ puede afectar a los repositorios del proyecto _Y_.
+**Opción II**: Un usuario @jenkinsci@ con acceso de _lectura/escritura_ a todos los repositorios y otro @jenkinsci_read@ con acceso sólo de lectura
+* **Pros**:
+** Sólo hay que gestionar _dos usuarios_: basta con asociarlos a **todos** los proyectos.
+* **Contras**:
+** Seguimos teniendo un usuario para dominarlos a todo: jenkinsci
+** Cualquier error en un job para el proyecto _X_ puede afectar a los repositorios del proyecto _Y_.
+** Hay que gestionar dos claves ssh... no es trivial
+**Opción III**: Un **usuario por proyecto** para integración continua.
+* **Pros**:
+** El usuario de ci de un proyecto no tiene acceso a los repos de otro proyecto.
+* **Contras**:
+** Hay que gestionar múltiples @claves ssh@.
+
+**Utilizaremos la Opción III**
+
+h3. Configurar Opción III
+
+Configurar _Jenkins_ para acceso a _múltiples repositorios git_ siguiendo los siguientes pasos:
+* Crear los usuarios necesarios en la forja.
+!images/gestion-jenkins-usuarios-000.png!
+* Generar un par de claves pública/privada con @ssh-keygen@ para cada usuario en diferentes ficheros.
+* Acceder a Gerrit con cada usuario creado.
+!images/gestion-jenkins-usuarios-001.png!
+* Añadir la clave pública para este usuario.
+* Copiar las claves a la máquina de Jenkins.
+** Carpeta @/opt/ssh-keys@.
+
+bq. <pre><code class="shell">$ cd /opt/ssh-keys
+$ ll
+total 24
+drwxr-xr-x  2 tomcat tomcat 4096 Jan  4 09:46 ./
+drwxr-xr-x 14 root   root   4096 Jan  4 09:42 ../
+- rw-------  1 tomcat tomcat 1679 Jan  4 09:46 filetransferci_rsa
+- rw-r--r--  1 tomcat tomcat  398 Jan  4 09:46 filetransferci_rsa.pub
+- rw-------  1 tomcat tomcat 1679 Jan  4 09:44 samplegitci_rsa
+- rw-r--r--  1 tomcat tomcat  396 Jan  4 09:44 samplegitci_rsa.pub
+</code></pre>
+
+* Configurar SSH para que utilice la clave correcta en cada caso.
+** Crear el fichero @/home/tomcat/.ssh/config@.
+
+bq. <pre><code class="shell">$ cd /home/tomcat/.ssh
+$ cat config
+Host samplegit.patxi.sidelab.es
+    HostName patxi.sidelab.es
+    User samplegitci
+    IdentityFile /opt/ssh-keys/samplegitci_rsa
+Host filetransfer.patxi.sidelab.es
+    HostName patxi.sidelab.es
+    User filetransferci
+    IdentityFile /opt/ssh-keys/filetransferci_rsa
+</code></pre>
+
 h2. Configuración de builds
+
+Los builds de _Jenkins_ funcionan a través de la configuración de **jobs**. Por lo que vamos a definir los jobs necesarios para el proceso de integración continua.
+
+Se dividen en tres grupos:
+
+* Jobs de *integración* (read only).
+** Descargan el código (checkout).
+** Construyen.
+** Pasan tests.
+** Despliegan la versión construida en "local".
+* Jobs de *release* (read/write).
+** Realizan los pasos anteriores y además.
+** Tag si los tests pasaron.
+** Push del tag al repositorio remoto.
+* Jobs de *despliegue* (read only).
+** Descargan el binario del repositorio de binarios
+** Desplegar
+
+h3. Job de integración
+
+* Crear un *job* _#Maven_.
+* Configurar el repositorio git
+** @ssh://filetransferci@filetransferci.code.tscompany.es/filetransfer@
+** Ssh leerá el fichero config y utilizará el fichero de claves correspondiente el host @filetransferci.code.tscompany.es@.
+* Añadir las ramas a construir (añadir nuevas ramas con el botón “Add”)
+** @development@
+** @release-0.1.1@
+* Añadir el @user.email@ y @user.name@ que usará _Jenkins_.
+!images/jenkins-job-integracion.png!
+* Los resultados del build se pueden comprobar en:
+** @/opt/jenkins/jobs/filetransfer/workspace@
+** Si es un proyecto _Maven_, dentro del proyecto en la carpeta target estará el artefacto generado.
+** También se puede acceder vía web.
+*** Y descargar el workspace como un *zip*.
+** Los *tests* están en la carpeta @surfire-reports@ del proyecto _Maven_.
+** También pueden consultarse *vía web* accediendo al build y seleccionando _"Resultado de los tests"_.
+!images/jenkins-job-resultados.png!
+
+h2. Maven
+
+_Jenkins_ permite construir proyectos "Maven":http://maven.apache.org/.
+
+En determinadas ocasiones los proyectos requieren configuraciones específicas. La información sensible suele ir en el fichero @settings.xml@ en el @home@ del usuario en su máquina de desarrollo-
+
+* Info de *autenticación para Archiva*.
+* *Profiles*
+
+En Jenkins esto se puede gestionar con el plugin _"Config File Provider Plugin"_.
+
+!images/jenkins-config-file-management.png!
+
+Podemos añadir cualquiera de los ficheros creados con _Config File Management_ en un *job*.
+
+!images/jenkisn-config-file-management-settings.png!
+
+Para los deploys, si el certificado es autofirmado es *necesario* generar un *truststore* a partir del certificado generado por el servidor:
+
+* http://www.liferay.com/web/neil.griffin/blog/-/blogs/fixing-suncertpathbuilderexception-caused-by-maven-downloading-from-self-signed-repository
+
+Este truststore debe incluirse en todos los @jdk@ que utilice _Jenkins_ en la ruta indicada en el enlace anterior
