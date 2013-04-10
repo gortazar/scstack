@@ -74,7 +74,7 @@ $ cd [path-to-gitrepo]
 [path-to-gitrepo]$ git config user.name “patxigortazar”
 [path-to-gitrepo]$ git config user.email “patxi.gortazar@gmail.com”
 
-"Follow The Yellow Brick Road":http://git-scm.com/book/en/Customizing-Git-Git-Configuration
+bq. "Follow The Yellow Brick Road":http://git-scm.com/book/en/Customizing-Git-Git-Configuration
 
 h4. Comprobar la identidad
 

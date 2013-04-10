@@ -1,0 +1,72 @@
+h1. Integración continua
+
+h2. Cómo vamos a hacer CI
+
+!images/jenkins_logo.png!
+
+Usaremos un servidor de CI: "Jenkins":http://jenkins-ci.org/ Jenkins realizará determinadas tareas de forma automática:
+* Tags
+* Construir las versiones vivas
+
+También proveerá tareas para ser ejecutadas manualmente
+* Branches de releases
+* Desplegar una versión específica con un clic
+
+Las versiones vivas vivirán en su propia máquina virtual
+
+!images/jenkins-git.png!
+
+h3. Objetivos
+
+Se mantendrán diferentes versiones vivas a la vez para cumplir unos objetivos: 
+* Asegurar la calidad
+* Hacer el despliegue ágil
+* Minimizar el riesgo
+
+bq. "Release early, release often"
+
+h3. Proceso
+
+El repositorio remoto debería contener versiones más o menos estables
+
+!images/integracion-co-test.png!
+!images/integracion-tag-deploy.png!
+!images/despliegue-produccion.png!
+
+**Develop**
+* Pueden fallar algunos tests, no es problema.
+* La versión del último commit se despliega en _"local"_
+
+**Release-X**
+* Los tests deberían pasar, eventualmente se podrían desactivar.
+* La versión del _último commit_ se despliega en _"local"_.
+
+**Nightly builds**
+* Construcciones que comprueban la _"salud"_ del proyecto.
+* Se hacen sobre los branches _development_ y _release-X_ (siendo X la versión más reciente).
+* Se ejecutan los tests.
+* Se despliegan dos versiones por cada rama:
+** @Limpia@: una bbdd nueva.
+** @Migración@: con actualización de bbdd ya existente sobre la bbdd que ya hubiera para ese despliegue.
+
+**Preproducción**
+* Las versiones que van a preproducción son aquellas de las que se ha hecho @tag@.
+* Pasan los tests.
+* El entorno de pre puede estar en _local_ o en _Amazon_.
+* Se despliegan dos versiones.
+** @Limpia@.
+** @Migración@.
+
+**Producción**
+* Las versiones que van a producción son aquellas de las que se ha hecho @tag@.
+* Pasan los tests
+* El despliegue se realiza en _Amazon_.
+* Se despliegan dos versiones:
+** @Limpia@.
+** @Migración@.
+
+!images/diagrama-integracion-continua.png!
+
+h2. Configuración de Jenkins
+
+h2. Configuración de builds
