@@ -9,71 +9,50 @@ Los repositorios en jerga Gerrit se denominan proyectos. Pueden crearse vacíos 
 * @master@
 * @develop@
  
-Estos repositorios definen los permisos de acceso en base a referencias (@refs/heads/develop@, por ejempo, es la referencia de la rama *develop*) que se pueden definir con wildcards como @refs/heads/*@ (todas las referencias que cuelguen de @refs/heads@). Hay diferentes tipos de permisos, más abajo se explica cómo crear un proyecto con unos permisos razonables para poder funcionar.
+Estos repositorios definen los permisos de acceso en base a referencias (@refs/heads/develop@, por ejempo, es la referencia de la rama *develop*) que se pueden definir con wildcards como @refs/heads/*@ (todas las referencias dentro del directorio @refs/heads@). Hay diferentes tipos de permisos, más abajo se explica cómo crear un proyecto con unos permisos razonables para poder funcionar.
 
 h2. Pasos previos
 
-**COMPROBAR en Version 0.3**
+El primer usuario que accede a Gerrit obtiene privilegios de administrador. Al instalar la forja, se recomienda crear un usuario **"gerritadmin"** y password **"t0rc0zu310"** y acceder con este usuario a Gerrit. Este usuario se convertirá en administrador automáticamente al hacer login. A partir de este momento, este será el usuario con el que crear los grupos y proyectos (repositorios) en Gerrit.
 
-Crear un usuario en la forja Gerrit Admin de id gerritadmin
-Loguearse en Gerrit con este usuario
-Salir y volver a loguearse con el usuario admin
-Añadir a gerritadmin al grupo Administrators
+Obtener la clave pública del servidor para asignarla al usuario **gerritadmin**:
 
-h2. Crear un usuario en la forja
+# _Settings -> SSH Public Keys -> Add_
+# Copiar la clave del fichero @/opt/ssh-keys/gerritadmin_rsa.pub@.
 
-**COMPROBAR en Version 0.3**
+Configurar permisos para creación de proyectos:
 
-Con conexión ldap, basta con que el usuario se loguee por primera vez para que el usuario se cree. Hasta entonces, el usuario no existe en gerrit.
+# Acceder a _Projects -> List -> All-Projects_.
+# Seleccionar _Access_:
+# _Editar_ -> _Add Group_ -> _Group name_ en:
+** **refs/** añadir _Push_ el grupo _Administrators_.
+** **refs/meta/config** añadir a _Read_ el grupo _Administrators_.
+# Save Changes.
 
 h2. Crear un proyecto
 
-**COMPROBAR en Version 0.3**
+La Consola de Administración es la encargada de gestionar los repositorios @Git@ mediante @gerrit@. Por lo que la creación de un proyecto Git va asociada a la creación de un nuevo proyecto en la consola.
 
-En TSCompany hemos definido un proyecto Gerrit especial, denominado tscompany-parent del que deben heredar todos los repositorios creados. Este proyecto se crea de la siguiente forma: 
-
-Crear el proyecto con el nombre tscompany-parent
-Marcar la opción Only serve as parent for other projects
-Asignar los siguientes permisos  al grupo Project Owners en Access:
-Asignar permisos Push y Push merge para refs/heads/*
-Asignar permisos Read y Create Reference (este último para crear branches) para refs/heads/*
-Añadir permiso Push annotated tag para refs/tags/*
-Añadir permiso Push merge commit para refs/* (ver bug http://code.google.com/p/gerrit/issues/detail?id=1072)
-
-A la hora de crear un nuevo repositorio en Gerrit, lo haremos heredar de tscompany-parent:
-
-Crear un grupo para el proyecto y añadir a los usuarios pertinentes
-Crear el proyecto
-Indicar en Rights Inherit From el proyecto tscompany-parent
-Marcar Create empty commit
-Crear una rama develop desde el propio Gerrit, basta dejar el campo Initial revision en blanco
-En Access otorgar los siguientes permisos:
-Asignar permisos Owner para refs/* al grupo asociado al proyecto (definido en el paso 1). Con esto ya se heredan todos los permisos de tscompany-parent, dado que allí definimos los permisos para el owner. 
-Si Jenkins necesita acceso al repositorio, asignar permisos Read para refs/* al grupo build-ro
-
-h3. Crear un grupo programáticamente
-
-ssh -p 29418 jorge@192.168.33.10 gerrit create-group --member jorge grupo1
-
-h3. Crear un proyecto programáticamente
-
-ssh -p 29418 jorge@192.168.33.10 gerrit create-project --owner grupo1 project1.git --description "'Project 1'"
+* Se ha de elegir un nuevo proyecto asociado a un usuario _administrador_.
+* Marcar _proyecto con repositorio_.
+* Elegir repositorio de tipo **Git**.
+* Grupo de _Usuarios_ del proyecto.
+* **Crear proyecto**.
 
 h2. Comenzar a trabajar en un proyecto
 
 Asegurarse del mail que se utiliza para la identificación de la autoría de los commits
 
-git config --global user.email "chris@personal.dev"
-git config --global user.name "chris"
-
-git clone ssh://chris@code.tscompany.es:29418/<pojectname>
-
+bq. <pre><code class="shell">git config --global user.email "usuario@<dominio-mail.com>"
+git config --global user.name "usuario"
+git clone ssh://usuario@<dominio.sidelabcode>:29418/<projectname>
 cd <projectname>
 echo “hello git” > greetings.txt
-
 git add greetings.txt
-git commit
-vpn
+git commit - "mensaje de commit obligatorio."
+</code></pre>
+
 Hasta aquí hemos hecho un commit en el repo local. Para subir este commit al repo remoto (el que hemos clonado y que se identifica como origin):
 
-git push
+bq. <pre><code class="shell">git push
+</code></pre>
