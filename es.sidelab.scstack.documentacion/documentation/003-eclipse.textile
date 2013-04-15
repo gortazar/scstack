@@ -89,9 +89,7 @@ h2. Paso 3 - crear el proyecto
 *** @$ git add <file>@
 # **Commit!**
 
-!images/commit-dealer.png!
-
-h3. Commit 
+h3. Commit
 
 Eclipse:
 
