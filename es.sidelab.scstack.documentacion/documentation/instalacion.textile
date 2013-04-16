@@ -227,10 +227,10 @@ Configurar permisos para creación de proyectos:
 
 # Acceder a _Projects -> List -> All-Projects_.
 # Seleccionar _Access_:
-# _Editar_ -> _Add Group_ -> _Group name_ en:
+# _Editar_:
 
-  * **refs/** añadir _Push_ el grupo _Administrators_.
-  * **refs/meta/config** añadir a _Read_ el grupo _Administrators_.
+  * @Bloque@ **refs/** Add Permission -> añadir _Push_ el grupo _Administrators_.
+  * @Bloque@ **refs/meta/config** Add Group -> añadir a _Read_ el grupo _Administrators_.
 # Save Changes.
 
 h3. Archiva
