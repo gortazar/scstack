@@ -20,6 +20,7 @@
 		<module>../es.sidelab.scstack.lib</module>
 		<module>../es.sidelab.scstack.service</module>
 		<module>../es.sidelab.scstack.puppet-installer</module>
+		<module>../es.sidelab.scstack.documentacion</module>
 	</modules>
 
 	<issueManagement>

@@ -18,7 +18,7 @@ class puppet_plugins_redmine::wysiwyg_textile_plugin (
   # Download plugin
   exec { "download-wysiwyg":
     cwd       => "/tmp",
-    command   => "/usr/bin/wget  -c  http://code.sidelab.es/public/sidelabcodestack/artifacts/0.3/redmine_wysiwyg_textile.tar.gz",
+    command   => "/usr/bin/wget  -c  http://code.sidelab.es/public/sidelabcodestack/artifacts/0.4/redmine_wysiwyg_textile.tar.gz",
     logoutput => true,
   }
 
