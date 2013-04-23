@@ -581,34 +581,11 @@ public class GerritManager {
             String sadminGerrit, ConnectionOptions options)
             throws ExcepcionConsola {
 
-        boolean groupExists = false;
-
-        String sshPrefix = "ssh -l " + sadminGerrit + " -p 29418 "
-                + sadminGerrit;
-
-        CommandLine cl = new CommandLine(new File("/usr/bin/"));
-        CommandOutput co;
-
-        try {
-
-            String cmd = sshPrefix + " gerrit ls-groups";
-            log.info("[Gerrit] " + cmd);
-            co = cl.syncExec(cmd);
-            log.info(getCommandOutput(co));
-        } catch (Exception e) {
-            throw new ExcepcionConsola("Problem checking Gerrit group: "
-                    + e.getMessage());
-        }
-
-        StringTokenizer st = new StringTokenizer(getCommandOutput(co), "\n");
-        while (!groupExists && st.hasMoreTokens()) {
-            String name = st.nextToken();
-            if (name.equals(cnProyecto)) {
-                groupExists = true;
-            }
-        }
+        boolean groupExists = checkExistingGerritConfiguration(cnProyecto,
+                sadminGerrit, gerritListGroups, options);
 
         return groupExists;
+
     }
 
     /**
@@ -646,10 +623,10 @@ public class GerritManager {
      * Check existing groups or projects using 'gerritCommand' parameter.
      * </p>
      * 
-     * @param cnProyecto
-     *            Project name to check with existing groups.
+     * @param cnName
+     *            Name to check with existing groups/projects.
      * @param sadminGerrit
-     *            Gerrit super administrator user.
+     *            Gerrit super administrator user ssh configuration.
      * @param gerritCommand
      *            Parameter to retrieve and check groups or projects:
      *            <ul>
@@ -661,7 +638,7 @@ public class GerritManager {
      * @return
      * @throws ExcepcionConsola
      */
-    public boolean checkExistingGerritConfiguration(String cnProyecto,
+    public boolean checkExistingGerritConfiguration(String cnName,
             String sadminGerrit, String gerritCommand, ConnectionOptions options)
             throws ExcepcionConsola {
 
@@ -669,7 +646,7 @@ public class GerritManager {
 
             String sshPrefix = "ssh -l " + sadminGerrit + " -p 29418 "
                     + sadminGerrit;
-            String cmd = sshPrefix + " gerrit ls-projects";
+            String cmd = sshPrefix + " gerrit " + gerritCommand;
             log.info("[Gerrit] " + cmd);
 
             OverthereConnection conn = Overthere
@@ -683,15 +660,15 @@ public class GerritManager {
             log.info("[Gerrit] [err] " + outputHandler.getErr());
 
         } catch (Exception e) {
-            throw new ExcepcionConsola("Problem listing Gerrit projects: "
-                    + e.getMessage());
+            throw new ExcepcionConsola("Problem listing Gerrit config with '"
+                    + gerritCommand + "': " + e.getMessage());
         }
 
         boolean exists = false;
         StringTokenizer st = new StringTokenizer(outputHandler.getOut(), "\n");
         while (!exists && st.hasMoreTokens()) {
             String name = st.nextToken();
-            if (name.equals(cnProyecto)) {
+            if (name.equals(cnName)) {
                 exists = true;
             }
         }
