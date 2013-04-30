@@ -60,12 +60,13 @@ class puppet_plugins_redmine::backlogs_plugin ($installFolder) {
     logoutput   => true,
   }
 
-  # Install backlogs plugin
+  # Install backlogs plugin and define story and task tracker 
+  # in params 'story_trackers= 1, 2, 3' and 'task_tracker=Task'
   exec { "bundle-install-plugin-backlogs":
     cwd         => "$installFolder/redmine",
     require     => Exec["migrate-plugin-backlogs"],
     logoutput   => true,
-    command     => "/usr/local/bin/bundle exec rake redmine:backlogs:install",
+    command     => "/usr/local/bin/bundle exec rake redmine:backlogs:install story_trackers=1,2,3 task_tracker=Task",
     environment => "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/opt/vagrant_ruby/bin",
   }
 
