@@ -43,10 +43,10 @@ class puppet_plugins_redmine::backlogs_plugin ($installFolder) {
   }
 
   # Configure Redmine
-  exec { "bundle-install-plugin-backlogs":
+  exec { "bundle-install-redmine-plugin-backlogs":
     cwd         => "$installFolder/redmine",
     logoutput   => true,
-    require     => File["$installFolder/redmine/plugins/redmine_backlogs"],
+    require     => Exec["move-backlogs"],
     command     => "/usr/local/bin/bundle install --path vendor/bundle --without postgresql development test rmagick sqlite",
     environment => "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/opt/vagrant_ruby/bin",
   }
@@ -54,7 +54,7 @@ class puppet_plugins_redmine::backlogs_plugin ($installFolder) {
   # Migrate plugin in redmine directory
   exec { "migrate-plugin-backlogs":
     cwd         => "$installFolder/redmine",
-    require     => Exec["bundle-install"],
+    require     => Exec["bundle-install-redmine-plugin-backlogs"],
     environment => ["RAILS_ENV=production"],
     command     => "/usr/local/bin/bundle exec rake redmine:plugins:migrate",
     logoutput   => true,
@@ -62,7 +62,7 @@ class puppet_plugins_redmine::backlogs_plugin ($installFolder) {
 
   # Install backlogs plugin and define story and task tracker 
   # in params 'story_trackers= 1, 2, 3' and 'task_tracker=Task'
-  exec { "bundle-install-plugin-backlogs":
+  exec { "bundle-configure-plugin-backlogs":
     cwd         => "$installFolder/redmine",
     require     => Exec["migrate-plugin-backlogs"],
     logoutput   => true,
@@ -75,7 +75,7 @@ class puppet_plugins_redmine::backlogs_plugin ($installFolder) {
     owner   => www-data,
     group   => www-data,
     recurse => true,
-    require => Exec["bundle-install-plugin-backlogs"],
+    require => Exec["bundle-configure-plugin-backlogs"],
   }
 
 }
