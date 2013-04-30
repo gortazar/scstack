@@ -43,7 +43,7 @@ class puppet_plugins_redmine::backlogs_plugin ($installFolder) {
   }
 
   # Configure Redmine
-  exec { "bundle-install":
+  exec { "bundle-install-plugin-backlogs":
     cwd         => "$installFolder/redmine",
     logoutput   => true,
     require     => File["$installFolder/redmine/plugins/redmine_backlogs"],
