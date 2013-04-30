@@ -1,3 +1,5 @@
+{toc:style=disc|maxLevel=3}
+
 h1. Instalación
 
 En la versión 0.4 de SidelabCode Stack se utiliza Puppet en el proceso de instalación. Ahora es extremadamente sencillo instalar SidelabCode Stack usando Puppet o Vagrant con el nuevo instalador.
