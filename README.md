@@ -3,6 +3,8 @@ scstack
 
 A software forge ecosystem
 
+[![Build Status](https://travis-ci.org/gortazar/scstack.png)](https://travis-ci.org/gortazar/scstack)
+
 Instalación
 -----------
 
