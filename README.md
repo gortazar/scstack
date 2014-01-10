@@ -27,12 +27,12 @@ Descargar el instalador de SidelabCode Stack (módulo scstack) y sus dependencia
     cd $HOME
     mkdir tmp
     cd $HOME/tmp
-    wget http://code.sidelab.es/public/sidelabcodestack/artifacts/0.4/puppet-installer-0.4-bin.tar.gz
+    wget https://github.com/sidelab-urjc/scstack/archive/master.zip
 
 Descomprimir y copiar a la carpeta modules:
 
     cd $HOME/tmp
-    tar xvzf puppet-installer-0.4-bin.tar.gz
+    unzip master.zip
 
 Configuración de módulos puppet
 -------------------------------
