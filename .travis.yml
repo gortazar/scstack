@@ -1,0 +1,6 @@
+language: java
+before_script:
+  - sudo apt-get update 
+  - sudo ./bootstrap.sh
+script: ./test/run-tests.sh
+
