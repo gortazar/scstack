@@ -19,5 +19,4 @@ class { "scstack":
   compname => "SidelabCode Stack version 0.4",
   # A name to be displayed within Redmine
   codename => "SCStack ALM Tools",
-  require => Package["ruby1.9.3"]
 }
