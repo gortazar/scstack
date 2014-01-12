@@ -1,12 +1,10 @@
-scstack
-=======
+# scstack
 
 A software forge ecosystem
 
 [![Build Status](https://travis-ci.org/gortazar/scstack.png)](https://travis-ci.org/gortazar/scstack)
 
-Instalación
------------
+## Instalación
 
 En la versión 0.4 de SidelabCode Stack se utiliza Puppet en el proceso de instalación. Ahora es extremadamente sencillo instalar SidelabCode Stack usando Puppet o Vagrant con el nuevo instalador.
 
@@ -16,8 +14,7 @@ Además, el uso de Vagrant permite probar SidelabCode Stack en una máquina virt
 
 Give it a try! It's super easy.
 
-Requisitos
-----------
+### Requisitos
 
 Para la instalación de SidelabCode Stack es necesario obtener los siguientes recursos.
 
@@ -36,8 +33,7 @@ Descomprimir y copiar a la carpeta modules:
     cd $HOME/tmp
     unzip master.zip
 
-Configuración de módulos puppet
--------------------------------
+### Configuración de módulos puppet
   
 Creamos un fichero default.pp en la carpeta tmp con el siguiente contenido:
 
@@ -58,8 +54,7 @@ Creamos un fichero default.pp en la carpeta tmp con el siguiente contenido:
       codename => "SCStack ALM Tools",
     }
 
-Apt Cacher
-----------
+### Apt Cacher
 
 Dependiendo de la conexión de red, el proceso de instalación puede tardar más o menos. En general es buena idea configurar un proxy para los paquetes debian. Esta opción es recomendable en el proceso de instalación a través de Vagrant. Para ello, simplemente hay que instalar apt-cacher en el host:
 
@@ -87,67 +82,34 @@ Añadir el siguiente trozo de código en la primera línea del fichero default.p
       content => 'Acquire::http::Proxy "http://192.168.33.1:3142/apt-cacher";',
     }
 
-Vagrant
--------
+## Instalación con Vagrant
 
 La instalación a través de Vagrant permite probar SidelabCode Stack en una máquina virtual en 5 minutos.
 
-Descripción del entorno de instalación
+### Descripción del entorno de instalación
 
 Básicamente lo que vamos a hacer es indicar a Vagrant que monte una red privada entre la máquina host y la máquina virtual donde instalaremos SidelabCode Stack. Esto nos permite tener acceso a la forja desde el host. Normalmente, Vagrant asigna, dentro de esa red privada, la IP 192.168.33.1 al host y la IP 192.168.33.10 a la máquina virtual. Estos valores se pueden cambiar como veremos posteriormente.
 
-Prerequisitos
+### Prerequisitos
 
-Instalar Vagrant y Virtualbox (descargar las últimas versiones de las respectivas páginas web)
+Instalar Vagrant y Virtualbox
 
 Añadir Vagrant al path
 
     gedit $HOME/.bashrc
     PATH=$PATH:/opt/vagrant/bin
 
-Preparación de la VM
+### Arrancar la vm.
 
-Utilizaremos Vagrant para provisionar una VM con Java donde poder instalar SidelabCode Stack. Preparamos la carpeta para el proyecto Vagrant
-
-    mkdir vagrant
-    mkdir vagrant/manifests
-    mkdir vagrant/modules
-
-Descargar una imagen vagrant (precise64 es la que elegimos en esta documentación, por ser LTS)
-
-    vagrant box add precise64 http://files.vagrantup.com/precise64.box
-
-Si quiere utilizar una versión distinta de una distribución, puede seleccionarla en la lista de boxes que proporciona vagrant para virtualbox
-
-Crear un proyecto Vagrant
-
-    vagrant init
-
-Modificar el Vagrantfile que describe el proyecto (VM, provisioner, etc) para que arranque la vm "precise64" y utilice Puppet
-
-    config.vm.box = "precise64" 
-    config.vm.network :hostonly, "192.168.33.10" # Si se desea se puede utilizar el modo bridge y asignar una ip por dhcp a la máquina dentro de la red en la que se encuentra el host
-    config.vm.provision :puppet, :module_path => "modules" 
-
-Copiar el instalador de la forja en la carpeta modules del proyecto Vagrant:
-
-    cp -R puppet-installer-0.4/* $HOME/vagrant/modules
-
-Copiar el fichero default.pp en la carpeta manifests del proyecto Vagrant:
-
-    cp /tmp/default.pp $HOME/vagrant/manifests
-
-Arrancar la vm.
-
-    cd $HOME/vagrant
+    git clone https://github.com/gortazar/scstack.git
+    cd scstack
     vagrant up
 
-Puppet
-------
+## Instalación directamente con puppet
 
-TBC: Descripción
+En este caso asumimos que tenemos una máquina con Ubuntu 12.04 64 bits instalado. 
 
-Pre requisitos
+### Prerequisitos
 
 Puppet se ha de instalar mediante el gestor de paquetes de la distribución, en este caso apt para ubuntu:
 
@@ -155,18 +117,20 @@ Puppet se ha de instalar mediante el gestor de paquetes de la distribución, en 
 
 La instalación en otras distribuciones se puede consultar en el manual de puppet.
 
-Configuración
+### Configuración
 
 Copiar los módulos puppet al directorio de módulos definido:
 
     $ mkdir -p $HOME/puppet/modules
     $ cp -R puppet-installer-0.4/* $HOME/puppet/modules
 
+### Provisionamiento
+
 Ejecutar puppet para el proceso de instalación mediante sudo:
 
     $ sudo puppet apply --modulepath=$HOME/puppet/modules default.pp
 
-Post instalación
+## Post instalación
 
 El proceso de instalación comenzará automáticamente. Una vez finalizado, en la dirección http://test.scstack.org/redmine se mostrará Redmine. La consola es accesible a través de la dirección https://test.scstack.org:5555. Es posible administrar scstack accediendo con el usuario "sadmin" y la contraseña especificada en el parámetro sadminpass.
 
@@ -177,13 +141,13 @@ Nota: La consola de administración se ha comprobado el funcionamiento para los 
 
 Para información sobre la administración de la forja, consultar la documentación de usuario.
 
-Primeros pasos
+### Primeros pasos
 
 Después de la instalación automatizada del entorno se ha de acceder a las herramientas Redmine y Archiva para completar el proceso.
 
 Antes de nada se ha de reiniciar la máquina para comprobar que se ejecutan todos los procesos en el inicio.
 
-Redmine
+### Redmine
 
 Modificar la fecha de creación de la api key de admin desde mysql:
 
@@ -209,7 +173,7 @@ Cambiar la API key para securizar el acceso a la API rest (scstack instala una p
 * Pegar la key en el fichero /opt/scstack-service/scstack.conf
 * Reiniciar el servicio scstack: sudo service scstack-service restart
 
-Gerrit
+### Gerrit
 
 El primer usuario que accede a Gerrit obtiene privilegios de administrador. Al instalar la forja, se recomienda crear un usuario "gerritadmin" y password "t0rc0zu310" y acceder con este usuario a Gerrit. Este usuario se convertirá en administrador automáticamente al hacer login. A partir de este momento, este será el usuario con el que crear los grupos y proyectos (repositorios) en Gerrit.
 
@@ -225,22 +189,22 @@ Editar -> :
 refs/ Add Permission -> añadir Push el grupo Administrators.
 refs/meta/config Add Group -> añadir a Read el grupo Administrators.
 Save Changes.
-Archiva
+
+### Archiva
+
 Acceder a la URL de Archiva:
 
     https://test.scstack.org/archiva
 
 La primera vez que se configura archiva pide los datos del administrador. Apuntarlos convenientemente para posteriores necesidades de administración. Se recomienda utilizar la contraseña del administrador de la forja definida en el fichero de configuración default.pp.
 
-Repositorios
+#### Repositorios
 
 Por defecto, Archiva trae configurado un repositorio internal que hace de proxy de Maven Central y java.net. Si hace falta añadir repositorios remotos adicionales, en Repositories, al final de la página se pueden añadir repositorios remotos.
 
 Archiva trae configurado un repositorio de snapshots. Se recomienda crear uno de releases.
 
 Para ello accedemos a la adminstración de Archiva Administration -> Repositories y añadimos uno nuevo con los siguientes parámetros:
-
-Configuración
 
     Identifier*: releases
     Name*:       Archiva Managed Releases Repository
@@ -250,23 +214,23 @@ Configuración
     
 Se crea el repositorio. Si Tomcat nos muestra un error por pantalla al acceder a la URL https://test.scstack.org/archiva/admin/addRepository!commit.action relacionado con NullPointerException no nos debemos preocupar ya que el repositorio está creado correctamente siendo accesible y funcional. Se puede comprobar volviendo a visualizar la lista de repositorios de Archiva.
 
-Usuarios
+#### Usuarios
 
 Archiva no lee los usuarios de OpenLDAP, por tanto es necesario añadirlos a mano. En principio, debería ser suficiente con un usuario de deploy para toda la organización, o como mucho, un usuario por proyecto o grupo de proyectos.
 
 El usuario debe ser Observer de los tres repositorios (internal, snapshots, releases) y manager de snapshots y releases.
 
-FAQ
----
+## FAQ
 
 Posibles problemas que se pueden encontrar tras la instalación
 
-Error al crear un repositorio Git: Reininciar el servicio scstack-service
+### Error al crear un repositorio Git: Reininciar el servicio scstack-service
 
     $ sudo service scstack-service stop
     $ sudo service scstack-service start
 
-Error al acceder a Archiva o Jenkins 404 No encontrado:
+### Error al acceder a Archiva o Jenkins 404 No encontrado:
+
 Configurar el dominio de nombres en el ordenador para que acceda a através de la ip correspondiente:
 
     $ sudo vi /etc/hosts
