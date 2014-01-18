@@ -1,7 +1,7 @@
 # Si hemos configardo apt-cacher como proxy, añadir las siguientes líneas:
-#file { "/etc/apt/apt.conf.d/01proxy":
-#  content => 'Acquire::http::Proxy "http://192.168.33.1:3142/apt-cacher";',
-#}
+file { "/etc/apt/apt.conf.d/01proxy":
+  content => 'Acquire::http::Proxy "http://192.168.33.1:3142/apt-cacher";',
+}
 
 # Parte de la instalación
 exec { "apt-update":
@@ -9,7 +9,8 @@ exec { "apt-update":
 }
 
 class { 'ruby':
-  version         => '1.9.3',
+  version         => 'latest',
+  ruby_package => 'ruby1.9.3',
   gems_version     => 'latest',
   before => Class["scstack"],
 }

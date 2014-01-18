@@ -48,7 +48,7 @@ class puppet_plugins_redmine::backlogs_plugin ($installFolder) {
     logoutput   => true,
     require     => Exec["move-backlogs"],
     command     => "/usr/local/bin/bundle install --path vendor/bundle --without postgresql development test rmagick sqlite",
-    environment => "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/opt/vagrant_ruby/bin",
+    environment => "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games",
   }
 
   # Migrate plugin in redmine directory

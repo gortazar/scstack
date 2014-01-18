@@ -30,11 +30,6 @@ class scstack::scstack_ldap (
   $sadminpass,
 ) {
   
-  exec { "apt-get update ldap":
-    command => "/usr/bin/apt-get update",
-    before => Class["ldap"],
-  }
-
   class { "ldap":
     server => 'true',
   #  ssl => "true",
