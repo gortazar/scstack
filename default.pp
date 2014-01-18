@@ -1,7 +1,7 @@
 # Si hemos configardo apt-cacher como proxy, añadir las siguientes líneas:
-file { "/etc/apt/apt.conf.d/01proxy":
-  content => 'Acquire::http::Proxy "http://192.168.33.1:3142/apt-cacher";',
-}
+#file { "/etc/apt/apt.conf.d/01proxy":
+#  content => 'Acquire::http::Proxy "http://192.168.33.1:3142/apt-cacher";',
+#}
 
 # Parte de la instalación
 exec { "apt-update":
