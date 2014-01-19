@@ -16,6 +16,11 @@ class scstack(
   $ip,
   $domain,
   $baseDN,
+  # MySQL info
+  $mysqlpass = "re@lity45",
+  $redminedb = "redminedb",
+  $redminedbuser = "redminedbuser",
+  $redminedbpass = "r3dm1n3",
   # Generic info (used in Redmine, for instance)
   $compname = "SidelabCode Stack",
   $codename = "Code" 
@@ -50,10 +55,6 @@ class scstack(
   $adminmail = "admin@$domain"
   
   # MySQL params
-  $mysqlpass = "re@lity45"
-  $redminedb = "redminedb"
-  $redminedbuser = "redminedbuser"
-  $redminedbpass = "r3dm1n3"
   $old_pw = ''
   $archivadbpass = "t0rc0zu310" 
   $gerritdbpass = "t0rc0zu310"

@@ -22,6 +22,11 @@ class { "scstack":
   ip => "127.0.0.1", 
   domain => "code.scstack.org",
   baseDN => "dc=code,dc=scstack,dc=org",
+  # MySQL info
+  $mysqlpass = "",
+  $redminedb = "redminedb",
+  $redminedbuser = "travis",
+  $redminedbpass = "",
   # Your company/organization name
   compname => "SidelabCode Stack version 0.4",
   # A name to be displayed within Redmine

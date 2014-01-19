@@ -3,6 +3,7 @@ rvm:
   - 1.9.3
 before_script:
   - sudo apt-get update 
+  - mysql -e 'create database redminedb;'
   - sudo ./bootstrap.sh
 script: ./test/run-tests.sh
 
