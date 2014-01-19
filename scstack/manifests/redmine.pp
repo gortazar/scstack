@@ -202,10 +202,18 @@ class scstack::redmine (
     content => template('scstack/redmine/redmine-apikey.sql.erb'),
   }
 
-  exec {"mysql-redmine-apikey-setup":
-    cwd => "$installFolder/redmine",
-    command => "/usr/bin/mysql -u$redminedbuser -p$redminedbpass < /tmp/redmine-apikey.sql",
-    require => [File["/tmp/redmine-apikey.sql"],Class["mysql"], Exec["redmine-load-data"]],
+  if $redminedbpass {
+    exec {"mysql-redmine-apikey-setup":
+      cwd => "$installFolder/redmine",
+      command => "/usr/bin/mysql -u$redminedbuser -p$redminedbpass < /tmp/redmine-apikey.sql",
+      require => [File["/tmp/redmine-apikey.sql"],Class["mysql"], Exec["redmine-load-data"]],
+    }    
+  } else {
+    exec {"mysql-redmine-apikey-setup":
+      cwd => "$installFolder/redmine",
+      command => "/usr/bin/mysql -u$redminedbuser < /tmp/redmine-apikey.sql",
+      require => [File["/tmp/redmine-apikey.sql"],Class["mysql"], Exec["redmine-load-data"]],
+    }
   }
   
   file { "$installFolder/redmine/tmp":
