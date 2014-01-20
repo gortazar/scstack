@@ -182,27 +182,43 @@ class scstack::redmine (
     content => template('scstack/redmine/redmine-ldap.sql.erb'),
   }
 
-  exec {"mysql-redmine-ldap-setup":
-    cwd => "$installFolder/redmine",
-    command => "/usr/bin/mysql -u$redminedbuser -p$redminedbpass < /tmp/redmine-ldap.sql",
-    require => [File["/tmp/redmine-ldap.sql"],Class["mysql"], Exec["redmine-load-data"]],
+  if !empty($redminedbpass) {
+    exec {"mysql-redmine-ldap-setup":
+      cwd => "$installFolder/redmine",
+      command => "/usr/bin/mysql -u$redminedbuser -p$redminedbpass < /tmp/redmine-ldap.sql",
+      require => [File["/tmp/redmine-ldap.sql"],Class["mysql"], Exec["redmine-load-data"]],
+    }
+  } else {
+    exec {"mysql-redmine-ldap-setup":
+      cwd => "$installFolder/redmine",
+      command => "/usr/bin/mysql -u$redminedbuser < /tmp/redmine-ldap.sql",
+      require => [File["/tmp/redmine-ldap.sql"],Class["mysql"], Exec["redmine-load-data"]],
+    }
   }
 
   file {"/tmp/redmine-settings.sql":
     content => template('scstack/redmine/redmine-settings.sql.erb'),
   }
 
-  exec {"mysql-redmine-settings-setup":
-    cwd => "$installFolder/redmine",
-    command => "/usr/bin/mysql -u$redminedbuser -p$redminedbpass < /tmp/redmine-settings.sql",
-    require => [File["/tmp/redmine-settings.sql"],Class["mysql"], Exec["redmine-load-data"]],
+  if !empty($redminedbpass) {
+    exec {"mysql-redmine-settings-setup":
+      cwd => "$installFolder/redmine",
+      command => "/usr/bin/mysql -u$redminedbuser -p$redminedbpass < /tmp/redmine-settings.sql",
+      require => [File["/tmp/redmine-settings.sql"],Class["mysql"], Exec["redmine-load-data"]],
+    }
+  } else {
+    exec {"mysql-redmine-settings-setup":
+      cwd => "$installFolder/redmine",
+      command => "/usr/bin/mysql -u$redminedbuser < /tmp/redmine-settings.sql",
+      require => [File["/tmp/redmine-settings.sql"],Class["mysql"], Exec["redmine-load-data"]],
+    }
   }
 
   file {"/tmp/redmine-apikey.sql":
     content => template('scstack/redmine/redmine-apikey.sql.erb'),
   }
 
-  if $redminedbpass {
+  if !empty($redminedbpass) {
     exec {"mysql-redmine-apikey-setup":
       cwd => "$installFolder/redmine",
       command => "/usr/bin/mysql -u$redminedbuser -p$redminedbpass < /tmp/redmine-apikey.sql",
@@ -371,7 +387,8 @@ class scstack::redmine (
     logoutput => true,
     require => Exec["migrate-plugin"],
     command => "/usr/local/bin/bundle install --without development test rmagick postgresql sqlite",
-    environment => "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/opt/vagrant_ruby/bin",
+    #environment => "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/opt/vagrant_ruby/bin",
+    environment => "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games",
   }
 
 }
