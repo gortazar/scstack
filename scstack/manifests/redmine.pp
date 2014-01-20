@@ -135,14 +135,14 @@ class scstack::redmine (
     provider => "gem",
     ensure => "1.2.3",
     before => Exec["redmine-install"],
-    require => Package["rubygems"],
+    require => Exec["set-gem-update-alternatives"],
   }
 
   package { "rake":
     provider => "gem",
     ensure => installed,
     before => Exec["redmine-install"],
-    require => Package["rubygems"],
+    require => Exec["set-gem-update-alternatives"],
   }
   
   package { "fcgi":
