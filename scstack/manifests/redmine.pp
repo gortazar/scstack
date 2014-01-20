@@ -65,7 +65,8 @@ class scstack::redmine (
           require     => Exec["set-gem-update-alternatives"];
   }
 
-  class { 'mysql::ruby': 
+  class { 'mysql::ruby':
+    package_name => "libmysql-ruby1.9.1",
     require => Package["activerecord-mysql-adapter"],
   }
 
