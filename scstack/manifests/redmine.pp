@@ -27,6 +27,32 @@ class scstack::redmine (
     config_hash => { 'root_password' => $mysqlpass },
   }
 
+  package {
+
+    "ruby1.9.1":
+      require => Exec["apt-get update redmine"],
+      ensure => installed;
+
+    "ruby1.9.1-dev":
+      require => Exec["apt-get update redmine"],
+      ensure => installed;
+
+    "rubygems1.9.1":
+      require => Exec["apt-get update redmine"],
+      ensure => installed;
+  
+  }
+
+  exec { "update-alternatives":
+    command => "/usr/bin/update-alternatives --install /usr/bin/ruby ruby /usr/bin/ruby1.9.1 400 --slave /usr/share/man/man1/ruby.1.gz ruby.1.gz /usr/share/man/man1/ruby1.9.1.1.gz"
+    require => Package["ruby1.9.1", "ruby1.9.1-dev", "rubygems1.9.1"],
+  }
+
+  exec { "set-update-alternatives":
+    command => "/usr/bin/update-alternatives --set ruby /usr/bin/ruby1.9.1"
+    require => Exec["update-alternatives"],
+  }
+
   class { 'mysql::ruby': }
 
   class { 'mysql::java': }
@@ -51,10 +77,6 @@ class scstack::redmine (
       ensure => installed;
 
     "build-essential":
-      require => Exec["apt-get update redmine"],
-      ensure => installed;
-
-    "rubygems":
       require => Exec["apt-get update redmine"],
       ensure => installed;
 
