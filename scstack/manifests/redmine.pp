@@ -44,12 +44,17 @@ class scstack::redmine (
   }
 
   exec { "update-alternatives":
-    command => "/usr/bin/update-alternatives --install /usr/bin/ruby ruby /usr/bin/ruby1.9.1 400 --slave /usr/share/man/man1/ruby.1.gz ruby.1.gz /usr/share/man/man1/ruby1.9.1.1.gz"
+    command => "/usr/bin/update-alternatives --install /usr/bin/ruby ruby /usr/bin/ruby1.9.1 400 --slave /usr/share/man/man1/ruby.1.gz ruby.1.gz /usr/share/man/man1/ruby1.9.1.1.gz",
     require => Package["ruby1.9.1", "ruby1.9.1-dev", "rubygems1.9.1"],
   }
 
-  exec { "set-update-alternatives":
-    command => "/usr/bin/update-alternatives --set ruby /usr/bin/ruby1.9.1"
+  exec { "set-ruby-update-alternatives":
+    command => "/usr/bin/update-alternatives --set ruby /usr/bin/ruby1.9.1",
+    require => Exec["update-alternatives"],
+  }
+
+  exec { "set-gem-update-alternatives":
+    command => "/usr/bin/update-alternatives --set gem /usr/bin/gem1.9.1",
     require => Exec["update-alternatives"],
   }
 
