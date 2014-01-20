@@ -58,8 +58,15 @@ class scstack::redmine (
     require => Exec["update-alternatives"],
   }
 
+  package {
+      "activerecord-mysql-adapter":
+          ensure      => installed,
+          provider    => gem,
+          require     => Exec["set-gem-update-alternatives"];
+  }
+
   class { 'mysql::ruby': 
-    require => Exec["set-gem-update-alternatives"],
+    require => Package["activerecord-mysql-adapter"],
   }
 
   class { 'mysql::java': }
