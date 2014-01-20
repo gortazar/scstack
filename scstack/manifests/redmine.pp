@@ -46,16 +46,19 @@ class scstack::redmine (
   exec { "update-alternatives":
     command => "/usr/bin/update-alternatives --install /usr/bin/ruby ruby /usr/bin/ruby1.9.1 400 --slave /usr/share/man/man1/ruby.1.gz ruby.1.gz /usr/share/man/man1/ruby1.9.1.1.gz",
     require => Package["ruby1.9.1", "ruby1.9.1-dev", "rubygems1.9.1"],
+    logoutput => true,
   }
 
   exec { "set-ruby-update-alternatives":
     command => "/usr/bin/update-alternatives --set ruby /usr/bin/ruby1.9.1",
     require => Exec["update-alternatives"],
+    logoutput => true,
   }
 
   exec { "set-gem-update-alternatives":
     command => "/usr/bin/update-alternatives --set gem /usr/bin/gem1.9.1",
     require => Exec["update-alternatives"],
+    logoutput => true,
   }
 
   package {
@@ -76,6 +79,7 @@ class scstack::redmine (
       unless => "/usr/bin/mysql -u${redminedbuser} -p${redminedbpass} ${redminedb}",
       command => "/usr/bin/mysql -uroot -p$mysqlpass -e \"create database ${redminedb}; grant all on ${redminedb}.* to ${redminedbuser}@localhost identified by '$redminedbpass';\"",
       require => Service["mysqld"],
+      logoutput => true,
   }
 
   exec { "apt-get update redmine":
@@ -159,6 +163,11 @@ class scstack::redmine (
     provider => gem,
     ensure => installed,
     require => Package["rake"],
+  }
+
+  exec {"test-ruby":
+    command => "/usr/bin/env ; /usr/bin/ruby -v ; /usr/bin/bundle -v",
+    logoutput => true,
   }
 
   exec { "redmine-install": 
