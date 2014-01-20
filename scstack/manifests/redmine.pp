@@ -58,7 +58,9 @@ class scstack::redmine (
     require => Exec["update-alternatives"],
   }
 
-  class { 'mysql::ruby': }
+  class { 'mysql::ruby': 
+    require => Exec["set-gem-update-alternatives"],
+  }
 
   class { 'mysql::java': }
 
