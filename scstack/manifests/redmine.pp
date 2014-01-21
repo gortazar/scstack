@@ -179,10 +179,7 @@ class scstack::redmine (
     cwd => "$installFolder/redmine",
     logoutput => true,
     command => "/usr/local/bin/bundle install --without development test rmagick postgresql sqlite",
-    # environment => "PATH=/opt/vagrant_ruby/bin:/usr/bin"
     environment => "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/opt/vagrant_ruby/bin",
-    # path => ["/opt/vagrant_ruby/bin", "/usr/bin"],
-    # path => ["/usr/local/bin"],
     require => [
       Exec["rename-redmine"], 
       Package["libmysqlclient-dev"], 

@@ -8,13 +8,6 @@ exec { "apt-update":
   command => "/usr/bin/apt-get update",
 }
 
-#class { 'ruby':
-#  version         => 'latest',
-#  ruby_package => 'ruby1.9.3',
-#  gems_version     => 'latest',
-#  before => Class["scstack"],
-#}
-
 class { "scstack":
   # Superadmin password. Will be used to access the SidelabCode Stack Console
   sadminpass => "sadmin",

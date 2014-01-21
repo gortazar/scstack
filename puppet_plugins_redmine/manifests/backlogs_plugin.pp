@@ -74,7 +74,7 @@ class puppet_plugins_redmine::backlogs_plugin ($installFolder) {
     require     => Exec["migrate-plugin-backlogs"],
     logoutput   => true,
     command     => "/usr/local/bin/bundle exec rake redmine:backlogs:install story_trackers=1,2,3 task_tracker=Task",
-    environment => "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/opt/vagrant_ruby/bin",
+    environment => ["PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games", "RAILS_ENV=production"],
   }
 
   # Update users and grop configuration
