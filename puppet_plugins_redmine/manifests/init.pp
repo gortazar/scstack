@@ -13,7 +13,9 @@
 #
 class puppet_plugins_redmine ($installFolder) {
   # Install Redmine WYSIWYG Textile Plugin
-  class { "puppet_plugins_redmine::wysiwyg_textile_plugin": installFolder => $installFolder }
+  class { "puppet_plugins_redmine::wysiwyg_textile_plugin": 
+  	installFolder => $installFolder 
+  }
 
   # Install Redmine Backlogs Plugin
   class { "puppet_plugins_redmine::backlogs_plugin":

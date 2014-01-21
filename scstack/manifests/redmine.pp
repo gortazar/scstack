@@ -95,6 +95,10 @@ class scstack::redmine (
       require => Exec["apt-get update redmine"],
       ensure => installed;
 
+    "libfcgi-ruby1.9.1":
+      require => Exec["apt-get update redmine"],
+      ensure => installed;
+
     "build-essential":
       require => Exec["apt-get update redmine"],
       ensure => installed;
@@ -166,7 +170,8 @@ class scstack::redmine (
   }
 
   exec {"test-ruby":
-    command => "/usr/bin/env ; /usr/bin/ruby -v ; /usr/bin/bundle -v",
+    command => "/usr/bin/env ; /usr/bin/ruby -v",
+    require => Exec["set-ruby-update-alternatives"],
     logoutput => true,
   }
 

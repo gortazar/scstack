@@ -15,15 +15,20 @@ class puppet_plugins_redmine::backlogs_plugin ($installFolder) {
 
   package { "libxslt-dev": ensure => installed, }
 
-  package { "libxml2-dev":
-    require => Package["libxslt-dev"],
-    ensure  => installed,
+  package { 
+
+    "libxml2-dev":
+      require => Package["libxslt-dev"],
+      ensure  => installed;
+
+    "unzip":
+      ensure => installed;
   }
 
   # Download plugin
   exec { "download-backlogs":
     cwd       => "/tmp",
-    command   => "/usr/bin/wget  -c  http://code.sidelab.es/public/sidelabcodestack/artifacts/0.4/redmine_backlogs.tar.gz",
+    command   => "/usr/bin/wget  -c  https://github.com/backlogs/redmine_backlogs/archive/v0.9.38.zip",
     logoutput => true,
     require   => Package["libxml2-dev"],
   }
@@ -31,13 +36,13 @@ class puppet_plugins_redmine::backlogs_plugin ($installFolder) {
   # Unzip plugin
   exec { "extract-backlogs":
     cwd     => "/tmp",
-    command => "/bin/tar -xvzf redmine_backlogs.tar.gz",
-    require => Exec["download-backlogs"],
+    command => "/usr/bin/unzip v0.9.38.zip",
+    require => [Exec["download-backlogs"], Package["unzip"]],
   }
 
   exec { "move-backlogs":
     cwd       => "/tmp",
-    command   => "/bin/mv redmine_backlogs $installFolder/redmine/plugins/redmine_backlogs",
+    command   => "/bin/mv redmine_backlogs-0.9.38 $installFolder/redmine/plugins/redmine_backlogs",
     require   => Exec["extract-backlogs"],
     logoutput => true,
   }
