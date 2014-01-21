@@ -11,11 +11,13 @@
 # Requires: Redmine Installation.
 #
 class puppet_plugins_redmine::backlogs_plugin ($installFolder) {
+
   Class["scstack::redmine"] -> Class["puppet_plugins_redmine::backlogs_plugin"]
 
-  package { "libxslt-dev": ensure => installed, }
-
   package { 
+
+    "libxslt-dev": 
+      ensure => installed;
 
     "libxml2-dev":
       require => Package["libxslt-dev"],

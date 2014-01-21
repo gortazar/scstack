@@ -20,7 +20,6 @@ class puppet_plugins_redmine ($installFolder) {
   # Install Redmine Backlogs Plugin
   class { "puppet_plugins_redmine::backlogs_plugin":
     installFolder => $installFolder,
-    require       => Class["puppet_plugins_redmine::wysiwyg_textile_plugin"],
   }
 
 }
