@@ -190,6 +190,52 @@ class scstack(
     redminedb => $redminedb,
     redminekey => $redminekey,
     require => [Class["scstack::redmine"], Class["scstack::scstack_ldap"]],
-  }  
+  } 
+
+  file {
+      '/opt/backup':
+          ensure  => directory,
+          owner   => 'root',
+          group   => 'root',
+          mode    => '0660';
+  }
+
+  file {
+      '/opt/backup/mysql':
+          ensure  => directory,
+          owner   => 'root',
+          group   => 'root',
+          mode    => '0660';
+  }
+
+  file {
+      '/opt/backup/ldap':
+          ensure  => directory,
+          owner   => 'root',
+          group   => 'root',
+          mode    => '0660';
+  }
+
+  file {
+      '/opt/backup/backup.sh':
+          require => File["/opt/backup"],
+          ensure  => file,
+          content  => template('puppet:///modules/scstack/backup/backup.sh.erb'),
+          owner   => 'root',
+          group   => 'root',
+          mode    => '0550';
+  }
+
+  cron {
+      'run-backup':
+          ensure   => present,
+          command  => '/opt/backup/backup.sh',
+          user     => 'root',
+          month    => '*',
+          monthday => '*',
+          hour     => '2',
+          minute   => '0',
+          #provider => crontab;
+  }
 }
 

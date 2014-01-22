@@ -120,17 +120,6 @@ class scstack::redmine (
     require => Exec["download-redmine"],
   }
 
-#  file { "$installFolder/redmine-2.1.2.tar.gz":
-#    source => "puppet:///modules/scstack/redmine/redmine-2.1.2.tar.gz",
-#  }
-#
-#  exec { "extract-redmine":
-#    command => "tar xvzf $installFolder/redmine-2.1.2.tar.gz",
-#    path => ["/bin", "/usr/bin"],
-#    cwd => "$installFolder",
-#    require => File["$installFolder/redmine-2.1.2.tar.gz"],
-#  }
-
   exec { "rename-redmine":
     command => "/bin/mv $installFolder/$redminePackage $installFolder/redmine",
     require => Exec["extract-redmine"],
