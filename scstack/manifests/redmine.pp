@@ -13,6 +13,7 @@ class scstack::redmine (
   $baseDN,
   $installFolder,
   $redminePackage = "redmine-2.2.2",
+  $rubygemsProxy = "",
 ){
 
   $targz = ".tar.gz"
@@ -59,6 +60,16 @@ class scstack::redmine (
     command => "/usr/bin/update-alternatives --set gem /usr/bin/gem1.9.1",
     require => Exec["update-alternatives"],
     logoutput => true,
+  }
+
+  if !empty($rubygemsProxy) {
+    exec { 
+      "set-rubygems-proxy":
+        command => "/usr/bin/gem sources -r https://rubygems.org ; /usr/bin/gem sources -r http://rubygems.org ; /usr/bin/gem sources --add $rubygemsProxy",
+        require => Exec["set-gem-update-alternatives"],
+        before => Package["bundler", "rake", "fcgi"],
+        logoutput => true,
+    }    
   }
 
   package {
@@ -153,7 +164,7 @@ class scstack::redmine (
   }
   
   package { "fcgi":
-    provider => gem,
+    provider => "gem",
     ensure => installed,
     require => Package["rake"],
   }

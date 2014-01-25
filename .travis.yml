@@ -4,6 +4,9 @@ rvm:
 before_script:
   - sudo apt-get update 
   - mysql -e 'create database redminedb;'
+  - mysql -e 'create database archiva;'
+  - mysql -e 'create database redback;'
+  - mysql -e 'create database gerrit;'
   - sudo ./bootstrap.sh
 script: ./test/run-tests.sh
 

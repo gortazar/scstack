@@ -23,7 +23,8 @@ class scstack(
   $redminedbpass = "r3dm1n3",
   # Generic info (used in Redmine, for instance)
   $compname = "SidelabCode Stack",
-  $codename = "Code" 
+  $codename = "Code",
+  $rubygemsProxy = "",
 ) {
     
   # LDAP params
@@ -134,7 +135,8 @@ class scstack(
     baseDN => $baseDN,
     bindDN => $bindDN,
     passBindDN => $passBindDN,
-    installFolder => $installFolder
+    installFolder => $installFolder,
+    rubygemsProxy => $rubygemsProxy,
   }
 
 # Install Redmine WYSIWYG plugin
@@ -217,10 +219,34 @@ class scstack(
   }
 
   file {
+      '/opt/backup/svn':
+          ensure  => directory,
+          owner   => 'root',
+          group   => 'root',
+          mode    => '0660';
+  }
+
+  file {
+      '/opt/backup/sftp-files':
+          ensure  => directory,
+          owner   => 'root',
+          group   => 'root',
+          mode    => '0660';
+  }
+
+  file {
+      '/opt/backup/redmine':
+          ensure  => directory,
+          owner   => 'root',
+          group   => 'root',
+          mode    => '0660';
+  }
+
+  file {
       '/opt/backup/backup.sh':
           require => File["/opt/backup"],
           ensure  => file,
-          content  => template('puppet:///modules/scstack/backup/backup.sh.erb'),
+          content  => template('scstack/backup/backup.sh.erb'),
           owner   => 'root',
           group   => 'root',
           mode    => '0550';
