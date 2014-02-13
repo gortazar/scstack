@@ -85,7 +85,7 @@ class scstack::scstack_apache(
   exec { "enable-default-host":
     command => "/usr/sbin/a2ensite apache.domain",
     notify => Service['httpd'],
-    require => [File["/etc/apache2/sites-available/apache.domain.es"],Package['httpd']],
+    require => [File["/etc/apache2/sites-available/apache.domain"],Package['httpd']],
   }
 
   exec { "enable-ssl-host":
