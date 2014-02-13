@@ -410,6 +410,7 @@ class scstack::tomcat (
 
   service { "gerrit":
     ensure  => running,
+    provider => "upstart",
     require => [File["/etc/init/gerrit.conf"], Exec["gerrit-init"], Exec["mysql-gerrit-admin-setup"]],
   }
 

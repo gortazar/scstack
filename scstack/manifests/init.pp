@@ -16,11 +16,15 @@ class scstack(
   $ip,
   $domain,
   $baseDN,
+  $passBindDN="re@lity45",
   # MySQL info
   $mysqlpass = "re@lity45",
   $redminedb = "redminedb",
   $redminedbuser = "redminedbuser",
   $redminedbpass = "r3dm1n3",
+  $archivadbpass = "t0rc0zu310", 
+  $gerritdbpass = "t0rc0zu310",
+  $gerritAdminPass = "t0rc0zu310",
   # Generic info (used in Redmine, for instance)
   $compname = "SidelabCode Stack",
   $codename = "Code",
@@ -31,7 +35,6 @@ class scstack(
 #  $baseDN="dc=scstack,dc=sidelab,dc=es"
   $cnBindDN="cn=admin"
   $bindDN="cn=admin,${baseDN}"
-  $passBindDN="re@lity45"
   $passBindDNMD5=md5($passBindDN)
   $searchDN="ou=people,${baseDN}"
   $searchProjectDN="ou=projects,${baseDN}"
@@ -39,8 +42,6 @@ class scstack(
   $ouProjects = "projects"
   
   # Apache certificates
-  $cert_crt="/etc/ldap/replicante2.airfit.es_rapidssl.crt"
-  $cert_key="/etc/ldap/replicante2.airfit.es.key"
   $cert_apache = "code.tscompany.es.server.cnf-crt.pem"
   $key_apache = "code.tscompany.es.server.cnf-key.pem"
   $cacert_apache = "code.tscompany.es-cacert.pem"
@@ -57,9 +58,6 @@ class scstack(
   
   # MySQL params
   $old_pw = ''
-  $archivadbpass = "t0rc0zu310" 
-  $gerritdbpass = "t0rc0zu310"
-  $gerritAdminPass = "t0rc0zu310"
   
   # Redmine params
   $redminekey = "bc8f104416bbb259a87d411ad0228adafa4d348a"

@@ -64,15 +64,15 @@ class scstack::scstack_apache(
     require => Package['httpd'],
   }
   
-  file { "/etc/apache2/sites-available/code.tscompany.es":
+  file { "/etc/apache2/sites-available/apache.domain":
     replace => true,
-    content => template('scstack/apache/code.tscompany.es.erb'),
+    content => template('scstack/apache/apache.domain.erb'),
     require => [Exec["disable-other-hosts"],File["/etc/apache2/sites-available/configProjects"],File["/etc/apache2/sites-available/configProjects-ssl"]],
   }
 
-  file { "/etc/apache2/sites-available/code.tscompany.es-ssl":
+  file { "/etc/apache2/sites-available/apache.domain-ssl":
     replace => true,
-    content => template('scstack/apache/code.tscompany.es-ssl.erb'),
+    content => template('scstack/apache/apache.domain-ssl.erb'),
     require => [
   Exec["disable-other-hosts"],
   File["/etc/apache2/sites-available/configProjects"],
@@ -83,15 +83,15 @@ class scstack::scstack_apache(
   }
 
   exec { "enable-default-host":
-    command => "/usr/sbin/a2ensite code.tscompany.es",
+    command => "/usr/sbin/a2ensite apache.domain",
     notify => Service['httpd'],
-    require => [File["/etc/apache2/sites-available/code.tscompany.es"],Package['httpd']],
+    require => [File["/etc/apache2/sites-available/apache.domain.es"],Package['httpd']],
   }
 
   exec { "enable-ssl-host":
-    command => "/usr/sbin/a2ensite code.tscompany.es-ssl",
+    command => "/usr/sbin/a2ensite apache.domain-ssl",
     notify => Service['httpd'],
-    require => [File["/etc/apache2/sites-available/code.tscompany.es-ssl"],Package['httpd']],
+    require => [File["/etc/apache2/sites-available/apache.domain-ssl"],Package['httpd']],
   }
 
   

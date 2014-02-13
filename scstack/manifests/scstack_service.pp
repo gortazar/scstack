@@ -16,21 +16,22 @@ class scstack::scstack_service(
   $redminekey
 ){
   
-  exec { "get-scstack-service":
-    cwd => "/tmp",
-    command => "/usr/bin/wget -c  http://code.sidelab.es/public/sidelabcodestack/artifacts/0.4/scstack-service-bin.tar.gz",
-    logoutput => true,
-  }
-  
-#  file { "/tmp/scstack-service-bin.tar.gz":
-#    source => "puppet:///modules/scstack/service/scstack-service-bin.tar.gz",
+# Since code.sidelab.es is down, we need to use the embedded binary
+#  exec { "get-scstack-service":
+#    cwd => "/tmp",
+#    command => "/usr/bin/wget -c  http://code.sidelab.es/public/sidelabcodestack/artifacts/0.4/scstack-service-bin.tar.gz",
+#    logoutput => true,
 #  }
+  
+ file { "/tmp/scstack-service-bin.tar.gz":
+   source => "puppet:///modules/scstack/service/scstack-service-bin.tar.gz",
+ }
   
   exec { "unzip-scstack-service":
     cwd => "/tmp",
     command => "/bin/tar -xvzf scstack-service-bin.tar.gz",
 #    require => File["/tmp/scstack-service-bin.tar.gz"],
-    require => Exec["get-scstack-service"],
+    require => File["/tmp/scstack-service-bin.tar.gz"],
   }
 
   exec { "cp-scstack-service":
@@ -57,6 +58,7 @@ class scstack::scstack_service(
   
   service { "scstack-service":
     ensure => running,
+    provider => "upstart",
     require => [
       File["/etc/init.d/scstack-service"],
       File["/etc/init/scstack-service.conf"],
