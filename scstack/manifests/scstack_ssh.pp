@@ -22,7 +22,7 @@ class scstack::scstack_ssh (
 
   file {"/var/cache/debconf/libnss-ldap.preseed":
     ensure => present,
-    mode => 600,
+    mode => '0600',
     content => template('scstack/ssh/libnss-ldap.preseed.erb'),
     before => Package["libnss-ldap"],
   }

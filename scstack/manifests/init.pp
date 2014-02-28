@@ -2,7 +2,7 @@
 #
 # This module manages scstack, the puppet-based installation of SidelabCode Stack
 #
-# Parameters: 
+# Parameters:
 #
 # Actions:
 #
@@ -16,19 +16,18 @@ class scstack(
   $ip,
   $domain,
   $baseDN,
-  $passBindDN="re@lity45",
+  $passBindDN,
   # MySQL info
-  $mysqlpass = "re@lity45",
-  $redminedb = "redminedb",
+  $mysqlpass,
+  $redminedb,
   $redminedbuser = "redminedbuser",
-  $redminedbpass = "r3dm1n3",
-  $archivadbpass = "t0rc0zu310", 
-  $gerritdbpass = "t0rc0zu310",
-  $gerritAdminPass = "t0rc0zu310",
+  $redminedbpass,
+  $archivadbpass, 
+  $gerritdbpass,
+  $gerritAdminPass,
   # Generic info (used in Redmine, for instance)
   $compname = "SidelabCode Stack",
   $codename = "Code",
-  $rubygemsProxy = "",
 ) {
     
   # LDAP params
@@ -48,13 +47,13 @@ class scstack(
   
   # Folder structure
   $installFolder = "/opt"
-  $filesPath="$installFolder/files"
-  $privateFolder="$filesPath/private"
-  $publicFolder="$filesPath/public"
-  $svnFolder="$installFolder/svn"
+  $filesPath="${installFolder}/files"
+  $privateFolder="${filesPath}/private"
+  $publicFolder="${filesPath}/public"
+  $svnFolder="${installFolder}/svn"
   $svnSubURI="/svn"
 
-  $adminmail = "admin@$domain"
+  $adminmail = "admin@${domain}"
   
   # MySQL params
   $old_pw = ''
@@ -134,7 +133,6 @@ class scstack(
     bindDN => $bindDN,
     passBindDN => $passBindDN,
     installFolder => $installFolder,
-    rubygemsProxy => $rubygemsProxy,
   }
 
 # Install Redmine WYSIWYG plugin
@@ -146,7 +144,7 @@ class scstack(
 
   # Touch file redmine restart.
   exec { "touch-restart-redmine":
-    command => "/usr/bin/touch $installFolder/redmine/tmp/restart.txt",
+    command => "/usr/bin/touch ${installFolder}/redmine/tmp/restart.txt",
     require => Class["puppet_plugins_redmine"],
     notify  => Service['httpd'],
   }
@@ -242,8 +240,8 @@ class scstack(
 
   file {
       '/opt/backup/backup.sh':
-          require => File["/opt/backup"],
           ensure  => file,
+          require => File["/opt/backup"],
           content  => template('scstack/backup/backup.sh.erb'),
           owner   => 'root',
           group   => 'root',

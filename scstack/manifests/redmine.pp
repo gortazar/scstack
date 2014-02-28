@@ -1,4 +1,6 @@
 
+# Installs redmine and redmine-mylyn-connector
+# Currently it also installs mysql server. 
 class scstack::redmine (
   $mysqlpass,
   $redminedb,
@@ -13,17 +15,17 @@ class scstack::redmine (
   $baseDN,
   $installFolder,
   $redminePackage = "redmine-2.2.2",
-  $rubygemsProxy = "",
 ){
 
   $targz = ".tar.gz"
-  $redmineURL = "http://rubyforge.org/frs/download.php/76722/$redminePackage$targz"
+  $redmineURL = "http://rubyforge.org/frs/download.php/76722/${redminePackage}${targz}"
   
   include mysql
   
   Class["scstack::scstack_ldap"] -> Class["scstack::redmine"]
   Class["scstack::scstack_apache"] -> Class["scstack::redmine"]
   
+  # We shouldn't install mysql. Instead, mysqlpass should be a parameter of this class
   class { "mysql::server": 
     config_hash => { 'root_password' => $mysqlpass },
   }
@@ -31,16 +33,16 @@ class scstack::redmine (
   package {
 
     "ruby1.9.1":
-      require => Exec["apt-get update redmine"],
-      ensure => installed;
+      ensure => installed,
+      require => Exec["apt-get update redmine"];
 
     "ruby1.9.1-dev":
-      require => Exec["apt-get update redmine"],
-      ensure => installed;
+      ensure => installed,
+      require => Exec["apt-get update redmine"];
 
     "rubygems1.9.1":
-      require => Exec["apt-get update redmine"],
-      ensure => installed;
+      ensure => installed,
+      require => Exec["apt-get update redmine"];
   
   }
 
@@ -62,16 +64,6 @@ class scstack::redmine (
     logoutput => true,
   }
 
-  if !empty($rubygemsProxy) {
-    exec { 
-      "set-rubygems-proxy":
-        command => "/usr/bin/gem sources -r https://rubygems.org ; /usr/bin/gem sources -r http://rubygems.org ; /usr/bin/gem sources --add $rubygemsProxy",
-        require => Exec["set-gem-update-alternatives"],
-        before => Package["bundler", "rake", "fcgi"],
-        logoutput => true,
-    }    
-  }
-
   package {
       "activerecord-mysql-adapter":
           ensure      => installed,
@@ -84,11 +76,12 @@ class scstack::redmine (
     require => Package["activerecord-mysql-adapter"],
   }
 
+  # Is this really necessary?
   class { 'mysql::java': }
 
   exec { "create-${redminedb}-db":
       unless => "/usr/bin/mysql -u${redminedbuser} -p${redminedbpass} ${redminedb}",
-      command => "/usr/bin/mysql -uroot -p$mysqlpass -e \"create database ${redminedb}; grant all on ${redminedb}.* to ${redminedbuser}@localhost identified by '$redminedbpass';\"",
+      command => "/usr/bin/mysql -uroot -p${mysqlpass} -e \"create database ${redminedb}; grant all on ${redminedb}.* to ${redminedbuser}@localhost identified by '${redminedbpass}';\"",
       require => Service["mysqld"],
       logoutput => true,
   }
@@ -99,20 +92,20 @@ class scstack::redmine (
 
   package { 
     "libmysqlclient-dev":
-      require => Exec["apt-get update redmine"],
-      ensure => installed;
+      ensure => installed,
+      require => Exec["apt-get update redmine"];
 
     "libfcgi-dev":
-      require => Exec["apt-get update redmine"],
-      ensure => installed;
+      ensure => installed,
+      require => Exec["apt-get update redmine"];
 
     "libfcgi-ruby1.9.1":
-      require => Exec["apt-get update redmine"],
-      ensure => installed;
+      ensure => installed,
+      require => Exec["apt-get update redmine"];
 
     "build-essential":
-      require => Exec["apt-get update redmine"],
-      ensure => installed;
+      ensure => installed,
+      require => Exec["apt-get update redmine"];
 
   }
 
@@ -120,52 +113,52 @@ class scstack::redmine (
 
   exec {"download-redmine":
     cwd => "/tmp",
-    command => "/usr/bin/wget -c $redmineURL",
-    logoutput => true,
+    command => "/usr/bin/wget -c ${redmineURL}",
   }
 
   exec { "extract-redmine":
-    command => "tar xvzf /tmp/$redminePackage$targz",
+    command => "tar xvzf /tmp/${redminePackage}${targz}",
     path => ["/bin", "/usr/bin"],
-    cwd => "$installFolder",
+    cwd => $installFolder,
     require => Exec["download-redmine"],
+    logoutput => true
   }
 
   exec { "rename-redmine":
-    command => "/bin/mv $installFolder/$redminePackage $installFolder/redmine",
+    command => "/bin/mv ${installFolder}/${redminePackage} ${installFolder}/redmine",
     require => Exec["extract-redmine"],
   }
 
  # This is a patch, because rake fails with an error due to a different mysql version installed
  # At some point in time, bundle started to install mysql 2.9.0 instead of mysql 2.8.1
  # This patch forces installation of mysql 2.8.1
- file { "$installFolder/redmine/Gemfile":
+ file { "${installFolder}/redmine/Gemfile":
    source => "puppet:///modules/scstack/redmine/Gemfile",
    require => Exec["rename-redmine"],
  }
 
-  file { "$installFolder/redmine/config/database.yml":
+  file { "${installFolder}/redmine/config/database.yml":
     content => template('scstack/redmine/database.yml.erb'),
     require => Exec["rename-redmine"],
   }
 
   package { "bundler":
-    provider => "gem",
     ensure => "1.2.3",
+    provider => "gem",
     before => Exec["redmine-install"],
     require => Exec["set-gem-update-alternatives"],
   }
 
   package { "rake":
-    provider => "gem",
     ensure => installed,
+    provider => "gem",
     before => Exec["redmine-install"],
     require => Exec["set-gem-update-alternatives"],
   }
   
   package { "fcgi":
-    provider => "gem",
     ensure => installed,
+    provider => "gem",
     require => Package["rake"],
   }
 
@@ -176,7 +169,7 @@ class scstack::redmine (
   }
 
   exec { "redmine-install": 
-    cwd => "$installFolder/redmine",
+    cwd => "${installFolder}/redmine",
     logoutput => true,
     command => "/usr/local/bin/bundle install --without development test rmagick postgresql sqlite",
     environment => "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/opt/vagrant_ruby/bin",
@@ -186,11 +179,11 @@ class scstack::redmine (
       Package["libfcgi-dev"], 
       Package["libapache2-mod-fcgid"], 
       Package["build-essential"],
-      File["$installFolder/redmine/Gemfile"]],
+      File["${installFolder}/redmine/Gemfile"]],
   }
 
   exec { "generate_secret_token":
-    cwd => "$installFolder/redmine",
+    cwd => "${installFolder}/redmine",
     command => "rake generate_secret_token",
     # path => ["/opt/vagrant_ruby/bin"],
     path => ["/usr/local/bin"],
@@ -199,18 +192,18 @@ class scstack::redmine (
   }
 
   exec { "redmine-db-init":
-    cwd => "$installFolder/redmine",
+    cwd => "${installFolder}/redmine",
     # environment => ["RAILS_ENV=production", "PATH=/opt/vagrant_ruby/bin:/usr/bin:/bin"],
     environment => ["RAILS_ENV=production"],
     command => "rake db:migrate",
     logoutput => true,
     path => ["/usr/local/bin"],
     # path => ["/opt/vagrant_ruby/bin"],
-    require => [File["$installFolder/redmine/config/database.yml"], Exec["create-${redminedb}-db"], Exec["generate_secret_token"]],
+    require => [File["${installFolder}/redmine/config/database.yml"], Exec["create-${redminedb}-db"], Exec["generate_secret_token"]],
   }
 
   exec { "redmine-load-data":
-    cwd => "$installFolder/redmine",
+    cwd => "${installFolder}/redmine",
     # environment => ["RAILS_ENV=production", "REDMINE_LANG=en", "PATH=/opt/vagrant_ruby/bin"],
     environment => ["RAILS_ENV=production", "REDMINE_LANG=en"],
     command => "rake redmine:load_default_data",
@@ -232,14 +225,14 @@ class scstack::redmine (
 
   if !empty($redminedbpass) {
     exec {"mysql-redmine-ldap-setup":
-      cwd => "$installFolder/redmine",
-      command => "/usr/bin/mysql -u$redminedbuser -p$redminedbpass < /tmp/redmine-ldap.sql",
+      cwd => "${installFolder}/redmine",
+      command => "/usr/bin/mysql -u${redminedbuser} -p${redminedbpass} < /tmp/redmine-ldap.sql",
       require => [File["/tmp/redmine-ldap.sql"],Class["mysql"], Exec["redmine-load-data"]],
     }
   } else {
     exec {"mysql-redmine-ldap-setup":
-      cwd => "$installFolder/redmine",
-      command => "/usr/bin/mysql -u$redminedbuser < /tmp/redmine-ldap.sql",
+      cwd => "${installFolder}/redmine",
+      command => "/usr/bin/mysql -u${redminedbuser} < /tmp/redmine-ldap.sql",
       require => [File["/tmp/redmine-ldap.sql"],Class["mysql"], Exec["redmine-load-data"]],
     }
   }
@@ -250,14 +243,14 @@ class scstack::redmine (
 
   if !empty($redminedbpass) {
     exec {"mysql-redmine-settings-setup":
-      cwd => "$installFolder/redmine",
-      command => "/usr/bin/mysql -u$redminedbuser -p$redminedbpass < /tmp/redmine-settings.sql",
+      cwd => "${installFolder}/redmine",
+      command => "/usr/bin/mysql -u${redminedbuser} -p${redminedbpass} < /tmp/redmine-settings.sql",
       require => [File["/tmp/redmine-settings.sql"],Class["mysql"], Exec["redmine-load-data"]],
     }
   } else {
     exec {"mysql-redmine-settings-setup":
-      cwd => "$installFolder/redmine",
-      command => "/usr/bin/mysql -u$redminedbuser < /tmp/redmine-settings.sql",
+      cwd => "${installFolder}/redmine",
+      command => "/usr/bin/mysql -u${redminedbuser} < /tmp/redmine-settings.sql",
       require => [File["/tmp/redmine-settings.sql"],Class["mysql"], Exec["redmine-load-data"]],
     }
   }
@@ -268,99 +261,99 @@ class scstack::redmine (
 
   if !empty($redminedbpass) {
     exec {"mysql-redmine-apikey-setup":
-      cwd => "$installFolder/redmine",
-      command => "/usr/bin/mysql -u$redminedbuser -p$redminedbpass < /tmp/redmine-apikey.sql",
+      cwd => "${installFolder}/redmine",
+      command => "/usr/bin/mysql -u${redminedbuser} -p${redminedbpass} < /tmp/redmine-apikey.sql",
       require => [File["/tmp/redmine-apikey.sql"],Class["mysql"], Exec["redmine-load-data"]],
     }    
   } else {
     exec {"mysql-redmine-apikey-setup":
-      cwd => "$installFolder/redmine",
-      command => "/usr/bin/mysql -u$redminedbuser < /tmp/redmine-apikey.sql",
+      cwd => "${installFolder}/redmine",
+      command => "/usr/bin/mysql -u${redminedbuser} < /tmp/redmine-apikey.sql",
       require => [File["/tmp/redmine-apikey.sql"],Class["mysql"], Exec["redmine-load-data"]],
     }
   }
   
-  file { "$installFolder/redmine/tmp":
+  file { "${installFolder}/redmine/tmp":
     ensure => directory,
     owner => www-data,
     group => www-data,
-    mode => 0755,
+    mode => '0755',
     require => Exec["redmine-load-data"],
-    before => File["$installFolder/redmine/public/.htaccess"],
+    before => File["${installFolder}/redmine/public/.htaccess"],
   }
 
-  file { "$installFolder/redmine/tmp/pdf":
+  file { "${installFolder}/redmine/tmp/pdf":
     ensure => directory,
     owner => www-data,
     group => www-data,
     require => Exec["redmine-load-data"],
-    before => File["$installFolder/redmine/Gemfile.lock"],
+    before => File["${installFolder}/redmine/Gemfile.lock"],
   }
 
-  file { "$installFolder/redmine/Gemfile.lock":
+  file { "${installFolder}/redmine/Gemfile.lock":
     ensure => file,
     owner => www-data,
     group => www-data,
     require => Exec["redmine-load-data"],
-    before => File["$installFolder/redmine/public/plugin_assets"],
+    before => File["${installFolder}/redmine/public/plugin_assets"],
   }
   
-  file { "$installFolder/redmine/public/plugin_assets":
+  file { "${installFolder}/redmine/public/plugin_assets":
     ensure => directory,
     owner => www-data,
     group => www-data,
-    mode => 0755,
+    mode => '0755',
     require => Exec["redmine-load-data"],
-    before => File["$installFolder/redmine/public/.htaccess"],
+    before => File["${installFolder}/redmine/public/.htaccess"],
   }
 
-  file { "$installFolder/redmine/files":
+  file { "${installFolder}/redmine/files":
     ensure => directory,
     owner => www-data,
     group => www-data,
-    mode => 0755,
+    mode => '0755',
     require => Exec["redmine-load-data"],
-    before => File["$installFolder/redmine/public/.htaccess"],
+    before => File["${installFolder}/redmine/public/.htaccess"],
   }
 
-  file { "$installFolder/redmine/log":
+  file { "${installFolder}/redmine/log":
     ensure => directory,
     owner => www-data,
     group => www-data,
-    mode => 0766,
+    mode => '0766',
     require => Exec["redmine-load-data"],
-    before => File["$installFolder/redmine/public/.htaccess"],
+    before => File["${installFolder}/redmine/public/.htaccess"],
   }
 
-  file { "$installFolder/redmine/log/production.log":
+  file { "${installFolder}/redmine/log/production.log":
     ensure => present,
     owner => www-data,
     group => www-data,
-    mode => 0766,
+    mode => '0766',
     require => Exec["redmine-load-data"],
-    before => File["$installFolder/redmine/public/.htaccess"],
+    before => File["${installFolder}/redmine/public/.htaccess"],
   }
 
-  file { "$installFolder/redmine/config/environment.rb":
+  file { "${installFolder}/redmine/config/environment.rb":
     replace => true,
-    mode => 0755,
+    mode => '0755',
     source => "puppet:///modules/scstack/redmine/environment.rb",
     require => Exec["redmine-load-data"],
   }
 
-  file { "$installFolder/redmine/public/dispatch.fcgi":
+  file { "${installFolder}/redmine/public/dispatch.fcgi":
     content => template("scstack/redmine/dispatch.fcgi.erb"),
-    mode => 0755,
+    mode => '0755',
     require => Exec["redmine-load-data"],
   }
 
-  file { "$installFolder/redmine/public/.htaccess":
+  file { "${installFolder}/redmine/public/.htaccess":
     ensure => present,
     source => "puppet:///modules/scstack/redmine/.htaccess",
     owner => www-data,
     group => www-data,
-    mode => 0700,
-    require => [File["$installFolder/redmine/config/environment.rb"],File["$installFolder/redmine/public/dispatch.fcgi"]],
+    mode => '0700',
+    require => [File["${installFolder}/redmine/config/environment.rb"],File["${installFolder}/redmine/public/dispatch.fcgi"]],
     notify => Service['httpd'],
   }
 
@@ -368,7 +361,7 @@ class scstack::redmine (
 
   file { "/var/cache/debconf/postfix.preseed":
     content => template('scstack/redmine/postfix.preseed.erb'),
-    require => File["$installFolder/redmine/public/.htaccess"],
+    require => File["${installFolder}/redmine/public/.htaccess"],
   }
 
   exec { "apt-get update postfix":
@@ -381,7 +374,7 @@ class scstack::redmine (
     require => [Exec["apt-get update postfix"],File["/var/cache/debconf/postfix.preseed"]],
   }
 
-  file { "$installFolder/redmine/config/configuration.yml":
+  file { "${installFolder}/redmine/config/configuration.yml":
     source => "puppet:///modules/scstack/redmine/configuration.yml",
     require => Package["postfix"],
     notify => Service['httpd'],
@@ -402,11 +395,11 @@ class scstack::redmine (
   
   exec {"move-connector":
     cwd => "/tmp",
-    command => "/bin/mv redmine_mylyn_connector-stable-2.8 $installFolder/redmine/plugins/redmine_mylyn_connector",
+    command => "/bin/mv redmine_mylyn_connector-stable-2.8 ${installFolder}/redmine/plugins/redmine_mylyn_connector",
     require => [Exec["extract-connector"],Exec["rename-redmine"]],
   }
   
-  file {"$installFolder/redmine/plugins/redmine_mylyn_connector":
+  file {"${installFolder}/redmine/plugins/redmine_mylyn_connector":
     owner => www-data,
     group => www-data,
     recurse => true,
@@ -420,9 +413,9 @@ class scstack::redmine (
 #  }
   
   exec {"migrate-plugin":
-    cwd => "$installFolder/redmine",
+    cwd => "${installFolder}/redmine",
     #require => Exec["clone-redmine-mylyn-connector"],
-    require => [File["$installFolder/redmine/plugins/redmine_mylyn_connector"]],
+    require => [File["${installFolder}/redmine/plugins/redmine_mylyn_connector"]],
     environment => ["RAILS_ENV=production"],
     command => "rake db:migrate_plugins",
     logoutput => true,
@@ -431,7 +424,7 @@ class scstack::redmine (
   }
   
   exec {"bundle-install":
-    cwd => "$installFolder/redmine",
+    cwd => "${installFolder}/redmine",
     logoutput => true,
     require => Exec["migrate-plugin"],
     command => "/usr/local/bin/bundle install --without development test rmagick postgresql sqlite",

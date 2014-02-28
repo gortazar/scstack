@@ -35,19 +35,19 @@ class scstack::scstack_service(
   }
 
   exec { "cp-scstack-service":
-    cwd => "$installFolder",
-    command => "/bin/cp -R /tmp/scstack-service $installFolder",
+    cwd => $installFolder,
+    command => "/bin/cp -R /tmp/scstack-service ${installFolder}",
     require => Exec["unzip-scstack-service"],
   }
     
-  file { "$installFolder/scstack-service/scstack.conf":
+  file { "${installFolder}/scstack-service/scstack.conf":
     content => template("scstack/service/scstack.conf.erb"),
     require => Exec["cp-scstack-service"],
   }
   
   file { "/etc/init.d/scstack-service":
     content => template("scstack/service/scstack-service.erb"),
-    mode => 750,
+    mode => '0750',
     require => Exec["cp-scstack-service"],
   }
   

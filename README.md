@@ -130,9 +130,7 @@ Ejecutar puppet para el proceso de instalación mediante sudo:
 
     $ sudo puppet apply --modulepath=$HOME/puppet/modules default.pp
 
-## Post instalación
-
-El proceso de instalación comenzará automáticamente. Una vez finalizado, en la dirección http://test.scstack.org/redmine se mostrará Redmine. La consola es accesible a través de la dirección https://test.scstack.org:5555. Es posible administrar scstack accediendo con el usuario "sadmin" y la contraseña especificada en el parámetro sadminpass.
+Una vez finalizada la instalación, en la dirección http://test.scstack.org/redmine se mostrará Redmine. La consola es accesible a través de la dirección https://test.scstack.org:5555. Es posible administrar scstack accediendo con el usuario "sadmin" y la contraseña especificada en el parámetro sadminpass.
 
 Nota: La consola de administración se ha comprobado el funcionamiento para los siguientes navegadores:
 
@@ -141,19 +139,15 @@ Nota: La consola de administración se ha comprobado el funcionamiento para los 
 
 Para información sobre la administración de la forja, consultar la documentación de usuario.
 
-### Primeros pasos
+## Post instalación
+
+***Please read carefully this section to make your stack as secure as possible***
 
 Después de la instalación automatizada del entorno se ha de acceder a las herramientas Redmine y Archiva para completar el proceso.
 
 Antes de nada se ha de reiniciar la máquina para comprobar que se ejecutan todos los procesos en el inicio.
 
 ### Redmine
-
-Modificar la fecha de creación de la api key de admin desde mysql:
-
-    mysql -u root -p
-    > use redminedb;
-    > update tokens set created_on='2013-01-16 22:16:00' where id='1';
 
 Modificar los permisos de las carpetas en /opt/redmine/tmp para que sean del usuario de apache:
 
@@ -175,12 +169,13 @@ Cambiar la API key para securizar el acceso a la API rest (scstack instala una p
 
 ### Gerrit
 
-El primer usuario que accede a Gerrit obtiene privilegios de administrador. Al instalar la forja, se recomienda crear un usuario "gerritadmin" y password "t0rc0zu310" y acceder con este usuario a Gerrit. Este usuario se convertirá en administrador automáticamente al hacer login. A partir de este momento, este será el usuario con el que crear los grupos y proyectos (repositorios) en Gerrit.
+El primer usuario que accede a Gerrit obtiene privilegios de administrador. Al instalar la forja, se crea un usuario "gerritadmin" con la password especificada y se debe acceder con este usuario a Gerrit para hacerlo administrador. Este usuario se convertirá en administrador automáticamente al hacer login. A partir de este momento, este será el usuario con el que crear los grupos y proyectos (repositorios) en Gerrit.
 
 Obtener la clave pública del servidor para asignarla al usuario gerritadmin:
 
 Settings -> SSH Public Keys -> Add
 Copiar la clave del fichero /opt/ssh-keys/gerritadmin_rsa.pub.
+
 Configurar permisos para creación de proyectos:
 
 Acceder a Projects -> List -> All-Projects.

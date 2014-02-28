@@ -43,18 +43,18 @@ class scstack::scstack_apache(
     require => Package['httpd'],
   }
 
-  file { "/etc/ssl/certs/$cert_apache":
-    source => "puppet:///modules/scstack/apache/$cert_apache",
+  file { "/etc/ssl/certs/${cert_apache}":
+    source => "puppet:///modules/scstack/apache/${cert_apache}",
     require => Package['httpd'],
   }
 
-  file { "/etc/ssl/private/$key_apache":
-    source => "puppet:///modules/scstack/apache/$key_apache",
+  file { "/etc/ssl/private/${key_apache}":
+    source => "puppet:///modules/scstack/apache/${key_apache}",
     require => Package['httpd'],
   }
 
-  file { "/etc/ssl/certs/$cacert_apache":
-    source => "puppet:///modules/scstack/apache/$cacert_apache",
+  file { "/etc/ssl/certs/${cacert_apache}":
+    source => "puppet:///modules/scstack/apache/${cacert_apache}",
     require => Package['httpd'],
   }
 
@@ -77,9 +77,9 @@ class scstack::scstack_apache(
   Exec["disable-other-hosts"],
   File["/etc/apache2/sites-available/configProjects"],
   File["/etc/apache2/sites-available/configProjects-ssl"],
-  File["/etc/ssl/certs/$cert_apache"],
-  File["/etc/ssl/private/$key_apache"],
-  File["/etc/ssl/certs/$cacert_apache"]],
+  File["/etc/ssl/certs/${cert_apache}"],
+  File["/etc/ssl/private/${key_apache}"],
+  File["/etc/ssl/certs/${cacert_apache}"]],
   }
 
   exec { "enable-default-host":

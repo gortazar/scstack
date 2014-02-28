@@ -1,2 +1,23 @@
 require 'rubygems'
-require 'puppetlabs_spec_helper/rake_tasks'
+require 'puppet-syntax/tasks/puppet-syntax'
+require 'puppet-lint/tasks/puppet-lint'
+
+PuppetLint.configuration.send("disable_trailing_whitespace")
+PuppetLint.configuration.send("disable_2sp_soft_tabs")
+PuppetLint.configuration.send("disable_80chars")
+PuppetLint.configuration.send("disable_arrow_alignment")
+PuppetLint.configuration.send("disable_class_parameter_defaults")
+PuppetLint.configuration.send("disable_double_quoted_strings")
+exclude_paths = [
+  "pkg/**/*",
+  "vendor/**/*",
+  "spec/**/*",
+]
+PuppetLint.configuration.ignore_paths = exclude_paths
+PuppetSyntax.exclude_paths = exclude_paths
+
+desc "Run syntax and lint."
+task :test => [
+  :syntax,
+  :lint,
+]
