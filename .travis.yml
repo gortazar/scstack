@@ -3,17 +3,7 @@ rvm:
   - 1.9.3
 before_script:
   - sudo apt-get update 
-  - mysql -e 'create database redminedb;'
-  - mysql -e 'create database archiva;'
-  - mysql -e 'use mysql;'
-  - mysql -e "GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,ALTER,INDEX ON archiva.* TO 'travis'@'localhost';"
-  - mysql -e "GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,ALTER,INDEX ON archiva.* TO 'archiva'@'localhost' IDENTIFIED BY 't0rc0zu310';"
-  - mysql -e 'create database redback;'
-  - mysql -e 'use mysql;'
-  - mysql -e "GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,ALTER,INDEX ON redback.* TO 'archiva'@'localhost' IDENTIFIED BY 't0rc0zu310';"
-  - mysql -e 'create database gerrit;'
-  - mysql -e 'use mysql;'
-  - mysql -e "GRANT SELECT,INSERT,UPDATE,DELETE,CREATE,DROP,ALTER,INDEX ON gerrit.* TO 'gerrit'@'localhost' IDENTIFIED BY 't0rc0zu310';"
+  - echo "USE mysql;\nUPDATE user SET password=PASSWORD('changeme') WHERE user='root';\nFLUSH PRIVILEGES;\n" | mysql -u root
   - sudo ./bootstrap.sh
 script: ./test/run-tests.sh
 
