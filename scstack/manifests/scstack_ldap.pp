@@ -31,11 +31,7 @@ class scstack::scstack_ldap (
 ) {
   
   class { "ldap":
-    server => true,
-  #  ssl => "true",
-  #  ssl_ca => '??'
-  #  ssl_cert => '/etc/ldap/replicante2.airfit.es_rapidssl.crt',
-  #  ssl_key => '/etc/ldap/replicante2.airfit.es.key',
+    server => 'true',
   }
 
   # Define SCStack schema
@@ -45,10 +41,10 @@ class scstack::scstack_ldap (
   }
   
   # Install OpenLDAP and configure domain and structural info
-  ldap::define::domain { $domain:
-    basedn => $baseDN,
-    rootdn => $cnBindDN,
-    rootpw => $passBindDN,
+  ldap::define::domain { "${domain}":
+    basedn => "${baseDN}",
+    rootdn => "${cnBindDN}",
+    rootpw => "${passBindDN}",
     before => [Exec["ldapadd construir.ldif"],Exec["ldapadd sadmin"]],
   }
 
