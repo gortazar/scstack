@@ -239,6 +239,14 @@ class scstack(
   }
 
   file {
+      '/opt/backup/apache':
+          ensure  => directory,
+          owner   => 'root',
+          group   => 'root',
+          mode    => '0660';
+  }
+
+  file {
       '/opt/backup/backup.sh':
           ensure  => file,
           require => File["/opt/backup"],

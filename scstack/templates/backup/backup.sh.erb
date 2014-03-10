@@ -2,28 +2,38 @@
 #!/bin/bash
 
 # Backup redmine db
-mysqldump --user=<%= redminedbuser %> -p<%= redminedbpass %> --add-drop-table --add-locks --extended-insert --quick --routines --lock-tables --databases <%= redminedb %> > /<%= installFolder %>/backup/mysql/redmine-mysql.sql
+echo "Exporting redmine database..."
+mysqldump --user=<%= redminedbuser %> -p<%= redminedbpass %> --add-drop-table --add-locks --extended-insert --quick --routines --lock-tables --databases <%= redminedb %> > /<%= installFolder %>/backup/mysql/redmine-mysql.sql 2> /opt/backup/mysql/redmine-dump.log
 gzip -c /<%= installFolder %>/backup/mysql/redmine-mysql.sql > /<%= installFolder %>/backup/mysql/redmine-mysql.gz 2> /<%= installFolder %>/backup/mysql/redmine-mysql.sql.log
 rm /<%= installFolder %>/backup/mysql/redmine-mysql.sql
 
 # Backup archiva db
-mysqldump --user=archiva -p<%= archivadbpass %> --add-drop-table --add-locks --extended-insert --quick --routines --lock-tables --databases archiva > /<%= installFolder %>/backup/mysql/archiva-mysql.sql
+echo "Exporting archiva database..."
+mysqldump --user=root -p<%= mysqlpass %> --add-drop-table --add-locks --extended-insert --quick --routines --lock-tables --databases archiva > /<%= installFolder %>/backup/mysql/archiva-mysql.sql 2> /opt/backup/mysql/archiva-dump.log
 gzip -c /<%= installFolder %>/backup/mysql/archiva-mysql.sql > /<%= installFolder %>/backup/mysql/archiva-mysql.gz 2> /<%= installFolder %>/backup/mysql/archiva-mysql.sql.log
 rm /<%= installFolder %>/backup/mysql/archiva-mysql.sql
 
-mysqldump --user=archiva -p<%= archivadbpass %> --add-drop-table --add-locks --extended-insert --quick --routines --lock-tables --databases redback > /<%= installFolder %>/backup/mysql/redback-mysql.sql
+mysqldump --user=root -p<%= mysqlpass %> --add-drop-table --add-locks --extended-insert --quick --routines --lock-tables --databases redback > /<%= installFolder %>/backup/mysql/redback-mysql.sql 2> /opt/backup/mysql/redbak-dump.log
 gzip -c /<%= installFolder %>/backup/mysql/redback-mysql.sql > /<%= installFolder %>/backup/mysql/redback-mysql.gz 2> /<%= installFolder %>/backup/mysql/redback-mysql.sql.log
 rm /<%= installFolder %>/backup/mysql/redback-mysql.sql
 
-mysqldump --user=gerrit -p<%= gerritdbpass %> --add-drop-table --add-locks --extended-insert --quick --routines --lock-tables --databases gerrit > /<%= installFolder %>/backup/mysql/gerrit-mysql.sql
+echo "Exporting gerrit database..."
+mysqldump --user=root -p<%= mysqlpass %> --add-drop-table --add-locks --extended-insert --quick --routines --lock-tables --databases gerrit > /<%= installFolder %>/backup/mysql/gerrit-mysql.sql 2> /opt/backup/mysql/gerrit-dump.log
 gzip -c /<%= installFolder %>/backup/mysql/gerrit-mysql.sql > /<%= installFolder %>/backup/mysql/gerrit-mysql.gz 2> /<%= installFolder %>/backup/mysql/gerrit-mysql.sql.log
 rm /<%= installFolder %>/backup/mysql/gerrit-mysql.sql
 
+echo "Exporting ldap database..."
 # ldapsearch -x -b "dc=sidelabcode,dc=es" -h 127.0.0.1 -D "cn=admin,dc=sidelabcode,dc=es" -w tr0nchamu31as "(objectclass=*)" > /<%= installFolder %>/backup/ldap/ldap-backup.ldif 2> /<%= installFolder %>/backup/ldap/ldap-backup.log
 ldapsearch -x -b "<%= baseDN %>" -h 127.0.0.1 -D "<%= bindDN %>" -w <%= passBindDN %> "(objectclass=*)" > /<%= installFolder %>/backup/ldap/ldap-backup.ldif 2> /<%= installFolder %>/backup/ldap/ldap-backup.log
 
+echo "Compressing svn repositories..."
 gzip -cr /<%= installFolder %>/svn > /<%= installFolder %>/backup/svn/svn.gz
 
+echo "Compressing sftp folders..."
 gzip -cr /<%= installFolder %>/files > /<%= installFolder %>/backup/sftp-files/files.gz
 
+echo "Compressing redmine"
 gzip -cr /<%= installFolder %>/redmine > /<%= installFolder %>/backup/redmine/redmine.gz
+
+echo "Compressing apache vhosts..."
+gzip -cr /etc/apache2/sites-available > /<%= installFolder %>/backup/apache/vhosts.gz
