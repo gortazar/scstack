@@ -34,12 +34,12 @@ class scstack::scstack_apache(
   }
 
   file { "/etc/apache2/sites-available/configProjects":
-    ensure => file,
+    ensure => present,
     require => Package['httpd'],
   }
 
   file { "/etc/apache2/sites-available/configProjects-ssl":
-    ensure => file,
+    ensure => present,
     require => Package['httpd'],
   }
 

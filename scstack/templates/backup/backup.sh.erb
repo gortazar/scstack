@@ -2,28 +2,28 @@
 #!/bin/bash
 
 # Backup redmine db
-mysqldump --user=<%= redminedbuser %> -p<%= redminedbpass %> --add-drop-table --add-locks --all --extended-insert --quick --routines --lock-tables --databases <%= redminedb %> > /opt/backup/mysql/redmine-mysql.sql
-gzip -c /opt/backup/mysql/redmine-mysql.sql > /opt/backup/mysql/redmine-mysql.gz 2> /opt/backup/mysql/redmine-mysql.sql.log
-rm /opt/backup/mysql/redmine-mysql.sql
+mysqldump --user=<%= redminedbuser %> -p<%= redminedbpass %> --add-drop-table --add-locks --extended-insert --quick --routines --lock-tables --databases <%= redminedb %> > /<%= installFolder %>/backup/mysql/redmine-mysql.sql
+gzip -c /<%= installFolder %>/backup/mysql/redmine-mysql.sql > /<%= installFolder %>/backup/mysql/redmine-mysql.gz 2> /<%= installFolder %>/backup/mysql/redmine-mysql.sql.log
+rm /<%= installFolder %>/backup/mysql/redmine-mysql.sql
 
 # Backup archiva db
-mysqldump --user=archiva -p<%= archivadbpass %> --add-drop-table --add-locks --all --extended-insert --quick --routines --lock-tables --databases archiva > /opt/backup/mysql/archiva-mysql.sql
-gzip -c /opt/backup/mysql/archiva-mysql.sql > /opt/backup/mysql/archiva-mysql.gz 2> /opt/backup/mysql/archiva-mysql.sql.log
-rm /opt/backup/mysql/archiva-mysql.sql
+mysqldump --user=archiva -p<%= archivadbpass %> --add-drop-table --add-locks --extended-insert --quick --routines --lock-tables --databases archiva > /<%= installFolder %>/backup/mysql/archiva-mysql.sql
+gzip -c /<%= installFolder %>/backup/mysql/archiva-mysql.sql > /<%= installFolder %>/backup/mysql/archiva-mysql.gz 2> /<%= installFolder %>/backup/mysql/archiva-mysql.sql.log
+rm /<%= installFolder %>/backup/mysql/archiva-mysql.sql
 
-mysqldump --user=archiva -p<%= archivadbpass %> --add-drop-table --add-locks --all --extended-insert --quick --routines --lock-tables --databases redback > /opt/backup/mysql/redback-mysql.sql
-gzip -c /opt/backup/mysql/redback-mysql.sql > /opt/backup/mysql/redback-mysql.gz 2> /opt/backup/mysql/redback-mysql.sql.log
-rm /opt/backup/mysql/redback-mysql.sql
+mysqldump --user=archiva -p<%= archivadbpass %> --add-drop-table --add-locks --extended-insert --quick --routines --lock-tables --databases redback > /<%= installFolder %>/backup/mysql/redback-mysql.sql
+gzip -c /<%= installFolder %>/backup/mysql/redback-mysql.sql > /<%= installFolder %>/backup/mysql/redback-mysql.gz 2> /<%= installFolder %>/backup/mysql/redback-mysql.sql.log
+rm /<%= installFolder %>/backup/mysql/redback-mysql.sql
 
-mysqldump --user=gerrit -p<%= gerritdbpass %> --add-drop-table --add-locks --all --extended-insert --quick --routines --lock-tables --databases gerrit > /opt/backup/mysql/gerrit-mysql.sql
-gzip -c /opt/backup/mysql/gerrit-mysql.sql > /opt/backup/mysql/gerrit-mysql.gz 2> /opt/backup/mysql/gerrit-mysql.sql.log
-rm /opt/backup/mysql/gerrit-mysql.sql
+mysqldump --user=gerrit -p<%= gerritdbpass %> --add-drop-table --add-locks --extended-insert --quick --routines --lock-tables --databases gerrit > /<%= installFolder %>/backup/mysql/gerrit-mysql.sql
+gzip -c /<%= installFolder %>/backup/mysql/gerrit-mysql.sql > /<%= installFolder %>/backup/mysql/gerrit-mysql.gz 2> /<%= installFolder %>/backup/mysql/gerrit-mysql.sql.log
+rm /<%= installFolder %>/backup/mysql/gerrit-mysql.sql
 
-# ldapsearch -x -b "dc=sidelabcode,dc=es" -h 127.0.0.1 -D "cn=admin,dc=sidelabcode,dc=es" -w tr0nchamu31as "(objectclass=*)" > /opt/backup/ldap/ldap-backup.ldif 2> /opt/backup/ldap/ldap-backup.log
-ldapsearch -x -b "<%= baseDN %>" -h 127.0.0.1 -D "<%= bindDN %>" -w <%= passBindDN %> "(objectclass=*)" > /opt/backup/ldap/ldap-backup.ldif 2> /opt/backup/ldap/ldap-backup.log
+# ldapsearch -x -b "dc=sidelabcode,dc=es" -h 127.0.0.1 -D "cn=admin,dc=sidelabcode,dc=es" -w tr0nchamu31as "(objectclass=*)" > /<%= installFolder %>/backup/ldap/ldap-backup.ldif 2> /<%= installFolder %>/backup/ldap/ldap-backup.log
+ldapsearch -x -b "<%= baseDN %>" -h 127.0.0.1 -D "<%= bindDN %>" -w <%= passBindDN %> "(objectclass=*)" > /<%= installFolder %>/backup/ldap/ldap-backup.ldif 2> /<%= installFolder %>/backup/ldap/ldap-backup.log
 
-gzip -cr /var/svn > /opt/backup/svn/svn.gz
+gzip -cr /<%= installFolder %>/svn > /<%= installFolder %>/backup/svn/svn.gz
 
-gzip -cr /var/files > /opt/backup/sftp-files/files.gz
+gzip -cr /<%= installFolder %>/files > /<%= installFolder %>/backup/sftp-files/files.gz
 
-gzip -cr /var/redmine > /opt/backup/redmine/redmine.gz
+gzip -cr /<%= installFolder %>/redmine > /<%= installFolder %>/backup/redmine/redmine.gz

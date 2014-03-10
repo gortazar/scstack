@@ -278,16 +278,9 @@ class scstack::redmine (
     owner => www-data,
     group => www-data,
     mode => '0755',
+    recurse => true,
     require => Exec["redmine-load-data"],
     before => File["${installFolder}/redmine/public/.htaccess"],
-  }
-
-  file { "${installFolder}/redmine/tmp/pdf":
-    ensure => directory,
-    owner => www-data,
-    group => www-data,
-    require => Exec["redmine-load-data"],
-    before => File["${installFolder}/redmine/Gemfile.lock"],
   }
 
   file { "${installFolder}/redmine/Gemfile.lock":
@@ -303,6 +296,7 @@ class scstack::redmine (
     owner => www-data,
     group => www-data,
     mode => '0755',
+    recurse => true,
     require => Exec["redmine-load-data"],
     before => File["${installFolder}/redmine/public/.htaccess"],
   }
@@ -312,6 +306,7 @@ class scstack::redmine (
     owner => www-data,
     group => www-data,
     mode => '0755',
+    recurse => true,
     require => Exec["redmine-load-data"],
     before => File["${installFolder}/redmine/public/.htaccess"],
   }
@@ -321,6 +316,7 @@ class scstack::redmine (
     owner => www-data,
     group => www-data,
     mode => '0766',
+    recurse => true,
     require => Exec["redmine-load-data"],
     before => File["${installFolder}/redmine/public/.htaccess"],
   }
@@ -406,12 +402,6 @@ class scstack::redmine (
     require => Exec["move-connector"],
   }
     
-#  exec {"clone-redmine-mylyn-connector":
-#    cwd => "$installFolder/redmine/plugins",
-#    require => [Package["git"],File["$installFolder/redmine/public/.htaccess"]],
-#    command => "/usr/bin/git clone git://github.com/danmunn/redmine_mylyn_connector.git",
-#  }
-  
   exec {"migrate-plugin":
     cwd => "${installFolder}/redmine",
     #require => Exec["clone-redmine-mylyn-connector"],
