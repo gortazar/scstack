@@ -31,7 +31,6 @@ class scstack(
 ) {
     
   # LDAP params
-#  $baseDN="dc=scstack,dc=sidelab,dc=es"
   $cnBindDN="cn=admin"
   $bindDN="cn=admin,${baseDN}"
   $passBindDNMD5=md5($passBindDN)

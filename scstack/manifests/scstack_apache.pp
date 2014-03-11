@@ -10,7 +10,6 @@ class scstack::scstack_apache(
     
   include apache
 
-#  apache::mod {"ssl":}
   apache::mod {"ldap":}
   apache::mod {"authnz_ldap":}
   apache::mod {"rewrite":}
@@ -18,13 +17,6 @@ class scstack::scstack_apache(
   apache::mod {"proxy_http":}
   apache::mod {"ssl":}
 
-#  apache::vhost {$domain:
-#    port => "80",
-#    docroot => "/var/redmine/public",
-#    options => "Indexes ExecCGI FollowSymLinks",
-#    override => ["All"],
-#  }
-  
   file { "/etc/hosts":
     content => template('scstack/apache/hosts.erb'),
   }
@@ -40,21 +32,6 @@ class scstack::scstack_apache(
 
   file { "/etc/apache2/sites-available/configProjects-ssl":
     ensure => present,
-    require => Package['httpd'],
-  }
-
-  file { "/etc/ssl/certs/${cert_apache}":
-    source => "puppet:///modules/scstack/apache/${cert_apache}",
-    require => Package['httpd'],
-  }
-
-  file { "/etc/ssl/private/${key_apache}":
-    source => "puppet:///modules/scstack/apache/${key_apache}",
-    require => Package['httpd'],
-  }
-
-  file { "/etc/ssl/certs/${cacert_apache}":
-    source => "puppet:///modules/scstack/apache/${cacert_apache}",
     require => Package['httpd'],
   }
 
@@ -77,9 +54,7 @@ class scstack::scstack_apache(
   Exec["disable-other-hosts"],
   File["/etc/apache2/sites-available/configProjects"],
   File["/etc/apache2/sites-available/configProjects-ssl"],
-  File["/etc/ssl/certs/${cert_apache}"],
-  File["/etc/ssl/private/${key_apache}"],
-  File["/etc/ssl/certs/${cacert_apache}"]],
+  ],
   }
 
   exec { "enable-default-host":

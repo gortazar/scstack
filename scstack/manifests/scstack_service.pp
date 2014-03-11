@@ -30,7 +30,6 @@ class scstack::scstack_service(
   exec { "unzip-scstack-service":
     cwd => "/tmp",
     command => "/bin/tar -xvzf scstack-service-bin.tar.gz",
-#    require => File["/tmp/scstack-service-bin.tar.gz"],
     require => File["/tmp/scstack-service-bin.tar.gz"],
   }
 

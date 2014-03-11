@@ -16,9 +16,9 @@ class { "scstack":
   # Uncomment this if you are using vagrant and wish to have a guest-host virtual network
   # Note that this requires to modify the Vagrantfile accordingly
   #ip => "192.168.33.10",
-  domain => "code.scstack.org",
+  domain => "code.example.org",
   # Note that your baseDN must match EXACTLY with your domain
-  baseDN => "dc=code,dc=scstack,dc=org",
+  baseDN => "dc=code,dc=example,dc=org",
   passBindDN => "changeme",
   # MySQL info
   mysqlpass => "changeme",

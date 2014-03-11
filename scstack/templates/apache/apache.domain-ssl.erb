@@ -62,9 +62,8 @@ NameVirtualHost <%= ip %>:443
 	CustomLog /var/log/apache2/ForjaSoftware-access.log combined
 
 	SSLEngine on
-	SSLCertificateFile    /etc/ssl/certs/<%= cert_apache %>
-	SSLCertificateKeyFile /etc/ssl/private/<%= key_apache %>
-	SSLCertificateChainFile /etc/ssl/certs/<%= cacert_apache %>
+	SSLCertificateFile    /etc/ssl/certs/ssl-cert-snakeoil.pem
+	SSLCertificateKeyFile /etc/ssl/private/ssl-cert-snakeoil.key
 
 	<FilesMatch "\.(cgi|shtml|phtml|php)$">
 		SSLOptions +StdEnvVars
