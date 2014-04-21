@@ -4,6 +4,16 @@ A software forge ecosystem
 
 [![Build Status](https://travis-ci.org/gortazar/scstack.png)](https://travis-ci.org/gortazar/scstack)
 
+Scstack is a stack of open source solutions aimed at supporting software development for a team, with a single and simple to use web interface for configuration.
+
+Solutions in the stack are deployed with puppet. These include issue management (redmine), scm (svn & git), code revision (gerrit), ci (jenkins), and public & private folders for projects accessible through https & sftp.
+
+The full stack is configured through a web interface (the scstack service) in a transparent way. For this purpose we defined the concept of "project". By creating a project a team obtains:
+
+* A project in redmine for project management (this project can hold issues, a wiki and a code repository browser)
+* A source code repository
+* Public & private folders for documents, artifacts and any other file that you want to keep with your project
+
 ## Installation
 
 There are two ways of installing:
