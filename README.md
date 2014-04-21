@@ -171,19 +171,21 @@ Uncomment the following lines in default.pp (note that we specify the ip of the 
 
 ## FAQ
 
-Posibles problemas que se pueden encontrar tras la instalación
+Some problemas that may arise after installation
 
-### Error al crear un repositorio Git: Reininciar el servicio scstack-service
+### Errors when creating git repositories
+
+Restart scstack-service:
 
     $ sudo service scstack-service stop
     $ sudo service scstack-service start
 
-### Error al acceder a Archiva o Jenkins 404 No encontrado:
+### "404 Not found" error when accessing Archiva or Jenkins:
 
-Configurar el dominio de nombres en el ordenador para que acceda a através de la ip correspondiente:
+Change your /etc/hosts file so that it uses the external ip:
 
     $ sudo vi /etc/hosts
     
-Añadir la línea de conversión entre IP y nombre (elegido en la configuración del fichero default.pp):
+Add this line to tell your host to use the ip configured in your default.pp when asked for the server name:
 
     138.100.156.246    sidelabcode03.scstack.org
